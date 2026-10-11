@@ -72,6 +72,114 @@ header.topbar {
 }
 .nav-links a:hover { background: rgba(255,255,255,0.15); }
 
+/* ---------- scene background layer ---------- */
+.scene-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.scene-bg.active { opacity: 1; }
+/* Readable overlay so content stays legible over any scene. */
+.scene-bg.active::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(250, 247, 242, 0.78) 0%, rgba(250, 247, 242, 0.92) 100%);
+}
+.scene-caption {
+  display: inline-block;
+  margin: 10px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--brand-dark);
+  background: rgba(239, 234, 255, 0.9);
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+/* ---------- step / back affordance ---------- */
+.step-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 4px;
+}
+.step-label { font-size: 13px; color: var(--ink-soft); font-weight: 600; }
+.screen-head { margin: 10px 0 4px; }
+.screen-head h2 { margin: 0 0 4px; font-size: 20px; }
+.hero-intro { margin: 28px 0 8px; }
+.hero-intro h2 { margin: 0 0 6px; font-size: 24px; }
+
+/* ---------- role chooser (Page 1) ---------- */
+.role-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin: 18px 0;
+}
+.role-card {
+  display: block;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px 18px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+.role-card:hover, .role-card:focus { transform: translateY(-2px); border-color: var(--brand); outline: none; }
+.role-card .role-icon { font-size: 30px; line-height: 1; }
+.role-card h3 { margin: 10px 0 4px; font-size: 18px; }
+.role-card p { margin: 0 0 10px; color: var(--ink-soft); font-size: 14px; }
+.role-card .pill {
+  display: inline-block; font-size: 12px;
+  background: #efeaff; color: var(--brand-dark);
+  padding: 4px 10px; border-radius: 999px;
+}
+
+/* ---------- photo chooser ---------- */
+.photo-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin: 16px 0;
+}
+.photo-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+.photo-card .photo-icon { font-size: 28px; }
+.photo-card h3 { margin: 8px 0 4px; font-size: 16px; }
+.photo-card p { margin: 0 0 12px; color: var(--ink-soft); font-size: 13px; }
+.photo-preview { margin: 10px 0; }
+.photo-preview .cam-wrap, .photo-preview .chosen-photo {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+.photo-preview video, .photo-preview img {
+  max-width: 100%;
+  max-height: 360px;
+  border-radius: 10px;
+  background: #000;
+}
+.photo-preview .actions { justify-content: center; }
+
 /* ---------- entry points ---------- */
 .entry-grid {
   display: grid;
@@ -294,6 +402,8 @@ footer.site { text-align: center; padding: 24px 0; color: var(--ink-soft); font-
 /* ---------- responsive ---------- */
 @media (min-width: 680px) {
   .entry-grid { grid-template-columns: 1fr 1fr; }
+  .role-grid { grid-template-columns: repeat(3, 1fr); }
+  .photo-grid { grid-template-columns: repeat(3, 1fr); }
   .loc-grid { grid-template-columns: 160px 1fr; }
 }
 @media (min-width: 920px) {
