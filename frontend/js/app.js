@@ -263,6 +263,10 @@
   // =====================================================================
   function renderPrompt() {
     const root = app();
+    // Reset the scene to the studio default so a prior prompt's background and
+    // "Styling for: <place>" caption never leak onto a fresh prompt screen.
+    state.scene = { id: 'studio', label: 'Studio', place: null };
+    applyScene();
     root.appendChild(stepBar('#/shop', 'Your prompt'));
     const cap = sceneCaption();
     if (cap) root.appendChild(cap);
@@ -312,7 +316,7 @@
     try {
       setStatus('Styling your looks with Gemini and validating every item against the catalogue...');
       await ensureSession();
-      const res = await Api.sendMessage({ sessionId: state.sessionId, userId: USER_ID, text: text.trim() });
+      const res = await Api.sendMessage({ sessionId: state.sessionId, userId: USER_ID, text: text.trim(), entryPoint: state.entryPoint });
       state.sessionId = res.sessionId || state.sessionId;
       captureConversationMeta(res);
       applyScene();
@@ -362,7 +366,7 @@
     try {
       setStatus('Transcribing voice with Google Speech-to-Text (mock) and styling...');
       await ensureSession();
-      const res = await Api.sendMessage({ sessionId: state.sessionId, userId: USER_ID, voiceRef: 'demo-voice-port-dickson' });
+      const res = await Api.sendMessage({ sessionId: state.sessionId, userId: USER_ID, voiceRef: 'demo-voice-port-dickson', entryPoint: state.entryPoint });
       state.sessionId = res.sessionId || state.sessionId;
       captureConversationMeta(res);
       if (input && state.transcript) input.value = state.transcript;
@@ -546,8 +550,8 @@
       `Try-on previews use ${modeLabel}. All try-on visuals are illustrative aids only - never a guarantee of fit, colour, drape, or measurements.`));
 
     root.appendChild(el('div', { class: 'results-tools actions' }, [
-      el('button', { class: 'btn small ghost', type: 'button', onclick: () => { location.hash = '#/shop/prompt'; } }, 'Refine prompt'),
-      el('button', { class: 'btn small ghost', type: 'button', onclick: () => openRefinePanel() }, 'Refine / swap'),
+      el('button', { class: 'btn small ghost', type: 'button', onclick: () => { location.hash = '#/shop/prompt'; } }, 'New prompt'),
+      el('button', { class: 'btn small ghost', type: 'button', onclick: () => openRefinePanel() }, 'Refine these looks'),
       el('button', { class: 'btn small ghost', type: 'button', onclick: () => { location.hash = '#/shop/profile'; } }, 'Style profile'),
       el('button', { class: 'btn small ghost', type: 'button', onclick: () => { location.hash = '#/shop/wardrobe'; } }, 'My wardrobe'),
       el('button', { class: 'btn small ghost', type: 'button', onclick: () => openCartPanel() }, 'View cart'),
@@ -571,6 +575,7 @@
     ]));
     panel.appendChild(el('p', { class: 'hint' }, 'Refinement keeps your original constraints (like budget) unless you change them, and you can switch intent mid-conversation.'));
     input.focus();
+    return panel;
   }
 
   async function refine(text, panel) {
@@ -592,7 +597,7 @@
 
   function refineFocus(text) {
     const panel = openRefinePanel();
-    const ta = $('#toolPanels textarea');
+    const ta = panel && panel.querySelector('textarea');
     if (ta) { ta.value = text; ta.focus(); }
   }
 
