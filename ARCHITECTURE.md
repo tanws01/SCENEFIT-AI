@@ -24,14 +24,35 @@ between **AI suggestion** and **deterministic retail validation** sits.
 | Production secrets | Secret Manager | injected as env vars at deploy time |
 
 Each adapter exposes a factory selected by a `*_MODE` env var (see
-`backend/src/config.js`). The default **mock** mode is deterministic and fully
-offline. The **Gemini** adapter's **live** mode calls Google AI Studio's
-Generative Language API over Node's built-in global `fetch` (no SDK, zero
-dependencies); the other adapters' live modes lazily require the Google SDK
-inside the function body so module load never fails offline. In every case the
-model's output stays an untrusted suggestion: the Gemini live path strips
-retail-fact fields, references only application-supplied SKUs, derives the scene
-deterministically, and falls back to the mock on any HTTP/parse failure.
+`backend/src/config.js`). Most adapters default to **mock** (deterministic,
+fully offline). **Gemini is live-by-default when a key is present:** if
+`GEMINI_MODE` is unset, the effective mode is `live` when `GEMINI_API_KEY` is
+set and `mock` otherwise (`GEMINI_MODE=mock`/`live` always overrides). This is
+safe because the Gemini **live** path calls Google AI Studio's Generative
+Language API over Node's built-in global `fetch` (no SDK, zero dependencies) and
+**always falls back to the deterministic mock on any HTTP/transport/parse
+failure**. With no key and no network (sandbox / CI) Gemini resolves to `mock`,
+so the full suite runs offline. The other adapters' live modes lazily require
+the Google SDK (or, for Vertex image, use `fetch`) inside the function body so
+module load never fails offline. In every case the model's output stays an
+untrusted suggestion: the Gemini live path strips retail-fact fields, references
+only application-supplied SKUs, derives the scene deterministically, and falls
+back to the mock on any failure.
+
+**Live AI retailer insights (F13 / F15).** The analytics service passes the
+deterministic BigQuery aggregates to `gemini.analyzeRetail(aggregates)` and
+attaches the result as an **additive** `aiInsights` / `aiAnalysis` block
+(narrative + non-guaranteed predictions + decision-support suggestions). The
+displayed numbers always stay the BigQuery aggregates; the AI block never
+overrides them, is run through `stripRetailFields`, is stamped
+`aiGenerated/guaranteedForecast:false/autoReorder:false/interpretation:'decision-support'`,
+and falls back to a deterministic mock analysis on any live failure.
+
+**Live Vertex AI try-on images.** `vertexImage` live mode POSTs to the Vertex AI
+`:predict` endpoint via `fetch` and returns the generated image as a data URL
+(rendered by the frontend); with no OAuth token or on any failure it falls back
+to the deterministic offline composite. Try-on visuals remain illustrative aids
+only.
 
 ## Request flow (utterance to recommendation)
 
@@ -92,6 +113,10 @@ and validated by application code against the seeded Firestore data:
 - **Queue confirmation** - fitting-room queue state transitions and staff
   confirmation.
 - **Collection dates** - new-arrival / collection availability dates.
+- **Retailer-dashboard numbers** - occasion / style / unmet-demand / zone /
+  commercial aggregates come from BigQuery; the AI insight block adds narrative,
+  non-guaranteed predictions, and suggestions **alongside** them, never
+  replacing or restating the numbers.
 
 ## Success guarantees
 

@@ -344,6 +344,175 @@ function capitalize(s) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+/* ----------------------- retail analysis (F13/F15) ----------------------- */
+
+/**
+ * Non-authoritative labelling stamped on every AI retail-analysis block. The
+ * numbers themselves always come from the deterministic BigQuery aggregates;
+ * this block is model-generated NARRATIVE / PREDICTIONS / SUGGESTIONS only, and
+ * is explicitly a non-guaranteed, human-decision-support artefact.
+ */
+const AI_ANALYSIS_LABEL = Object.freeze({
+  aiGenerated: true,
+  interpretation: 'decision-support',
+  guaranteedForecast: false,
+  autoReorder: false,
+  note:
+    'Model-generated analysis, predictions, and suggestions derived from the '
+    + 'aggregated numbers. These are NON-GUARANTEED forecasts for HUMAN '
+    + 'decision-support only - never authoritative retail facts and never '
+    + 'automatic instructions to reorder stock.',
+});
+
+/** Safely read the top entry (highest count) of an aggregate rows array. */
+function topRow(rows) {
+  if (!Array.isArray(rows) || rows.length === 0) return null;
+  return rows[0];
+}
+
+/** Human-readable key for an aggregate row. */
+function rowKey(row) {
+  if (!row) return 'unspecified';
+  return String(row.key != null ? row.key : (row.metric != null ? row.metric : 'unspecified'));
+}
+
+/**
+ * Deterministic, offline retail analysis derived purely from the aggregates.
+ * No randomness and no network, so it is stable for tests and offline runs.
+ * Produces: a short narrative, clearly-labelled predicted-trend lines, and a
+ * couple of decision-support suggestions. It carries NO retail facts/numbers
+ * of its own - it only describes what the real aggregates already show.
+ *
+ * @param {object} aggregates { byOccasion, byStyle, unmet, byZone, commercial }
+ */
+function mockAnalyzeRetail(aggregates = {}) {
+  const byOccasion = Array.isArray(aggregates.byOccasion) ? aggregates.byOccasion : [];
+  const byStyle = Array.isArray(aggregates.byStyle) ? aggregates.byStyle : [];
+  const unmet = Array.isArray(aggregates.unmet) ? aggregates.unmet : [];
+  const byZone = Array.isArray(aggregates.byZone) ? aggregates.byZone : [];
+
+  const topOccasion = topRow(byOccasion);
+  const topStyle = topRow(byStyle);
+  const topUnmet = topRow(unmet);
+  const topZone = topRow(byZone);
+
+  const narrativeParts = [];
+  if (topOccasion) narrativeParts.push(`Shopping intent is led by "${rowKey(topOccasion)}" occasions`);
+  if (topStyle) narrativeParts.push(`demand skews towards the "${rowKey(topStyle)}" style`);
+  if (topZone) narrativeParts.push(`in-store activity concentrates in the "${rowKey(topZone)}" zone`);
+  const narrative = narrativeParts.length
+    ? `${narrativeParts.join(', ')}.`
+    : 'Not enough aggregated signal yet to summarise shopper behaviour.';
+
+  const predictions = [];
+  if (topStyle) {
+    predictions.push({
+      label: `Predicted continued demand for "${rowKey(topStyle)}" style`,
+      basis: 'highest current style-demand signal',
+      guaranteedForecast: false,
+    });
+  }
+  if (topUnmet) {
+    predictions.push({
+      label: `Predicted repeat unmet demand from "${rowKey(topUnmet)}"`,
+      basis: 'largest current unmet-demand reason',
+      guaranteedForecast: false,
+    });
+  }
+  if (topOccasion) {
+    predictions.push({
+      label: `Predicted sustained interest in "${rowKey(topOccasion)}" occasions`,
+      basis: 'leading occasion in current intent mix',
+      guaranteedForecast: false,
+    });
+  }
+
+  const suggestions = [];
+  if (topUnmet) suggestions.push(`Review stock depth for the "${rowKey(topUnmet)}" gap to reduce unmet demand.`);
+  if (topStyle) suggestions.push(`Give the "${rowKey(topStyle)}" style more prominent merchandising space.`);
+  if (topZone) suggestions.push(`Consider staffing / navigation support around the "${rowKey(topZone)}" zone.`);
+  if (suggestions.length === 0) suggestions.push('Collect more aggregated activity before acting on merchandising changes.');
+
+  return {
+    ...AI_ANALYSIS_LABEL,
+    narrative,
+    predictions,
+    suggestions,
+    source: 'gemini-mock',
+  };
+}
+
+/**
+ * Build the strict-JSON prompt that asks the model to analyse the aggregated
+ * retail numbers. The model must return ONLY narrative/predictions/suggestions
+ * and must NOT restate, alter, or invent any numbers, SKUs, prices, stock,
+ * dates, or locations - those are owned by the application.
+ */
+function buildAnalyzeRetailPrompt(aggregates) {
+  const safe = stripRetailFields({
+    byOccasion: aggregates && aggregates.byOccasion,
+    byStyle: aggregates && aggregates.byStyle,
+    unmet: aggregates && aggregates.unmet,
+    byZone: aggregates && aggregates.byZone,
+    commercial: aggregates && aggregates.commercial,
+  });
+  return [
+    'You are a retail merchandising analyst for a fashion store. You are given',
+    'AGGREGATED, privacy-protected numbers (no PII). Produce a concise analysis',
+    'for a HUMAN merchandiser. Return STRICT JSON ONLY (no markdown).',
+    '',
+    'HARD RULES:',
+    '- Do NOT output any price, stock, availability, SKU, rack location, queue,',
+    '  or collection/arrival date. Those are owned by the application.',
+    '- Do NOT restate or alter the raw numbers; the dashboard shows them already.',
+    '- Predictions are NON-GUARANTEED forecasts for decision-support only.',
+    '',
+    'JSON shape:',
+    '{',
+    '  "narrative": string,            // 1-3 sentences on what the data shows',
+    '  "predictions": [ { "label": string, "basis": string } ],',
+    '  "suggestions": [ string ]       // 2-3 actionable merchandising ideas',
+    '}',
+    '',
+    `Aggregated numbers (context only, do not echo): ${JSON.stringify(safe)}`,
+  ].join('\n');
+}
+
+/**
+ * Normalise a model-produced retail analysis into the exact shape the mock
+ * returns. Strips any smuggled retail fact, forces the non-guaranteed labels,
+ * and fills safe defaults. The model can therefore never inject a fabricated
+ * price/stock/SKU/date into the insights, nor claim a guaranteed forecast.
+ */
+function normaliseLiveAnalysis(raw) {
+  const safe = stripRetailFields(raw && typeof raw === 'object' ? raw : {});
+  const narrative = typeof safe.narrative === 'string' && safe.narrative.trim()
+    ? safe.narrative.trim()
+    : 'Analysis unavailable for the current aggregates.';
+
+  const predictions = (Array.isArray(safe.predictions) ? safe.predictions : [])
+    .map((p) => stripRetailFields(p || {}))
+    .filter((p) => p && typeof p.label === 'string' && p.label.trim())
+    .map((p) => ({
+      label: p.label.trim(),
+      basis: typeof p.basis === 'string' ? p.basis.trim() : '',
+      // Forced regardless of what the model claims: predictions are forecasts.
+      guaranteedForecast: false,
+    }));
+
+  const suggestions = (Array.isArray(safe.suggestions) ? safe.suggestions : [])
+    .filter((s) => typeof s === 'string' && s.trim())
+    .map((s) => s.trim());
+
+  return {
+    ...AI_ANALYSIS_LABEL,
+    narrative,
+    predictions,
+    suggestions,
+    source: 'gemini-live',
+  };
+}
+
 /**
  * Call the Google AI Studio / Generative Language API `generateContent`
  * endpoint for a given model and prompt, requesting a JSON response, and
@@ -653,6 +822,22 @@ function createGemini(opts = {}) {
           return mockExplainOutfit(outfitConcept);
         }
       },
+      async analyzeRetail(aggregates) {
+        assertConfigured();
+        try {
+          const raw = await callGenerateContent({
+            apiKey,
+            model,
+            prompt: buildAnalyzeRetailPrompt(aggregates),
+          });
+          return normaliseLiveAnalysis(raw);
+        } catch (err) {
+          // Transient failure: fall back to the deterministic mock analysis so
+          // the dashboard never breaks.
+          console.warn(`[gemini-live] analyzeRetail fell back to mock: ${err.message}`);
+          return mockAnalyzeRetail(aggregates);
+        }
+      },
     };
   }
 
@@ -669,6 +854,9 @@ function createGemini(opts = {}) {
     async explainOutfit(outfitConcept) {
       return mockExplainOutfit(outfitConcept);
     },
+    async analyzeRetail(aggregates) {
+      return mockAnalyzeRetail(aggregates);
+    },
   };
 }
 
@@ -676,15 +864,21 @@ module.exports = {
   createGemini,
   FORBIDDEN_RETAIL_FIELDS,
   SCENE_KEYWORDS,
+  AI_ANALYSIS_LABEL,
   // Exported for unit tests of the deterministic logic.
-  _mock: { mockParseIntent, mockProposeOutfits, mockExplainOutfit, stripRetailFields, deriveScene },
+  _mock: {
+    mockParseIntent, mockProposeOutfits, mockExplainOutfit, mockAnalyzeRetail,
+    stripRetailFields, deriveScene,
+  },
   // Exported for unit tests of the live-mode normalisation/prompt logic.
   _live: {
     normaliseLiveIntent,
     normaliseLiveConcepts,
+    normaliseLiveAnalysis,
     buildParseIntentPrompt,
     buildProposeOutfitsPrompt,
     buildExplainOutfitPrompt,
+    buildAnalyzeRetailPrompt,
     GENERATIVE_LANGUAGE_BASE,
   },
 };

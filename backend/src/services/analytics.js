@@ -49,6 +49,7 @@ const DECISION_SUPPORT_LABEL = Object.freeze({
  * @param {object} deps.bigquery bigquery adapter
  * @param {object} [deps.staffTasks] staff tasks service (F14 operations data)
  * @param {object} [deps.store] seeded store record (F14 fitting-room availability)
+ * @param {object} [deps.gemini] gemini adapter (AI analysis layer; optional)
  * @param {() => string} [deps.now]
  * @param {() => string} [deps.idgen]
  */
@@ -57,6 +58,9 @@ function createAnalytics(deps = {}) {
   if (!bigquery) throw new Error('analytics requires a bigquery adapter');
   const staffTasks = deps.staffTasks || null;
   const store = deps.store || null;
+  // Optional AI layer. When absent the dashboards still return the full
+  // deterministic aggregates (the AI block is simply omitted).
+  const gemini = deps.gemini || null;
   const now = typeof deps.now === 'function' ? deps.now : () => new Date().toISOString();
   let seq = 0;
   const idgen = typeof deps.idgen === 'function'
@@ -151,18 +155,67 @@ function createAnalytics(deps = {}) {
   }
 
   /**
+   * Gather the deterministic aggregate rows (the SOURCE OF TRUTH) once, so both
+   * the dashboard sections and the AI analysis layer read the SAME numbers.
+   * @returns {Promise<{byOccasion,byStyle,unmet,byZone,commercial}>}
+   */
+  async function gatherAggregates() {
+    const [byOccasion, byStyle, unmet, byZone, commercial] = await Promise.all([
+      bigquery.query('intent-by-occasion'),
+      bigquery.query('demand-by-style'),
+      bigquery.query('unmet-demand'),
+      bigquery.query('in-store-by-zone'),
+      bigquery.query('commercial-summary'),
+    ]);
+    return { byOccasion, byStyle, unmet, byZone, commercial };
+  }
+
+  /**
+   * Build the AI analysis block from the deterministic aggregates. This ADDS
+   * model-generated narrative / predictions / suggestions ALONGSIDE the hard
+   * numbers; it NEVER overrides them. When no gemini adapter is wired, returns
+   * null so callers can omit the block entirely.
+   *
+   * The gemini adapter is UNTRUSTED: its output is narrative/prediction/
+   * suggestion text only and is stamped non-guaranteed / decision-support.
+   * The numbers in the dashboard always come from gatherAggregates(), never
+   * from the model. On any failure the live adapter itself falls back to a
+   * deterministic mock analysis, so this never throws for a wired adapter.
+   *
+   * @param {object} aggregates result of gatherAggregates()
+   */
+  async function aiAnalysis(aggregates) {
+    if (!gemini || typeof gemini.analyzeRetail !== 'function') return null;
+    const analysis = await gemini.analyzeRetail(aggregates);
+    // Belt-and-braces: the AI block carries NO authoritative numbers. We attach
+    // the explicit decision-support label so the boundary is observable even if
+    // a future adapter forgets to stamp it.
+    return {
+      ...DECISION_SUPPORT_LABEL,
+      ...analysis,
+      aiGenerated: true,
+      interpretation: 'decision-support',
+      guaranteedForecast: false,
+      autoReorder: false,
+    };
+  }
+
+  /**
    * F13 Retail Intelligence Dashboard - all five sections, aggregated and
-   * privacy-protected.
+   * privacy-protected. Adds an AI analysis/predictions block ALONGSIDE (never
+   * overriding) the deterministic numbers when a gemini adapter is wired.
    */
   async function retailDashboard() {
-    const [intent, demand, unmet, inStore, commercial] = await Promise.all([
+    const aggregates = await gatherAggregates();
+    const [intent, demand, unmet, inStore, commercial, insights] = await Promise.all([
       shoppingIntent(),
       productDemand(),
       unmetDemand(),
       inStoreExperience(),
       commercialPerformance(),
+      aiAnalysis(aggregates),
     ]);
-    return {
+    const dashboard = {
       dashboard: 'retail-intelligence',
       privacy: { pii: false, aggregationReady: true, note: 'Aggregated, privacy-protected data with retention/access controls.' },
       sections: {
@@ -173,6 +226,10 @@ function createAnalytics(deps = {}) {
         commercialPerformance: commercial,
       },
     };
+    // AI analysis is ADDITIVE: present only when an adapter is wired, and it
+    // never replaces any of the deterministic section numbers above.
+    if (insights) dashboard.aiInsights = insights;
+    return dashboard;
   }
 
   /**
@@ -204,11 +261,11 @@ function createAnalytics(deps = {}) {
    * DECISION-SUPPORT, never as guaranteed forecasts or auto-reorder orders.
    */
   async function merchandisingInsights() {
-    const unmet = await bigquery.query('unmet-demand');
-    const byStyle = await bigquery.query('demand-by-style');
-    const byZone = await bigquery.query('in-store-by-zone');
+    const aggregates = await gatherAggregates();
+    const { unmet, byStyle, byZone } = aggregates;
+    const insights = await aiAnalysis(aggregates);
 
-    return {
+    const result = {
       dashboard: 'merchandising-insights',
       decisionSupport: DECISION_SUPPORT_LABEL,
       insights: {
@@ -239,6 +296,11 @@ function createAnalytics(deps = {}) {
         },
       },
     };
+    // AI analysis is ADDITIVE: the deterministic insight buckets above keep
+    // their 'bigquery-aggregate'-derived numbers; the model only adds a
+    // narrative/prediction/suggestion block labelled non-guaranteed.
+    if (insights) result.aiAnalysis = insights;
+    return result;
   }
 
   return {

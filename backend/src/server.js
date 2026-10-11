@@ -59,7 +59,7 @@ function createServices(adapters) {
   const staffTasks = createStaffTasks({ firestore: adapters.firestore, catalogue, storeNavigation });
   const fittingRoomQueue = createFittingRoomQueue({ firestore: adapters.firestore, store });
   const cart = createCart({ firestore: adapters.firestore, catalogue });
-  const analytics = createAnalytics({ bigquery: adapters.bigquery, staffTasks, store });
+  const analytics = createAnalytics({ bigquery: adapters.bigquery, staffTasks, store, gemini: adapters.gemini });
 
   return {
     catalogue, outfitEngine, styleProfile, wardrobe, sizeGuidance, tryOn, conversation,
