@@ -59,11 +59,24 @@ test('unknown SKU returns the staff-assistance fallback and NEVER fabricates a r
   assert.ok(!('directions' in result), 'must not invent directions');
 });
 
-test('a catalogue SKU without a planogram entry also falls back safely', async () => {
+test('a REAL catalogue product with NO planogram entry falls back safely (resolves name, no location)', async () => {
   const { nav } = build();
-  // ACC-SUN-042 exists in planogram; use a real product with NO planogram.
-  // Confirm the fallback branch by passing a known-missing but valid-looking SKU.
-  const result = await nav.locate('ACC-ZZZ-099');
+  // ACC-SCF-045 is a genuine catalogue SKU (products.json) that deliberately
+  // has NO planogram record, so this exercises the "known product, missing
+  // planogram" branch - distinct from the unknown-SKU case above.
+  const result = await nav.locate('ACC-SCF-045');
+
   assert.strictEqual(result.found, false);
+  assert.strictEqual(result.locationAvailable, false);
   assert.strictEqual(result.staffAssistance, true);
+  assert.strictEqual(result.message, STAFF_ASSISTANCE_MESSAGE);
+
+  // The product name IS resolved from the catalogue (it is a real SKU)...
+  assert.strictEqual(result.productName, 'Lightweight Woven Scarf');
+
+  // ...but NO location is ever fabricated for a product without a planogram.
+  assert.strictEqual(result.location, undefined);
+  assert.ok(!('rack' in result), 'must not invent a rack');
+  assert.ok(!('aisle' in result), 'must not invent an aisle');
+  assert.ok(!('directions' in result), 'must not invent directions');
 });

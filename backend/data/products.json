@@ -503,5 +503,22 @@
     "variants": [
       { "size": "OS", "stock": 14 }
     ]
+  },
+  {
+    "sku": "ACC-SCF-045",
+    "name": "Lightweight Woven Scarf",
+    "category": "accessory",
+    "subcategory": "scarf",
+    "priceRm": 45.0,
+    "colour": "sand",
+    "colours": ["sand", "slate"],
+    "styles": ["minimalist", "resort"],
+    "collectionId": "col-core-essentials",
+    "newArrival": false,
+    "arrivalDate": "2024-09-01",
+    "image": "/assets/products/ACC-SCF-045.png",
+    "variants": [
+      { "size": "OS", "stock": 10 }
+    ]
   }
 ]

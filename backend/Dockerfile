@@ -16,12 +16,15 @@
 #   - The app serves both the JSON API (/api/**, /healthz) and the static
 #     frontend/, so a single Cloud Run service runs the whole stack.
 #
-# GOOGLE-ONLY: base image is published by Google (Container Registry / distroless).
+# GOOGLE-ONLY: the base image is published by Google on Google Container
+# Registry (gcr.io/distroless). No Docker Hub or other third-party registry is
+# used anywhere in this build.
 
-# Google-published Node 22 base image.
-# Alternative Google base image: gcr.io/distroless/nodejs22-debian12 (smaller,
-# no shell). node:22-slim is used here for easier operability.
-FROM node:22-slim
+# Google-published distroless Node 22 base image (gcr.io/distroless).
+# Distroless ships Node + the minimal runtime only: no shell and no package
+# manager. Its ENTRYPOINT is already ["/usr/bin/node"], so CMD below supplies
+# only the script path. It also runs as the built-in non-root "nonroot" user.
+FROM gcr.io/distroless/nodejs22-debian12
 
 # Cloud Run sets $PORT; default to 8080 to match the local/offline contract.
 ENV NODE_ENV=production \
@@ -40,8 +43,10 @@ COPY frontend ./frontend
 # Document the port the container listens on (informational for Cloud Run).
 EXPOSE 8080
 
-# Run as the non-root user that the Google base image already provides.
-USER node
+# Run as the non-root user the distroless base image already provides.
+USER nonroot
 
-# Start the HTTP server; it reads $PORT and binds 0.0.0.0 (Cloud Run contract).
-CMD ["node", "backend/src/server.js"]
+# The distroless base image's ENTRYPOINT is "node", so CMD is just the script.
+# The server reads $PORT and binds 0.0.0.0 (Cloud Run contract) ->
+# effectively runs `node backend/src/server.js`.
+CMD ["backend/src/server.js"]
