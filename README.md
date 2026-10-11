@@ -249,18 +249,21 @@ curl -s http://localhost:8080/api/dashboard/retail \
 
 ## Mock to live: env var reference
 
-Copy [`.env.example`](.env.example) to `.env` for local overrides. Every
-service defaults to `mock` (deterministic, offline). Set a service to `live`
-only in a deployed Google Cloud environment with the matching SDK and
+Copy [`.env.example`](.env.example) to `.env` for local overrides. Most
+services default to `mock` (deterministic, offline). **Gemini is the exception:
+it runs LIVE automatically when `GEMINI_API_KEY` is set, and falls back to the
+offline mock when no key is present** (see below). Set the other services to
+`live` only in a deployed Google Cloud environment with the matching SDK and
 credentials. In production, **secrets come from Secret Manager**, not from
 `.env`.
 
-| Env var | Switches | Default (mock) | Live meaning |
+| Env var | Switches | Default | Live meaning |
 | --- | --- | --- | --- |
-| `GEMINI_MODE` | Gemini NLU + styling | `mock` | Call Gemini via the Google AI Studio / Generative Language API |
-| `GEMINI_API_KEY` | Gemini credential | *(empty)* | API key from Google AI Studio; from Secret Manager in prod; never committed |
+| `GEMINI_MODE` | Gemini NLU + styling + retail analysis | **live if `GEMINI_API_KEY` set, else mock** | Call Gemini via the Google AI Studio / Generative Language API. `GEMINI_MODE=mock` forces offline even with a key; `GEMINI_MODE=live` forces live |
+| `GEMINI_API_KEY` | Gemini credential + live default trigger | *(empty)* | API key from Google AI Studio; presence flips Gemini to live by default; from Secret Manager in prod; never committed |
 | `GEMINI_MODEL` | Gemini model id | `gemini-2.5-flash` | Target model (override to use the newest available id) |
-| `VERTEX_IMAGE_MODE` | Virtual try-on | `mock` | Call Vertex AI image generation |
+| `VERTEX_IMAGE_MODE` | Virtual try-on | `mock` | Call Google Vertex AI image generation (real AI try-on image); falls back to the offline composite if the call fails or no access token is available |
+| `GOOGLE_ACCESS_TOKEN` | Vertex AI OAuth token (live try-on) | *(empty)* | OAuth access token for Vertex AI; in Cloud Run / GKE this comes from Application Default Credentials. Absent -> live try-on falls back to the offline mock composite |
 | `VERTEX_IMAGE_MODEL` | Image model id | `imagegeneration` | Vertex AI image model |
 | `VERTEX_LOCATION` | Vertex AI region | `asia-southeast1` | Vertex AI / Gemini region |
 | `SPEECH_MODE` | Voice to text | `mock` | Call Cloud Speech-to-Text |
@@ -279,27 +282,36 @@ credentials. In production, **secrets come from Secret Manager**, not from
 ### Live Gemini (Google AI Studio)
 
 The Gemini adapter ([`backend/src/adapters/gemini.js`](backend/src/adapters/gemini.js))
-has a working live path that calls the Google AI Studio / Generative Language
-API. It still runs **fully offline with deterministic mocks by default (no key
-needed)** - mock stays the default so nothing breaks for someone with no key.
+calls the Google AI Studio / Generative Language API. **Live is now the default
+whenever a key is available**, so the AI-driven "thinking" parts (intent
+parsing, outfit concepts, styling explanations, and retailer-dashboard
+analysis) are live out of the box - the deterministic mock is only the offline
+fallback:
 
-To run a local demo against live Gemini:
+- **`GEMINI_API_KEY` set, `GEMINI_MODE` unset -> LIVE.** Gemini runs live.
+- **No key (and no `GEMINI_MODE`) -> MOCK.** Runs fully offline, nothing breaks.
+  This is exactly what the sandbox / CI sees, so the whole test suite runs with
+  zero network.
+- **`GEMINI_MODE=mock` -> forced MOCK**, even if a key is present (useful to run
+  fully offline on purpose).
+- **`GEMINI_MODE=live` -> forced LIVE**; the adapter fails fast if the key is
+  missing (a config mistake, distinct from a transient API failure).
 
-1. Get an API key from **Google AI Studio** (`https://aistudio.google.com/app/apikey`).
-2. Export it as an env var (it is read from `GEMINI_API_KEY` and is **never**
-   committed; in production it comes from Secret Manager). Then start the server:
+Because the live adapter **always falls back to the deterministic mock on any
+HTTP / transport / parse failure**, defaulting to live is safe at runtime: a
+user who sets a key but hits a transient error still gets a working flow, and
+the response source label (`gemini-live` vs `gemini-mock`) stays observable.
+
+To run a local demo against live Gemini (just provide a key - no `GEMINI_MODE`
+needed):
 
    ```sh
-   GEMINI_MODE=live GEMINI_API_KEY=your-key-here \
+   GEMINI_API_KEY=your-key-here \
      env -u NODE_OPTIONS node backend/src/server.js
-   # optionally pin a specific model:
-   GEMINI_MODE=live GEMINI_API_KEY=your-key-here GEMINI_MODEL=gemini-2.5-flash \
+   # force offline even with a key:
+   GEMINI_MODE=mock GEMINI_API_KEY=your-key-here \
      env -u NODE_OPTIONS node backend/src/server.js
    ```
-
-   If `GEMINI_MODE=live` but `GEMINI_API_KEY` is unset, the adapter fails fast
-   with a clear error (that is a config mistake, distinct from a transient API
-   failure).
 
 **Model selection.** The default model is **`gemini-2.5-flash`**, overridable
 via `GEMINI_MODEL`. Model ids change over time; discover the newest available
@@ -322,6 +334,56 @@ transient model hiccup never breaks the shopping flow.
 > outbound network, so a real live Gemini call cannot be executed here. The live
 > path is exercised by unit tests that stub `fetch`; verify end to end by running
 > locally with your own key as shown above.
+
+### Live AI-driven retailer insights (analysis / predictions / suggestions)
+
+The retailer dashboard adds a **live AI analysis layer on top of the
+deterministic BigQuery aggregates**. The aggregated numbers (occasion mix, style
+demand, unmet-demand reasons, zone activity, commercial summary) remain the
+**deterministic source of truth**; those real aggregates are passed to Gemini
+(`gemini.analyzeRetail(aggregates)`), which returns only:
+
+- a concise natural-language **analysis / narrative** of what the data shows;
+- **trend predictions**, clearly labelled as model-generated, **non-guaranteed**
+  forecasts (`guaranteedForecast: false`);
+- actionable **merchandising suggestions** (human decision-support).
+
+How facts and numbers are protected from the model:
+
+- The AI output is **additive** - it appears as a new `aiInsights` block on
+  `/api/dashboard/retail` and an `aiAnalysis` block on
+  `/api/dashboard/merchandising`, **alongside** (never replacing) the
+  deterministic sections. The displayed numbers always come from BigQuery.
+- The model response runs through the same `stripRetailFields` guard, so it can
+  never smuggle a fabricated price / stock / SKU / rack location / date into the
+  insights.
+- The block is stamped `aiGenerated: true`, `interpretation: 'decision-support'`,
+  `guaranteedForecast: false`, `autoReorder: false`, and `source`
+  (`gemini-live` / `gemini-mock`).
+- On any live failure the analysis **falls back to a deterministic mock
+  analysis** derived from the same aggregates, so the dashboard never breaks.
+  Offline (no key) it is the mock analysis by default.
+
+The dashboard surfaces this in a clearly-labelled **"AI analysis & predictions
+(model-generated, non-guaranteed)"** panel, visually distinct from the hard
+aggregated numbers.
+
+### Live Vertex AI try-on images
+
+The virtual try-on can now render **real Google Vertex AI image generations**
+instead of the offline placeholder swatch. When `VERTEX_IMAGE_MODE=live` **and**
+a Vertex AI OAuth access token is available (`GOOGLE_ACCESS_TOKEN`, or
+Application Default Credentials in Cloud Run / GKE), the adapter POSTs to the
+Vertex AI `:predict` endpoint and returns the generated image bytes as a data
+URL, which the frontend displays. If the call fails, or no token is present
+(e.g. the offline sandbox), it **falls back to the deterministic offline
+composite** so the try-on flow never breaks. Every try-on visual stays an
+**illustrative aid only** - never a guarantee of fit, colour, drape, or
+measurements.
+
+> **Not verified in this offline sandbox.** Real Vertex AI calls require network
+> + credentials that the sandbox does not have; the live path is exercised by
+> unit tests that stub `fetch`. Verify end to end locally with a token.
 
 ## Deploy notes (Cloud Run + Firebase Hosting)
 

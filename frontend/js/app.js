@@ -752,10 +752,14 @@
       panel.appendChild(el('div', { class: 'notice illustrative' },
         res.compositeLabel || res.disclaimer
         || 'Illustrative composite preview only - not a guarantee of fit, colour, drape, or measurements.'));
+      const live = res.source === 'vertex-image-live' && res.imageDataUrl;
       panel.appendChild(el('div', { class: 'tryon-preview' }, [
         el('div', { class: 'tryon-frame' }, [
-          svgPreviewFor(o),
-          el('p', { class: 'muted' }, `Illustrative aid \u00b7 ${(res.skus || []).join(', ')}`),
+          // Prefer the real Google Vertex AI generation when present; otherwise
+          // fall back to the deterministic offline swatch (no network).
+          tryOnVisual(res, o),
+          el('p', { class: 'muted' }, (live ? 'Live Google Vertex AI generation \u00b7 ' : 'Illustrative aid \u00b7 ')
+            + ((res.skus || []).join(', '))),
           el('p', { class: 'muted' }, state.photoMode === 'ai' || !state.photoRef
             ? 'Model synthesised by Google Vertex AI image generation (no personal photo used).'
             : 'Composed over your supplied photo.'),
@@ -778,6 +782,26 @@
       other ? el('div', { class: 'tryon-frame' }, [svgPreviewFor(other), el('p', { class: 'muted' }, `${other.name} \u00b7 ${rm(other.totalPriceRm)}`)]) : el('div', { class: 'muted' }, 'No second look to compare.'),
     ]);
     panel.appendChild(grid);
+  }
+
+  // Render the try-on visual: the real Google Vertex AI generated image when
+  // the backend returned live bytes (data URL), otherwise the deterministic
+  // offline SVG swatch. Degrades gracefully if the image fails to load.
+  function tryOnVisual(res, o) {
+    if (res && res.source === 'vertex-image-live' && res.imageDataUrl) {
+      const img = el('img', {
+        src: res.imageDataUrl,
+        alt: 'Google Vertex AI try-on generation (illustrative)',
+        style: 'width:100%;max-width:240px;aspect-ratio:3/4;object-fit:cover;border-radius:8px;',
+      });
+      // If the generated image fails to render, swap in the offline swatch.
+      img.addEventListener('error', () => {
+        const fallback = svgPreviewFor(o);
+        if (img.parentNode) img.parentNode.replaceChild(fallback, img);
+      });
+      return img;
+    }
+    return svgPreviewFor(o);
   }
 
   // Build a simple inline SVG swatch board from item colours (no network).
