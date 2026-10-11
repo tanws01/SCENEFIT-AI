@@ -26,18 +26,16 @@
   </header>
 
   <main class="app">
-    <section class="panel">
-      <h3>Sign in (associate / ops / admin)</h3>
-      <p class="muted">Operations actions are gated by Firebase Auth role. Use a demo token.</p>
-      <div class="composer">
-        <input type="text" id="token" value="demo-associate" placeholder="auth token (e.g. demo-associate or ops:u1)" />
-        <button class="btn" id="loadBtn" type="button">Load operations</button>
-      </div>
-      <p class="hint">Accepted roles: associate, ops, admin.</p>
+    <section class="panel intro">
+      <h3>Staff Operations</h3>
+      <p class="muted">Live picking requests, fitting-room availability and queue tickets. No sign-in needed to view the board. Operational actions (accept / prepare / confirm / advance) stay role-gated and prompt for a staff token.</p>
+      <button class="btn ghost small" id="loadBtn" type="button">Refresh board</button>
       <p id="authStatus" class="muted"></p>
     </section>
 
     <div id="status" class="spinner"></div>
+
+    <section id="staffKpis"></section>
 
     <section class="panel">
       <h3>Create a demo picking request</h3>
@@ -48,10 +46,15 @@
         <input type="text" id="demoColour" value="white" placeholder="colour" style="max-width:110px;" />
         <button class="btn secondary" id="createTaskBtn" type="button">Submit request</button>
       </div>
+      <p class="hint">Operational actions below (accept / prepare / confirm / advance) are role-gated. The staff token is used only for those write actions, not to view the board.</p>
+      <div class="composer">
+        <input type="text" id="token" value="demo-associate" placeholder="staff action token (e.g. demo-associate or ops:u1)" />
+      </div>
     </section>
 
     <section id="picking"></section>
     <section id="fittingRooms"></section>
+    <section id="queueOverview"></section>
     <section id="queueMgmt"></section>
   </main>
 

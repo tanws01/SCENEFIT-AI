@@ -1,0 +1,102 @@
+[
+  {
+    "id": "tkt-seed-0001",
+    "storeId": "store-demo-flagship",
+    "storeName": "Demo Flagship Level 2",
+    "status": "Requested",
+    "confirmed": false,
+    "fittingRoomId": null,
+    "issuedAt": "2025-04-25T09:20:00Z",
+    "updatedAt": "2025-04-25T09:20:00Z",
+    "liveStatusMessage": "Request received. Waiting for the store to confirm your fitting-room place.",
+    "items": [
+      { "sku": "TOP-OXF-004", "size": "M", "colour": "white" },
+      { "sku": "BOT-TRS-012", "size": "32", "colour": "navy" }
+    ],
+    "history": [
+      { "state": "Requested", "at": "2025-04-25T09:20:00Z", "note": "Customer requested fitting-room preparation." }
+    ]
+  },
+  {
+    "id": "tkt-seed-0002",
+    "storeId": "store-demo-flagship",
+    "storeName": "Demo Flagship Level 2",
+    "status": "Confirmed",
+    "confirmed": true,
+    "fittingRoomId": "fr-l2-01",
+    "issuedAt": "2025-04-25T09:35:00Z",
+    "updatedAt": "2025-04-25T09:42:00Z",
+    "liveStatusMessage": "The store confirmed your fitting-room place. Preparing your items.",
+    "items": [
+      { "sku": "TOP-KNT-005", "size": "L", "colour": "olive" }
+    ],
+    "history": [
+      { "state": "Requested", "at": "2025-04-25T09:35:00Z", "note": "Customer requested fitting-room preparation." },
+      { "state": "Confirmed", "at": "2025-04-25T09:42:00Z", "note": "Store operational system confirmed the request." }
+    ]
+  },
+  {
+    "id": "tkt-seed-0003",
+    "storeId": "store-demo-flagship",
+    "storeName": "Demo Flagship Level 2",
+    "status": "Waiting for Room",
+    "confirmed": true,
+    "fittingRoomId": null,
+    "issuedAt": "2025-04-25T09:50:00Z",
+    "updatedAt": "2025-04-25T10:02:00Z",
+    "liveStatusMessage": "Your items are ready. Waiting for a fitting room to free up.",
+    "items": [
+      { "sku": "TOP-GRA-006", "size": "M", "colour": "black" },
+      { "sku": "BOT-DNM-014", "size": "32", "colour": "blue" }
+    ],
+    "history": [
+      { "state": "Requested", "at": "2025-04-25T09:50:00Z", "note": "Customer requested fitting-room preparation." },
+      { "state": "Confirmed", "at": "2025-04-25T09:54:00Z", "note": "Store operational system confirmed the request." },
+      { "state": "Picking Items", "at": "2025-04-25T09:58:00Z", "note": null },
+      { "state": "Waiting for Room", "at": "2025-04-25T10:02:00Z", "note": null }
+    ]
+  },
+  {
+    "id": "tkt-seed-0004",
+    "storeId": "store-demo-flagship",
+    "storeName": "Demo Flagship Level 2",
+    "status": "Ready",
+    "confirmed": true,
+    "fittingRoomId": "fr-l2-03",
+    "issuedAt": "2025-04-25T10:05:00Z",
+    "updatedAt": "2025-04-25T10:18:00Z",
+    "liveStatusMessage": "Your fitting room fr-l2-03 is ready. Please head over.",
+    "items": [
+      { "sku": "OUT-BMB-031", "size": "M", "colour": "black" }
+    ],
+    "history": [
+      { "state": "Requested", "at": "2025-04-25T10:05:00Z", "note": "Customer requested fitting-room preparation." },
+      { "state": "Confirmed", "at": "2025-04-25T10:08:00Z", "note": "Store operational system confirmed the request." },
+      { "state": "Picking Items", "at": "2025-04-25T10:12:00Z", "note": null },
+      { "state": "Waiting for Room", "at": "2025-04-25T10:15:00Z", "note": null },
+      { "state": "Ready", "at": "2025-04-25T10:18:00Z", "note": null }
+    ]
+  },
+  {
+    "id": "tkt-seed-0005",
+    "storeId": "store-demo-flagship",
+    "storeName": "Demo Flagship Level 2",
+    "status": "In Fitting Room",
+    "confirmed": true,
+    "fittingRoomId": "fr-l2-02",
+    "issuedAt": "2025-04-25T10:20:00Z",
+    "updatedAt": "2025-04-25T10:30:00Z",
+    "liveStatusMessage": "Enjoy trying on your items in the fitting room.",
+    "items": [
+      { "sku": "FTW-CNV-025", "size": "41", "colour": "white" }
+    ],
+    "history": [
+      { "state": "Requested", "at": "2025-04-25T10:20:00Z", "note": "Customer requested fitting-room preparation." },
+      { "state": "Confirmed", "at": "2025-04-25T10:23:00Z", "note": "Store operational system confirmed the request." },
+      { "state": "Picking Items", "at": "2025-04-25T10:26:00Z", "note": null },
+      { "state": "Waiting for Room", "at": "2025-04-25T10:28:00Z", "note": null },
+      { "state": "Ready", "at": "2025-04-25T10:29:00Z", "note": null },
+      { "state": "In Fitting Room", "at": "2025-04-25T10:30:00Z", "note": null }
+    ]
+  }
+]

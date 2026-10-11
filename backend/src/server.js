@@ -59,7 +59,7 @@ function createServices(adapters) {
   const staffTasks = createStaffTasks({ firestore: adapters.firestore, catalogue, storeNavigation });
   const fittingRoomQueue = createFittingRoomQueue({ firestore: adapters.firestore, store });
   const cart = createCart({ firestore: adapters.firestore, catalogue });
-  const analytics = createAnalytics({ bigquery: adapters.bigquery, staffTasks, store, gemini: adapters.gemini });
+  const analytics = createAnalytics({ bigquery: adapters.bigquery, staffTasks, fittingRoomQueue, store, gemini: adapters.gemini });
 
   return {
     catalogue, outfitEngine, styleProfile, wardrobe, sizeGuidance, tryOn, conversation,
@@ -103,10 +103,12 @@ function createRequestHandler(ctx) {
   const { config, services, adapters } = ctx;
 
   /**
-   * Gate staff / retailer routes behind a Firebase Auth role check. Verifies
-   * the bearer token via the firebaseAuth adapter (mock returns {uid, role})
-   * and ensures the role is in the allowed set. Returns the decoded auth on
-   * success, or null after sending a 401/403 response.
+   * Gate STATE-CHANGING staff / operational actions behind a Firebase Auth
+   * role check (staff-task accept/reject/prepare, queue confirm/advance). The
+   * read-only dashboard VIEWS are intentionally open and do NOT call this.
+   * Verifies the bearer token via the firebaseAuth adapter (mock returns
+   * {uid, role}) and ensures the role is in the allowed set. Returns the
+   * decoded auth on success, or null after sending a 401/403 response.
    * @param {http.IncomingMessage} req
    * @param {http.ServerResponse} res
    * @param {string[]} allowedRoles
@@ -360,20 +362,18 @@ function createRequestHandler(ctx) {
         return sendJson(res, 200, result);
       }
 
-      // --- F13 / F14 / F15 dashboards (staff/retailer gated) ---
+      // --- F13 / F14 / F15 dashboards (OPEN read-only VIEWS) ---
+      // The dashboard VIEWS are open (no auth) so retailer/staff screens load
+      // directly. They expose only aggregated, privacy-protected data. The
+      // STATE-CHANGING operational actions (staff-task accept/reject/prepare,
+      // queue confirm/advance) stay role-gated via requireRole below.
       if (method === 'GET' && pathname === '/api/dashboard/retail') {
-        const auth = await requireRole(req, res, ['merchandiser', 'ops', 'admin']);
-        if (!auth) return undefined;
         return sendJson(res, 200, await services.analytics.retailDashboard());
       }
       if (method === 'GET' && pathname === '/api/dashboard/staff') {
-        const auth = await requireRole(req, res, ['associate', 'ops', 'admin']);
-        if (!auth) return undefined;
         return sendJson(res, 200, await services.analytics.staffDashboard());
       }
       if (method === 'GET' && pathname === '/api/dashboard/merchandising') {
-        const auth = await requireRole(req, res, ['merchandiser', 'ops', 'admin']);
-        if (!auth) return undefined;
         return sendJson(res, 200, await services.analytics.merchandisingInsights());
       }
 

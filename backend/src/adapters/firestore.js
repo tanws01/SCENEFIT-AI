@@ -27,6 +27,8 @@ const SEED_FILES = Object.freeze({
   sizeCharts: 'sizeCharts.json',
   planogram: 'planogram.json',
   analyticsEvents: 'analyticsEvents.json',
+  staffTasks: 'staffTasks.json',
+  fittingRoomQueue: 'fittingRoomQueue.json',
 });
 
 function readSeed(file) {

@@ -26,18 +26,16 @@
   </header>
 
   <main class="app">
-    <section class="panel">
-      <h3>Sign in (merchandiser / ops / admin)</h3>
-      <p class="muted">Dashboards are gated by Firebase Auth role. Use a demo token to view aggregated, privacy-protected data.</p>
-      <div class="composer">
-        <input type="text" id="token" value="demo-merchandiser" placeholder="auth token (e.g. demo-merchandiser or ops:u1)" />
-        <button class="btn" id="loadBtn" type="button">Load dashboard</button>
-      </div>
-      <p class="hint">Accepted roles: merchandiser, ops, admin. Try also <code>ops:u-ops-1</code> or <code>admin:u-admin</code>.</p>
+    <section class="panel intro">
+      <h3>Retailer Intelligence</h3>
+      <p class="muted">Aggregated, privacy-protected demand &amp; commercial signals. No sign-in needed to view. F15 insights are human decision-support only.</p>
+      <button class="btn ghost small" id="loadBtn" type="button">Refresh data</button>
       <p id="authStatus" class="muted"></p>
     </section>
 
     <div id="status" class="spinner"></div>
+    <section id="kpis"></section>
+    <section id="trend"></section>
     <section id="retail"></section>
     <section id="ai"></section>
     <section id="merch"></section>
