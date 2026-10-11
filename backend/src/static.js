@@ -68,6 +68,122 @@ function productSvg(sku) {
 </svg>`;
 }
 
+/**
+ * Deterministic inline-SVG scene backgrounds for the Shop page. Each scene is a
+ * purely illustrative, offline vector drawing built from the brand palette
+ * (#6b4de6 / #4e34b8 accents) - no files on disk, no network. An unknown or
+ * missing sceneId falls back to the neutral 'studio' scene so the UI's
+ * background is never a 404.
+ *
+ * @param {string} sceneId one of: beach, resort, dinner, wedding, urban, studio
+ * @returns {string} an SVG document string
+ */
+function sceneSvg(sceneId) {
+  const id = String(sceneId || '').toLowerCase();
+  const builder = SCENE_BUILDERS[id] || SCENE_BUILDERS.studio;
+  return builder();
+}
+
+/** Shared SVG scaffold so every scene is a valid standalone document. */
+function sceneDoc(label, inner) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" role="img" aria-label="${label}">
+${inner}
+</svg>`;
+}
+
+const SCENE_BUILDERS = Object.freeze({
+  beach() {
+    return sceneDoc('Beach / seaside scene', `  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6b4de6"/>
+      <stop offset="0.5" stop-color="#d98a3b"/>
+      <stop offset="1" stop-color="#f6d9a8"/>
+    </linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4e34b8"/>
+      <stop offset="1" stop-color="#2b6ea8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky)"/>
+  <circle cx="600" cy="470" r="120" fill="#ffe8b8" opacity="0.9"/>
+  <rect y="500" width="1200" height="180" fill="url(#sea)"/>
+  <rect y="660" width="1200" height="140" fill="#e8cf9c"/>
+  <path d="M0 660 Q 300 630 600 660 T 1200 660 L 1200 700 L 0 700 Z" fill="#f0dcae" opacity="0.8"/>`);
+  },
+  resort() {
+    return sceneDoc('Resort getaway scene', `  <defs>
+    <linearGradient id="rsky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6b4de6"/>
+      <stop offset="1" stop-color="#9fd3e8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#rsky)"/>
+  <rect y="560" width="1200" height="240" fill="#1f8a52" opacity="0.85"/>
+  <rect x="520" y="420" width="160" height="200" rx="10" fill="#ffffff" opacity="0.92"/>
+  <rect x="300" y="600" width="600" height="90" rx="18" fill="#4e34b8" opacity="0.65"/>
+  <circle cx="980" cy="200" r="80" fill="#ffe8b8" opacity="0.9"/>`);
+  },
+  dinner() {
+    return sceneDoc('Evening dinner scene', `  <defs>
+    <radialGradient id="glow" cx="0.5" cy="0.35" r="0.8">
+      <stop offset="0" stop-color="#6b4de6"/>
+      <stop offset="1" stop-color="#1c1b22"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#glow)"/>
+  <circle cx="300" cy="220" r="10" fill="#f6d9a8" opacity="0.85"/>
+  <circle cx="520" cy="160" r="8" fill="#f6d9a8" opacity="0.7"/>
+  <circle cx="880" cy="240" r="12" fill="#f6d9a8" opacity="0.8"/>
+  <rect x="420" y="560" width="360" height="30" rx="15" fill="#4e34b8" opacity="0.7"/>
+  <rect x="560" y="470" width="80" height="110" rx="8" fill="#d98a3b" opacity="0.8"/>`);
+  },
+  wedding() {
+    return sceneDoc('Wedding / reception scene', `  <defs>
+    <linearGradient id="wsky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f3eefc"/>
+      <stop offset="1" stop-color="#6b4de6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#wsky)"/>
+  <path d="M460 620 Q 460 360 600 360 Q 740 360 740 620 Z" fill="#ffffff" opacity="0.9"/>
+  <path d="M460 620 Q 460 360 600 360 Q 740 360 740 620 Z" fill="none" stroke="#4e34b8" stroke-width="4" opacity="0.6"/>
+  <circle cx="600" cy="300" r="30" fill="#d98a3b" opacity="0.85"/>
+  <rect x="300" y="640" width="600" height="80" rx="20" fill="#4e34b8" opacity="0.5"/>`);
+  },
+  urban() {
+    return sceneDoc('Urban / work scene', `  <defs>
+    <linearGradient id="usky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4e34b8"/>
+      <stop offset="1" stop-color="#6b4de6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#usky)"/>
+  <rect x="120" y="340" width="120" height="460" fill="#1c1b22" opacity="0.8"/>
+  <rect x="280" y="260" width="140" height="540" fill="#1c1b22" opacity="0.85"/>
+  <rect x="460" y="400" width="110" height="400" fill="#1c1b22" opacity="0.75"/>
+  <rect x="620" y="220" width="150" height="580" fill="#1c1b22" opacity="0.9"/>
+  <rect x="820" y="360" width="130" height="440" fill="#1c1b22" opacity="0.8"/>
+  <rect x="990" y="300" width="120" height="500" fill="#1c1b22" opacity="0.85"/>
+  <g fill="#d98a3b" opacity="0.85">
+    <rect x="310" y="300" width="20" height="26"/><rect x="360" y="300" width="20" height="26"/>
+    <rect x="660" y="260" width="20" height="26"/><rect x="710" y="260" width="20" height="26"/>
+  </g>`);
+  },
+  studio() {
+    return sceneDoc('Studio backdrop', `  <defs>
+    <linearGradient id="studio" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6b4de6"/>
+      <stop offset="1" stop-color="#4e34b8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#studio)"/>
+  <circle cx="600" cy="360" r="260" fill="#ffffff" opacity="0.08"/>
+  <circle cx="600" cy="360" r="170" fill="#ffffff" opacity="0.06"/>
+  <rect y="620" width="1200" height="180" fill="#1c1b22" opacity="0.18"/>`);
+  },
+});
+
 const FAVICON_SVG = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
   <rect width="64" height="64" rx="14" fill="#6b4de6"/>
@@ -105,6 +221,13 @@ function serveStatic(req, res, pathname) {
     send(res, 200, CONTENT_TYPES['.svg'], productSvg(sku));
     return true;
   }
+  const scene = pathname.match(/^\/assets\/scenes\/([^/]+)\.svg$/);
+  if (scene) {
+    const sceneId = decodeURIComponent(scene[1]);
+    // Unknown ids fall back to the studio scene inside sceneSvg(); never 404.
+    send(res, 200, CONTENT_TYPES['.svg'], sceneSvg(sceneId));
+    return true;
+  }
 
   // Map "/" to the app shell.
   let rel = pathname === '/' ? '/index.html' : pathname;
@@ -137,4 +260,4 @@ function serveStatic(req, res, pathname) {
   return true;
 }
 
-module.exports = { serveStatic, productSvg, FRONTEND_DIR, CONTENT_TYPES };
+module.exports = { serveStatic, productSvg, sceneSvg, FRONTEND_DIR, CONTENT_TYPES };
