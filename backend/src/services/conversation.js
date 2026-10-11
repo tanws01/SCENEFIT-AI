@@ -95,13 +95,21 @@ function createConversation(deps = {}) {
    * Handle a new message (text or voice) - parses a fresh intent, supporting
    * intent switching (the newly parsed entryPoint simply replaces the old one).
    *
+   * When the client supplies an explicit `entryPoint` (the Page-2 choice:
+   * 'style-my-moment' or 'explore-whats-new'), that choice is AUTHORITATIVE and
+   * overrides whatever the keyword parse inferred - so a shopper who picks
+   * "Explore What's New" and then types an occasion-sounding prompt still gets
+   * latest-collection looks. This is a suggestion-only, deterministic steer: it
+   * sets entryPoint/wantsLatestCollection and carries no retail facts.
+   *
    * @param {string} sessionId
-   * @param {{text?:string, voiceRef?:string, profile?:object}} input
+   * @param {{text?:string, voiceRef?:string, profile?:object, entryPoint?:string}} input
    */
   async function handleMessage(sessionId, input = {}) {
     const session = (await getSession(sessionId)) || (await startSession({ sessionId }));
     const { utterance, inputMode, transcript } = await resolveUtterance(input);
     const intent = await gemini.parseIntent(utterance, input.profile || {});
+    applyExplicitEntryPoint(intent, input.entryPoint);
 
     session.intent = intent;
     session.keptRoles = [];
@@ -165,6 +173,28 @@ function createConversation(deps = {}) {
   }
 
   return { startSession, getSession, handleMessage, handleRefine, resolveUtterance };
+}
+
+/* --------------------------- explicit entry point ------------------------ */
+
+/** The two valid Page-2 entry-point choices the client can send. */
+const VALID_ENTRY_POINTS = Object.freeze(['style-my-moment', 'explore-whats-new']);
+
+/**
+ * Apply an explicit, client-supplied entry-point choice onto a freshly parsed
+ * intent, overriding the keyword-derived inference. Mutates `intent` in place.
+ * A no-op when `entryPoint` is absent or not a recognised value, so the
+ * keyword parse remains the fallback. Suggestion-only: it never touches budget,
+ * SKUs, or any retail fact.
+ *
+ * @param {object} intent parsed intent (mutated)
+ * @param {string} [entryPoint] 'style-my-moment' | 'explore-whats-new'
+ */
+function applyExplicitEntryPoint(intent, entryPoint) {
+  if (!intent || !entryPoint || !VALID_ENTRY_POINTS.includes(entryPoint)) return intent;
+  intent.entryPoint = entryPoint;
+  intent.wantsLatestCollection = entryPoint === 'explore-whats-new';
+  return intent;
 }
 
 /* ----------------------------- intent merge ------------------------------ */
