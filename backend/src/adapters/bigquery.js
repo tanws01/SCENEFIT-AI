@@ -49,26 +49,90 @@ function createBigQuery(opts = {}) {
       const events = readEvents().filter((e) => e.type === 'intent');
       return groupCount(events, (e) => (e.occasion || 'unspecified'));
     },
+    // Shopping intent grouped by entry point (style-my-moment vs explore).
+    'intent-by-entrypoint': () => {
+      const events = readEvents().filter((e) => e.type === 'intent');
+      return groupCount(events, (e) => (e.entryPoint || 'unspecified'));
+    },
+    // Shopping intent grouped by budget band.
+    'intent-by-budget': () => {
+      const events = readEvents().filter((e) => e.type === 'intent');
+      return groupCount(events, (e) => (e.budgetBand || 'unspecified'));
+    },
     // Most requested styles (demand signal).
     'demand-by-style': () => {
       const events = readEvents().filter((e) => e.type === 'demand');
       return groupCount(events, (e) => (e.style || 'unspecified'));
+    },
+    // Most requested colours (demand signal).
+    'demand-by-colour': () => {
+      const events = readEvents().filter((e) => e.type === 'demand');
+      return groupCount(events, (e) => (e.colour || 'unspecified'));
     },
     // Unmet demand: requests that could not be fulfilled (e.g. no 3 outfits).
     'unmet-demand': () => {
       const events = readEvents().filter((e) => e.type === 'unmet_demand');
       return groupCount(events, (e) => (e.reason || 'unspecified'));
     },
+    // Unmet demand that is specifically a requested-but-unavailable size.
+    'unmet-demand-by-size': () => {
+      const events = readEvents().filter((e) => e.type === 'unmet_demand'
+        && e.reason === 'size_out_of_stock' && e.requestedSize != null);
+      return groupCount(events, (e) => `${e.sku || 'unspecified'} size ${e.requestedSize}`);
+    },
     // In-store engagement by zone.
     'in-store-by-zone': () => {
       const events = readEvents().filter((e) => e.type === 'in_store');
       return groupCount(events, (e) => (e.zone || 'unspecified'));
     },
-    // Commercial: conversions / checkout handoffs.
+    // In-store funnel: lookups -> staff assist -> queue -> completed sessions.
+    'in-store-funnel': () => {
+      const events = readEvents().filter((e) => e.type === 'in_store');
+      const stages = [
+        ['Location lookups', 'rack_navigation_viewed'],
+        ['Staff-assist requests', 'staff_assist_requested'],
+        ['Fitting-room queue joins', 'fitting_room_queue_joined'],
+        ['Completed fitting sessions', 'fitting_room_session_completed'],
+      ];
+      return stages.map(([label, action]) => ({
+        key: label,
+        count: events.filter((e) => e.action === action).length,
+      }));
+    },
+    // Weekly event volume (time-series / trend across all event types).
+    'events-by-week': () => weeklySeries(readEvents()),
+    // Weekly demand-signal volume (trend of demand events only).
+    'demand-by-week': () => weeklySeries(readEvents().filter((e) => e.type === 'demand')),
+    // Commercial: a set of KPI metrics, computed deterministically.
     'commercial-summary': () => {
       const events = readEvents().filter((e) => e.type === 'commercial');
-      const total = events.reduce((sum, e) => sum + (Number(e.valueRm) || 0), 0);
-      return [{ metric: 'checkout_handoffs', count: events.length, totalValueRm: Number(total.toFixed(2)) }];
+      const countOf = (action) => events.filter((e) => e.action === action).length;
+      const valueOf = (action) => events
+        .filter((e) => e.action === action)
+        .reduce((sum, e) => sum + (Number(e.valueRm) || 0), 0);
+
+      const recommendationsShown = countOf('recommendation_shown');
+      const savedLooks = countOf('saved_look');
+      const addToCart = countOf('add_to_cart');
+      const tryOns = countOf('try_on');
+      const checkoutHandoffs = countOf('checkout_handoff');
+      const totalValueRm = Number((valueOf('checkout_handoff')).toFixed(2));
+      const avgBasketRm = checkoutHandoffs
+        ? Number((totalValueRm / checkoutHandoffs).toFixed(2))
+        : 0;
+      const conversionRate = recommendationsShown
+        ? Number((checkoutHandoffs / recommendationsShown).toFixed(4))
+        : 0;
+
+      return [
+        { metric: 'recommendations_shown', count: recommendationsShown, totalValueRm: 0 },
+        { metric: 'saved_looks', count: savedLooks, totalValueRm: 0 },
+        { metric: 'add_to_cart', count: addToCart, totalValueRm: Number(valueOf('add_to_cart').toFixed(2)) },
+        { metric: 'try_on_events', count: tryOns, totalValueRm: 0 },
+        { metric: 'checkout_handoffs', count: checkoutHandoffs, totalValueRm },
+        { metric: 'avg_basket_rm', count: checkoutHandoffs, totalValueRm: avgBasketRm },
+        { metric: 'conversion_rate', count: checkoutHandoffs, totalValueRm: conversionRate },
+      ];
     },
   };
 
@@ -98,6 +162,32 @@ function createBigQuery(opts = {}) {
     /** Expose the set of supported named queries. */
     namedQueries: Object.keys(NAMED_QUERIES),
   };
+}
+
+/**
+ * Build a weekly time-series [{ key: weekStart, count }] ordered oldest-first,
+ * so dashboards can draw a trend. Weeks come from each event's `week` field
+ * (seeded) with a fallback to the ISO-week-start derived from the timestamp.
+ */
+function weeklySeries(events) {
+  const counts = new Map();
+  for (const e of events) {
+    const key = e.week || weekStartOf(e.timestamp);
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }
+  return Array.from(counts.entries())
+    .map(([key, count]) => ({ key, count }))
+    .sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
+}
+
+/** Monday-anchored ISO date (YYYY-MM-DD) for a timestamp. */
+function weekStartOf(timestamp) {
+  const d = new Date(timestamp || 0);
+  if (Number.isNaN(d.getTime())) return 'unspecified';
+  const day = (d.getUTCDay() + 6) % 7; // 0 = Monday
+  d.setUTCDate(d.getUTCDate() - day);
+  d.setUTCHours(0, 0, 0, 0);
+  return d.toISOString().slice(0, 10);
 }
 
 function groupCount(events, keyFn) {
