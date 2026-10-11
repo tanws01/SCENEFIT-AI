@@ -61,22 +61,31 @@
 
 /**
  * @typedef {Object} QueueTicket
+ * Fitting-room queue ticket (F11). The status strings are the canonical state
+ * machine names in backend/src/services/fittingRoomQueue.js. A ticket is NEVER
+ * 'Confirmed' until the retailer's operational system confirms it; `confirmed`
+ * is an application/operational fact, never AI-supplied.
  * @property {string} id
  * @property {string} storeId
- * @property {string} fittingRoomId
- * @property {'waiting'|'ready'|'in_use'|'completed'|'cancelled'} status
- * @property {number} position
+ * @property {string|null} fittingRoomId
+ * @property {'Requested'|'Confirmed'|'Picking Items'|'Waiting for Room'|'Ready'|'In Fitting Room'|'Completed'|'UnavailableItems'|'DelayedPreparation'|'CustomerCancelled'|'NoShow'|'ExpiredTicket'} status
+ * @property {boolean} confirmed
+ * @property {Array<{sku:string,size:string,colour:string}>} items
+ * @property {string} liveStatusMessage
  * @property {string} issuedAt
  */
 
 /**
  * @typedef {Object} StaffTask
+ * Staff-assisted product collection picking task (F10). Status strings are the
+ * canonical lifecycle in backend/src/services/staffTasks.js.
  * @property {string} id
  * @property {string} storeId
- * @property {'pull_items'|'prep_fitting_room'|'restock'|'assist'} type
- * @property {'open'|'in_progress'|'done'} status
- * @property {string[]} skus
- * @property {string} assignedTo
+ * @property {'pull_items'} type
+ * @property {'Submitted'|'Accepted'|'Rejected'|'Preparing'|'ReadyForCollection'|'Completed'} status
+ * @property {Array<{sku:string,size:string,colour:string,name:string,available:boolean,location:object}>} garments
+ * @property {string|null} assignedTo
+ * @property {string} customerStatus
  * @property {string} createdAt
  */
 
@@ -119,10 +128,12 @@ const EXAMPLES = Object.freeze({
     sku: '', role: '', name: '', priceRm: 0, size: '', inStock: true,
   },
   queueTicket: {
-    id: '', storeId: '', fittingRoomId: '', status: 'waiting', position: 0, issuedAt: '',
+    id: '', storeId: '', fittingRoomId: null, status: 'Requested', confirmed: false,
+    items: [], liveStatusMessage: '', issuedAt: '',
   },
   staffTask: {
-    id: '', storeId: '', type: 'pull_items', status: 'open', skus: [], assignedTo: '', createdAt: '',
+    id: '', storeId: '', type: 'pull_items', status: 'Submitted', garments: [],
+    assignedTo: null, customerStatus: '', createdAt: '',
   },
   analyticsEvent: {
     id: '', type: 'intent', timestamp: '', anonUserId: '', privacy: { pii: false, aggregationReady: true },

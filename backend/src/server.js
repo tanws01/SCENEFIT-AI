@@ -26,6 +26,11 @@ const { createWardrobe } = require('./services/wardrobe');
 const { createSizeGuidance } = require('./services/sizeGuidance');
 const { createTryOn } = require('./services/tryOn');
 const { createConversation } = require('./services/conversation');
+const { createStoreNavigation } = require('./services/storeNavigation');
+const { createStaffTasks } = require('./services/staffTasks');
+const { createFittingRoomQueue } = require('./services/fittingRoomQueue');
+const { createCart } = require('./services/cart');
+const { createAnalytics } = require('./services/analytics');
 
 /**
  * Build the full service graph from adapters. Exposed for tests so they can
@@ -44,7 +49,21 @@ function createServices(adapters) {
     speech: adapters.speech,
     firestore: adapters.firestore,
   });
-  return { catalogue, outfitEngine, styleProfile, wardrobe, sizeGuidance, tryOn, conversation };
+
+  // In-store experience + omnichannel + intelligence (FEAT-003).
+  // The store/branch record is static seeded retail data.
+  // eslint-disable-next-line global-require
+  const store = require('../data/store.json');
+  const storeNavigation = createStoreNavigation({ firestore: adapters.firestore, catalogue });
+  const staffTasks = createStaffTasks({ firestore: adapters.firestore, catalogue, storeNavigation });
+  const fittingRoomQueue = createFittingRoomQueue({ firestore: adapters.firestore, store });
+  const cart = createCart({ firestore: adapters.firestore, catalogue });
+  const analytics = createAnalytics({ bigquery: adapters.bigquery, staffTasks, store });
+
+  return {
+    catalogue, outfitEngine, styleProfile, wardrobe, sizeGuidance, tryOn, conversation,
+    storeNavigation, staffTasks, fittingRoomQueue, cart, analytics, store,
+  };
 }
 
 function sendJson(res, statusCode, body) {
@@ -80,7 +99,36 @@ function readBody(req) {
  * @param {object} ctx { config, adapters, services }
  */
 function createRequestHandler(ctx) {
-  const { config, services } = ctx;
+  const { config, services, adapters } = ctx;
+
+  /**
+   * Gate staff / retailer routes behind a Firebase Auth role check. Verifies
+   * the bearer token via the firebaseAuth adapter (mock returns {uid, role})
+   * and ensures the role is in the allowed set. Returns the decoded auth on
+   * success, or null after sending a 401/403 response.
+   * @param {http.IncomingMessage} req
+   * @param {http.ServerResponse} res
+   * @param {string[]} allowedRoles
+   */
+  async function requireRole(req, res, allowedRoles) {
+    const token = req.headers.authorization || req.headers['x-auth-token'] || '';
+    if (!token) {
+      sendJson(res, 401, { error: 'unauthenticated', detail: 'missing auth token' });
+      return null;
+    }
+    let decoded;
+    try {
+      decoded = await adapters.auth.verifyToken(token);
+    } catch (_e) {
+      sendJson(res, 401, { error: 'unauthenticated', detail: 'invalid auth token' });
+      return null;
+    }
+    if (!allowedRoles.includes(decoded.role)) {
+      sendJson(res, 403, { error: 'forbidden', detail: `role "${decoded.role}" not permitted` });
+      return null;
+    }
+    return decoded;
+  }
 
   return async function handle(req, res) {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
@@ -188,6 +236,143 @@ function createRequestHandler(ctx) {
         const collectionId = url.searchParams.get('collectionId') || undefined;
         const products = await services.catalogue.listNewArrivals({ collectionId });
         return sendJson(res, 200, { count: products.length, products });
+      }
+
+      // --- F09 exact in-store rack location & navigation ---
+      if (method === 'GET' && pathname.startsWith('/api/location/')) {
+        const sku = decodeURIComponent(pathname.slice('/api/location/'.length));
+        if (!sku) return sendJson(res, 400, { error: 'sku required' });
+        const result = await services.storeNavigation.locate(sku);
+        return sendJson(res, result.found ? 200 : 404, result);
+      }
+
+      // --- F10 staff-assisted product collection ---
+      if (method === 'POST' && pathname === '/api/staff-task') {
+        const body = await readBody(req);
+        const task = await services.staffTasks.submitTask({
+          userId: body.userId,
+          storeId: body.storeId || services.store.id,
+          garments: body.garments || body.items || [],
+        });
+        return sendJson(res, 201, task);
+      }
+      if (method === 'GET' && /^\/api\/staff-task\/[^/]+$/.test(pathname)) {
+        const id = decodeURIComponent(pathname.split('/').pop());
+        const task = await services.staffTasks.get(id);
+        if (!task) return sendJson(res, 404, { error: 'not_found', id });
+        return sendJson(res, 200, task);
+      }
+      {
+        const m = pathname.match(/^\/api\/staff-task\/([^/]+)\/(accept|reject|prepare)$/);
+        if (method === 'POST' && m) {
+          const auth = await requireRole(req, res, ['associate', 'ops', 'admin']);
+          if (!auth) return undefined;
+          const id = decodeURIComponent(m[1]);
+          const action = m[2];
+          const body = await readBody(req);
+          try {
+            let task;
+            if (action === 'accept') task = await services.staffTasks.accept(id, { staffId: auth.uid, ...body });
+            else if (action === 'reject') task = await services.staffTasks.reject(id, body);
+            else task = await services.staffTasks.prepare(id, body);
+            return sendJson(res, 200, task);
+          } catch (e) {
+            const code = e.code === 'NOT_FOUND' ? 404 : 409;
+            return sendJson(res, code, { error: e.code || 'task_error', detail: e.message });
+          }
+        }
+      }
+
+      // --- F11 smart fitting-room queue ---
+      if (method === 'POST' && pathname === '/api/queue') {
+        const body = await readBody(req);
+        const result = await services.fittingRoomQueue.requestQueue({
+          branch: services.store,
+          userId: body.userId,
+          items: body.items || body.garments || [],
+        });
+        return sendJson(res, result.supported ? 201 : 409, result);
+      }
+      if (method === 'GET' && /^\/api\/queue\/[^/]+$/.test(pathname)) {
+        const id = decodeURIComponent(pathname.split('/').pop());
+        const ticket = await services.fittingRoomQueue.get(id);
+        if (!ticket) return sendJson(res, 404, { error: 'not_found', id });
+        return sendJson(res, 200, ticket);
+      }
+      {
+        const m = pathname.match(/^\/api\/queue\/([^/]+)\/(confirm|advance|cancel)$/);
+        if (method === 'POST' && m) {
+          const id = decodeURIComponent(m[1]);
+          const action = m[2];
+          const body = await readBody(req);
+          try {
+            let ticket;
+            if (action === 'confirm') {
+              // Store/operational confirmation is a staff-gated action.
+              const auth = await requireRole(req, res, ['associate', 'ops', 'admin']);
+              if (!auth) return undefined;
+              ticket = await services.fittingRoomQueue.confirm(id, body);
+            } else if (action === 'cancel') {
+              // Customer stays in control - no staff role required to cancel.
+              ticket = await services.fittingRoomQueue.cancel(id, body);
+            } else {
+              // advance is a staff-gated operational action.
+              const auth = await requireRole(req, res, ['associate', 'ops', 'admin']);
+              if (!auth) return undefined;
+              ticket = await services.fittingRoomQueue.advance(id, body.targetState, body);
+            }
+            return sendJson(res, 200, ticket);
+          } catch (e) {
+            const code = e.code === 'NOT_FOUND' ? 404 : 409;
+            return sendJson(res, code, { error: e.code || 'queue_error', detail: e.message });
+          }
+        }
+      }
+
+      // --- F12 cart & checkout handoff ---
+      if (pathname === '/api/cart') {
+        if (method === 'POST') {
+          const body = await readBody(req);
+          const userId = body.userId || 'guest';
+          if (body.outfit) {
+            const cart = await services.cart.saveOutfit(userId, body.outfit);
+            return sendJson(res, 200, cart);
+          }
+          const cart = await services.cart.addItem(userId, body.item || body);
+          return sendJson(res, 200, cart);
+        }
+        if (method === 'GET') {
+          const userId = url.searchParams.get('userId') || 'guest';
+          const cart = await services.cart.getCart(userId);
+          const comparison = await services.cart.compareLooks(userId);
+          return sendJson(res, 200, { cart, comparison });
+        }
+      }
+      if (method === 'POST' && pathname === '/api/checkout-handoff') {
+        const body = await readBody(req);
+        const userId = body.userId || 'guest';
+        const result = await services.cart.checkoutHandoff(userId, {
+          mode: body.mode,
+          storeId: body.storeId || services.store.id,
+        });
+        return sendJson(res, 200, result);
+      }
+
+      // --- F13 / F14 / F15 dashboards (staff/retailer gated) ---
+      if (method === 'GET' && pathname === '/api/dashboard/retail') {
+        const auth = await requireRole(req, res, ['merchandiser', 'ops', 'admin']);
+        if (!auth) return undefined;
+        return sendJson(res, 200, await services.analytics.retailDashboard());
+      }
+      if (method === 'GET' && pathname === '/api/dashboard/staff') {
+        const auth = await requireRole(req, res, ['associate', 'ops', 'admin']);
+        if (!auth) return undefined;
+        return sendJson(res, 200, await services.analytics.staffDashboard());
+      }
+      if (method === 'GET' && pathname === '/api/dashboard/merchandising') {
+        const auth = await requireRole(req, res, ['merchandiser', 'ops', 'admin']);
+        if (!auth) return undefined;
+        return sendJson(res, 200, await services.analytics.merchandisingInsights());
       }
 
       return sendJson(res, 404, { error: 'not_found', path: pathname });
