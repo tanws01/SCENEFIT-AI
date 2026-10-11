@@ -1,0 +1,133 @@
+rules_version = '2';
+
+// SCENEFIT AI - Firestore security rules (Google Firebase / Identity Platform).
+//
+// Model: deny by default. Access is granted only to authenticated users, and
+// then only for the data their role is allowed to touch. Roles are carried as
+// a custom claim on the Firebase Auth token (set server-side): one of
+// shopper | associate | merchandiser | ops | admin.
+//
+// Principle alignment: retail facts (catalogue, inventory, planogram,
+// collections, analytics) are owned and written by trusted server-side code
+// (Cloud Run with Admin credentials, which bypasses these rules). Client SDKs
+// get read-only or no access to them, and NEVER write analytics. Gemini output
+// never reaches Firestore directly.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- Helpers ----
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function role() {
+      return isSignedIn() ? request.auth.token.role : '';
+    }
+
+    function hasAnyRole(roles) {
+      return isSignedIn() && (role() in roles);
+    }
+
+    // The authenticated user owns the resource keyed by their uid.
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Staff-side roles that operate the store floor and dashboards.
+    function isStaff() {
+      return hasAnyRole(['associate', 'merchandiser', 'ops', 'admin']);
+    }
+
+    // ---- Customer-owned data: profile, cart, saved looks ----
+    // A customer may read and write ONLY their own documents.
+    match /profiles/{uid} {
+      allow read, write: if isOwner(uid);
+    }
+
+    match /carts/{uid} {
+      allow read, write: if isOwner(uid);
+      // Line items / sub-documents inherit the same ownership check.
+      match /{document=**} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
+    match /savedLooks/{uid} {
+      allow read, write: if isOwner(uid);
+      match /{document=**} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
+    // ---- Staff tasks (F10 staff-assisted collection) ----
+    // Customers may create a task and read their own tasks; staff manage them.
+    match /staffTasks/{taskId} {
+      allow create: if isSignedIn()
+                    && request.resource.data.userId == request.auth.uid;
+      allow read: if isStaff()
+                  || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow update, delete: if isStaff();
+    }
+
+    // ---- Fitting-room queue (F11) ----
+    // Customers create/read/cancel their own tickets; staff advance/confirm.
+    match /fittingRoomQueue/{ticketId} {
+      allow create: if isSignedIn()
+                    && request.resource.data.userId == request.auth.uid;
+      allow read: if isStaff()
+                  || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow update, delete: if isStaff()
+                  || (isSignedIn() && resource.data.userId == request.auth.uid);
+    }
+
+    // ---- Retail reference data (catalogue, inventory, planogram, collections) ----
+    // Written only server-side (Admin SDK bypasses rules). Clients read-only:
+    // customers and staff can read product/collection data; nobody writes via
+    // the client SDK.
+    match /products/{sku} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+    match /collections/{id} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+    match /sizeCharts/{id} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+    match /planogram/{id} {
+      // Rack / shelf locations are operational; staff + signed-in customers read.
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+    match /stores/{id} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+    match /retailers/{id} {
+      allow read: if isStaff();
+      allow write: if false;
+    }
+
+    // ---- Analytics (F13 / F15) ----
+    // Analytics are aggregated/written exclusively server-side (into BigQuery
+    // and/or Firestore via the Admin SDK). The client SDK may NEVER write them.
+    // Only staff/merchandiser/ops/admin may read dashboard analytics documents.
+    match /analyticsEvents/{id} {
+      allow read: if isStaff();
+      allow write: if false;
+    }
+    match /analytics/{document=**} {
+      allow read: if isStaff();
+      allow write: if false;
+    }
+
+    // ---- Deny by default ----
+    // Any path not explicitly matched above is denied for all clients.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
