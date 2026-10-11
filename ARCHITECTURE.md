@@ -25,8 +25,13 @@ between **AI suggestion** and **deterministic retail validation** sits.
 
 Each adapter exposes a factory selected by a `*_MODE` env var (see
 `backend/src/config.js`). The default **mock** mode is deterministic and fully
-offline. The **live** mode lazily requires the Google SDK inside the function
-body so module load never fails offline.
+offline. The **Gemini** adapter's **live** mode calls Google AI Studio's
+Generative Language API over Node's built-in global `fetch` (no SDK, zero
+dependencies); the other adapters' live modes lazily require the Google SDK
+inside the function body so module load never fails offline. In every case the
+model's output stays an untrusted suggestion: the Gemini live path strips
+retail-fact fields, references only application-supplied SKUs, derives the scene
+deterministically, and falls back to the mock on any HTTP/parse failure.
 
 ## Request flow (utterance to recommendation)
 
