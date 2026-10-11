@@ -28,6 +28,40 @@ function resolveMode(value) {
 }
 
 /**
+ * Resolve the Gemini adapter mode with a "live-if-key-present" default.
+ *
+ * Gemini is the one service with a fully offline-safe live path: the live
+ * adapter uses Node's built-in global `fetch` (no SDK) and ALWAYS falls back to
+ * the deterministic mock on any HTTP/transport/parse failure. That makes it
+ * safe to default to LIVE whenever a key is available, so the "thinking" parts
+ * (intent, outfit concepts, explanations, retail analysis) are AI-driven out of
+ * the box, while the app still runs fully offline with no key.
+ *
+ * Resolution rules (explicit GEMINI_MODE always wins):
+ *   - GEMINI_MODE=live  -> 'live'  (force live; adapter fails fast if no key)
+ *   - GEMINI_MODE=mock  -> 'mock'  (force offline, even if a key is present)
+ *   - GEMINI_MODE unset -> 'live' when GEMINI_API_KEY is set, else 'mock'
+ *
+ * This "key-present" default is Gemini-specific. The other Google services
+ * (Vertex image / speech / firestore / storage / bigquery / auth) keep the
+ * plain mock-by-default via resolveMode(): they have different live-safety
+ * characteristics and are opted in explicitly per deployment.
+ *
+ * @param {string|undefined} modeValue  value of GEMINI_MODE
+ * @param {string|undefined} apiKeyValue value of GEMINI_API_KEY
+ * @returns {'mock'|'live'}
+ */
+function resolveGeminiMode(modeValue, apiKeyValue) {
+  const normalized = String(modeValue || '').trim().toLowerCase();
+  if (normalized === 'live') return 'live';
+  if (normalized === 'mock') return 'mock';
+  // Unset / unrecognised: default to live only when an API key is available so
+  // the sandbox/CI (no key, no network) still resolves to the offline mock.
+  const hasKey = String(apiKeyValue || '').trim().length > 0;
+  return hasKey ? 'live' : 'mock';
+}
+
+/**
  * Build the configuration object from the current process environment.
  * @param {NodeJS.ProcessEnv} [env=process.env]
  */
@@ -37,7 +71,10 @@ function loadConfig(env = process.env) {
 
     // Per-service adapter modes.
     modes: Object.freeze({
-      gemini: resolveMode(env.GEMINI_MODE),
+      // Gemini defaults to LIVE when GEMINI_API_KEY is present (offline-safe:
+      // the live adapter falls back to the deterministic mock on any failure);
+      // otherwise it stays on the offline mock. GEMINI_MODE always overrides.
+      gemini: resolveGeminiMode(env.GEMINI_MODE, env.GEMINI_API_KEY),
       vertexImage: resolveMode(env.VERTEX_IMAGE_MODE),
       speech: resolveMode(env.SPEECH_MODE),
       firestore: resolveMode(env.FIRESTORE_MODE),
@@ -82,4 +119,4 @@ function loadConfig(env = process.env) {
   });
 }
 
-module.exports = { loadConfig, resolveMode, VALID_MODES };
+module.exports = { loadConfig, resolveMode, resolveGeminiMode, VALID_MODES };
