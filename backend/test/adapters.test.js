@@ -186,7 +186,14 @@ test('live mode adapters load without importing missing packages and throw on us
     BIGQUERY_MODE: 'live',
     AUTH_MODE: 'live',
   }));
-  await assert.rejects(() => liveAll.vertexImage.generateTryOn({}), /not implemented/i);
+  // vertexImage live mode now attempts a real Google Vertex AI call via global
+  // fetch and, with no access token / no network (sandbox/CI), falls back to
+  // the deterministic mock composite rather than throwing - so the try-on flow
+  // never breaks offline.
+  const liveTryOn = await liveAll.vertexImage.generateTryOn({ skus: ['TOP-LIN-001', 'BOT-SHT-010'] });
+  assert.strictEqual(liveTryOn.source, 'vertex-image-mock', 'no-token live path falls back to mock');
+  assert.strictEqual(liveTryOn.isComposite, true);
+  assert.deepStrictEqual(liveTryOn.skus, ['TOP-LIN-001', 'BOT-SHT-010']);
   await assert.rejects(() => liveAll.speech.transcribe('x'), /not implemented/i);
   await assert.rejects(() => liveAll.firestore.get('products', 'x'), /not implemented/i);
   await assert.rejects(() => liveAll.storage.putObject('k', 'v'), /not implemented/i);
