@@ -16,6 +16,10 @@
  */
 
 const COLLECTION = 'staffTasks';
+// The fitting-room queue persists tickets under this collection. We reuse the
+// shared firestore adapter to persist the task<->ticket correlation backlink
+// (sourceTaskId) that the queue state machine itself does not own.
+const { COLLECTION: QUEUE_COLLECTION } = require('./fittingRoomQueue');
 
 /** Picking-task lifecycle states. */
 const TASK_STATES = Object.freeze({
@@ -32,6 +36,12 @@ const TASK_STATES = Object.freeze({
  * @param {object} deps.firestore firestore adapter
  * @param {object} [deps.catalogue] catalogue service (resolve name / availability)
  * @param {object} [deps.storeNavigation] navigation service (map rack location)
+ * @param {object} [deps.fittingRoomQueue] fitting-room queue service (F11). OPTIONAL -
+ *   when wired, reaching ReadyForCollection auto-enqueues (or advances) a queue
+ *   ticket to 'Ready' via the LEGAL state-machine path so the ready task is
+ *   reflected on the fitting-room queue.
+ * @param {object} [deps.store] seeded store/branch record (passed to the queue
+ *   service when creating a ticket; only used when fittingRoomQueue is wired).
  * @param {() => string} [deps.now]
  * @param {() => string} [deps.idgen]
  */
@@ -40,6 +50,8 @@ function createStaffTasks(deps = {}) {
   if (!firestore) throw new Error('staffTasks requires a firestore adapter');
   const catalogue = deps.catalogue || null;
   const storeNavigation = deps.storeNavigation || null;
+  const fittingRoomQueue = deps.fittingRoomQueue || null;
+  const store = deps.store || null;
   const now = typeof deps.now === 'function' ? deps.now : () => new Date().toISOString();
   let seq = 0;
   const idgen = typeof deps.idgen === 'function'
@@ -175,9 +187,150 @@ function createStaffTasks(deps = {}) {
         'Your items are ready for collection'
         + (task.fittingRoomId ? ` at fitting room ${task.fittingRoomId}.` : '.');
       pushHistory(task, TASK_STATES.READY_FOR_COLLECTION, opts.note || 'Items prepared for fitting room.');
+      // A ready-for-collection task must be reflected on the fitting-room
+      // queue. Create or advance a linked ticket to 'Ready' via the LEGAL
+      // state-machine path. This NEVER breaks marking the task ready: any
+      // queue failure is caught and recorded as a non-fatal note.
+      await ensureReadyQueueTicket(task);
       return save(task);
     }
     throw taskError('ILLEGAL_TRANSITION', `cannot prepare a task in state "${task.status}"`);
+  }
+
+  /**
+   * Ensure the fitting-room queue reflects a task that just became
+   * ReadyForCollection: a ticket linked to the task is driven to the 'Ready'
+   * state WITHOUT any illegal state-machine jump.
+   *
+   * Behaviour (all guarded so prepare() stays robust):
+   *   - No queue service wired: no-op.
+   *   - Already-linked ticket (task.queueTicketId): advance THAT ticket legally
+   *     up to 'Ready' from wherever it currently is; if it is already at/after
+   *     'Ready' leave it; if it is terminal/exception do not resurrect it.
+   *     Idempotent - never creates a duplicate.
+   *   - No linked ticket: create one (requestQueue), confirm() it (the store
+   *     operational system is confirming because staff just prepared it), then
+   *     advance Picking Items -> Waiting for Room -> Ready.
+   *   - Branch does not support the queue / requestQueue returns supported:false
+   *     / anything throws: do NOT fail; record a non-fatal note and continue.
+   *
+   * @param {object} task the task mutated in place (persisted by the caller)
+   */
+  async function ensureReadyQueueTicket(task) {
+    if (!fittingRoomQueue) return;
+    try {
+      let ticket = null;
+      if (task.queueTicketId) {
+        // Idempotency guard: a ticket is already linked. Advance it, never
+        // create a duplicate.
+        ticket = await fittingRoomQueue.get(task.queueTicketId);
+        if (!ticket) {
+          // The linked ticket vanished; fall through to create a fresh one.
+          task.queueTicketId = null;
+        }
+      }
+
+      if (!ticket) {
+        const result = await fittingRoomQueue.requestQueue({
+          branch: store,
+          userId: task.userId,
+          items: (task.garments || []).map((g) => ({
+            sku: g.sku, size: g.size, colour: g.colour,
+          })),
+        });
+        if (!result || result.supported === false || !result.ticket) {
+          pushHistory(
+            task,
+            TASK_STATES.READY_FOR_COLLECTION,
+            'Fitting-room queue not available at this branch; task is ready for collection without a queue ticket.'
+          );
+          return;
+        }
+        ticket = result.ticket;
+        task.queueTicketId = ticket.id;
+        // Symmetric backlink so the dashboard/analytics can correlate them.
+        await linkTicketToTask(ticket, task);
+      } else if (!task.queueTicketId) {
+        task.queueTicketId = ticket.id;
+      }
+
+      await driveTicketToReady(ticket, task);
+    } catch (err) {
+      // A queue error must NOT break marking the task ready.
+      pushHistory(
+        task,
+        TASK_STATES.READY_FOR_COLLECTION,
+        `Could not enqueue fitting-room ticket (${err.message}); task is still ready for collection.`
+      );
+    }
+  }
+
+  /**
+   * Store the task backlink + fittingRoomId on the ticket. We do this through
+   * the queue's own transition calls where possible, but the sourceTaskId is a
+   * correlation field the queue state machine does not own, so we persist it
+   * directly via the shared firestore adapter under the queue collection.
+   * @param {object} ticket
+   * @param {object} task
+   */
+  async function linkTicketToTask(ticket, task) {
+    ticket.sourceTaskId = task.id;
+    if (task.fittingRoomId) ticket.fittingRoomId = task.fittingRoomId;
+    await firestore.set(QUEUE_COLLECTION, ticket.id, ticket);
+  }
+
+  /**
+   * Walk the legal queue state chain from the ticket's CURRENT state up to
+   * 'Ready', skipping steps already passed and never forcing an illegal jump.
+   * Legal path: Requested ->(confirm)-> Confirmed ->(advance)-> Picking Items
+   * ->(advance)-> Waiting for Room ->(advance)-> Ready. If the ticket is already
+   * at/after Ready, or in a terminal/exception state, leave it untouched.
+   * @param {object} ticket current ticket (will be re-read as it transitions)
+   * @param {object} task
+   */
+  async function driveTicketToReady(ticket, task) {
+    const S = fittingRoomQueue.STATES;
+    const fittingRoomId = task.fittingRoomId || ticket.fittingRoomId || null;
+
+    // The ONLY states we legally advance FROM, in order, toward Ready.
+    const forwardable = [S.REQUESTED, S.CONFIRMED, S.PICKING_ITEMS, S.WAITING_FOR_ROOM];
+    // Safety bound: the forward chain has at most 4 hops.
+    for (let guard = 0; guard < 6; guard += 1) {
+      const current = await fittingRoomQueue.get(ticket.id);
+      if (!current) return;
+      const state = current.status;
+      if (state === S.READY) {
+        // Make sure the correlation backlink + room are persisted.
+        if (current.sourceTaskId !== task.id || (fittingRoomId && current.fittingRoomId !== fittingRoomId)) {
+          await linkTicketToTask(current, task);
+        }
+        return;
+      }
+      // Already past Ready (In Fitting Room / Completed) or in a terminal /
+      // exception state: do not resurrect or advance it.
+      if (!forwardable.includes(state)) return;
+
+      if (state === S.REQUESTED) {
+        await fittingRoomQueue.confirm(ticket.id, { fittingRoomId });
+      } else if (state === S.CONFIRMED) {
+        await fittingRoomQueue.advance(ticket.id, S.PICKING_ITEMS, {
+          fittingRoomId, note: `Auto-picking for staff task ${task.id}.`,
+        });
+      } else if (state === S.PICKING_ITEMS) {
+        await fittingRoomQueue.advance(ticket.id, S.WAITING_FOR_ROOM, {
+          fittingRoomId, note: `Items prepared for staff task ${task.id}.`,
+        });
+      } else if (state === S.WAITING_FOR_ROOM) {
+        await fittingRoomQueue.advance(ticket.id, S.READY, {
+          fittingRoomId, note: `Ready for collection for staff task ${task.id}.`,
+        });
+      }
+    }
+    // Persist the backlink after reaching Ready.
+    const finalTicket = await fittingRoomQueue.get(ticket.id);
+    if (finalTicket && finalTicket.sourceTaskId !== task.id) {
+      await linkTicketToTask(finalTicket, task);
+    }
   }
 
   /** Mark the collection completed. */

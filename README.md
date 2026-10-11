@@ -148,6 +148,12 @@ data, never taken from the model:
 - **Budget** - the assembled outfit total respects the mandatory budget cap.
 - **Planogram location** - the exact in-store rack / shelf position.
 - **Queue confirmation** - fitting-room queue state and staff confirmation.
+  When a staff picking task is marked **ReadyForCollection**, a linked
+  fitting-room queue ticket is automatically created (or advanced) to **Ready**
+  along the legal state-machine path, so it appears in the Staff Dashboard
+  "Fitting-room queue" section. The strict queue state machine is never
+  weakened (no illegal jump to Confirmed/Ready); if the branch has no queue the
+  task still becomes ready for collection.
 - **Collection dates** - new-arrival / collection availability dates.
 
 ### Success guarantees
