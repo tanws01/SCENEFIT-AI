@@ -20,10 +20,22 @@
  * application services that validate against the seeded catalogue/inventory.
  *
  * The "mock" path is fully deterministic (no randomness, no network) so the
- * whole system runs offline. The "live" path is a clearly-marked TODO stub
- * that lazily requires the Google SDK inside the function body, so module load
- * never fails offline when the SDK is absent.
+ * whole system runs offline. The "live" path calls Google AI Studio's
+ * Generative Language API (https://generativelanguage.googleapis.com) over
+ * Node's built-in global `fetch` (no SDK, zero dependencies). The live model
+ * output is UNTRUSTED: every object returned from the model is passed through
+ * `stripRetailFields`, `proposeOutfits` may only reference SKUs from the pool
+ * supplied by the application, and `scene` is always derived deterministically
+ * by `deriveScene` (never by the model). On any HTTP/parse failure the live
+ * path falls back to the deterministic mock so a transient model hiccup never
+ * breaks the shopping flow.
+ *
+ * GOOGLE-ONLY: the only AI provider this adapter ever targets is Google
+ * (Generative Language API / Google AI Studio).
  */
+
+/** Base URL for the Google AI Studio / Generative Language API. */
+const GENERATIVE_LANGUAGE_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 
 /** Fields the application layer owns. Gemini concepts must never carry them. */
 const FORBIDDEN_RETAIL_FIELDS = Object.freeze([
@@ -333,6 +345,227 @@ function capitalize(s) {
 }
 
 /**
+ * Call the Google AI Studio / Generative Language API `generateContent`
+ * endpoint for a given model and prompt, requesting a JSON response, and
+ * return the parsed JSON object. Uses Node's built-in global `fetch` (Node 18+)
+ * so there is no SDK dependency. Throws on any HTTP, transport, or JSON parse
+ * failure so callers can decide to fall back to the deterministic mock.
+ *
+ * GOOGLE-ONLY: targets only https://generativelanguage.googleapis.com.
+ *
+ * @param {{apiKey:string, model:string, prompt:string, expectJson?:boolean}} args
+ * @returns {Promise<object|string>} parsed JSON object (expectJson) or raw text
+ */
+async function callGenerateContent({ apiKey, model, prompt, expectJson = true }) {
+  const url =
+    `${GENERATIVE_LANGUAGE_BASE}/models/${encodeURIComponent(model)}:generateContent` +
+    `?key=${encodeURIComponent(apiKey)}`;
+
+  const body = {
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: expectJson
+      ? { responseMimeType: 'application/json', temperature: 0.4 }
+      : { temperature: 0.6 },
+  };
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  if (!response || !response.ok) {
+    const status = response ? response.status : 'no-response';
+    throw new Error(`gemini generateContent HTTP error: ${status}`);
+  }
+
+  const payload = await response.json();
+  const text =
+    payload &&
+    payload.candidates &&
+    payload.candidates[0] &&
+    payload.candidates[0].content &&
+    payload.candidates[0].content.parts &&
+    payload.candidates[0].content.parts[0] &&
+    payload.candidates[0].content.parts[0].text;
+
+  if (typeof text !== 'string' || text.length === 0) {
+    throw new Error('gemini generateContent returned no text');
+  }
+
+  if (!expectJson) return text;
+  // Defensive parse: strip markdown code fences if the model wraps JSON.
+  const cleaned = text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
+  return JSON.parse(cleaned);
+}
+
+/**
+ * Build the strict-JSON prompt that asks the model to interpret a shopper
+ * utterance. The model returns an interpretation only; it is told never to
+ * emit retail facts (price/stock/availability/etc.).
+ */
+function buildParseIntentPrompt(utterance, profile) {
+  return [
+    'You are a fashion styling language-understanding assistant for a retail app.',
+    'Interpret the shopper utterance into a STRICT JSON object. Return JSON ONLY,',
+    'no prose, no markdown. Never include price, stock, availability, size',
+    'availability, budget compliance, rack location, queue, or collection dates',
+    'beyond echoing a budget amount the shopper stated.',
+    '',
+    'JSON shape (fill every field, use null or [] when unknown):',
+    '{',
+    '  "entryPoint": "style-my-moment" | "explore-whats-new",',
+    '  "wantsLatestCollection": boolean,',
+    '  "occasions": string[],',
+    '  "activities": string[],',
+    '  "styles": string[],',
+    '  "colours": string[],',
+    '  "sizes": string[],',
+    '  "budget": { "amountRm": number, "currency": "RM" } | null,',
+    '  "confidence": number (0..1)',
+    '}',
+    '',
+    `Shopper profile (hints only): ${JSON.stringify(profile || {})}`,
+    `Shopper utterance: ${JSON.stringify(String(utterance || ''))}`,
+  ].join('\n');
+}
+
+/**
+ * Build the strict-JSON prompt for arranging a candidate pool into up to three
+ * outfit concepts. The model may ONLY reference SKUs present in the pool.
+ */
+function buildProposeOutfitsPrompt(intent, pool) {
+  const safeIntent = stripRetailFields({
+    entryPoint: intent && intent.entryPoint,
+    wantsLatestCollection: intent && intent.wantsLatestCollection,
+    occasions: (intent && intent.occasions) || [],
+    activities: (intent && intent.activities) || [],
+    styles: (intent && intent.styles) || [],
+    colours: (intent && intent.colours) || [],
+  });
+  return [
+    'You are a fashion stylist. Arrange the supplied candidate garments into up',
+    'to THREE coherent outfit CONCEPTS. Return STRICT JSON ONLY (no markdown).',
+    'You may ONLY reference the "sku" values from the candidate pool below; never',
+    'invent a SKU. Do NOT include price, stock, availability, size availability,',
+    'budget, rack location, queue, or collection dates - the application owns all',
+    'retail facts. You only arrange and explain.',
+    '',
+    'JSON shape:',
+    '{ "concepts": [',
+    '  { "conceptId": string, "name": string, "theme": string,',
+    '    "styleLabel": string, "rationale": string,',
+    '    "slots": [ { "role": string, "candidateSku": string, "note": string } ] }',
+    '] }',
+    '',
+    `Parsed intent (context only): ${JSON.stringify(safeIntent)}`,
+    `Candidate pool: ${JSON.stringify(pool)}`,
+  ].join('\n');
+}
+
+/**
+ * Build the prompt that asks the model to explain an already-assembled outfit
+ * in natural language. Returns prose, not JSON.
+ */
+function buildExplainOutfitPrompt(outfitConcept) {
+  const safe = stripRetailFields(outfitConcept || {});
+  return [
+    'You are a fashion stylist. In 1-2 short sentences, explain why this outfit',
+    'concept works for the shopper. Do not mention price, stock, availability,',
+    'or any retail fact. Respond with plain text only.',
+    '',
+    `Outfit concept: ${JSON.stringify(safe)}`,
+  ].join('\n');
+}
+
+/**
+ * Normalise a model-produced intent into the exact shape the mock returns,
+ * filling any omitted field with a safe default so downstream code never
+ * breaks. `scene` is always derived deterministically by the caller, so it is
+ * not set here. Retail fields are stripped defensively.
+ */
+function normaliseLiveIntent(raw, utterance, profile) {
+  const safe = stripRetailFields(raw && typeof raw === 'object' ? raw : {});
+  const asArray = (v) => (Array.isArray(v) ? v.filter((x) => x != null) : []);
+
+  let budget = null;
+  if (safe.budget && typeof safe.budget === 'object' && safe.budget.amountRm != null) {
+    const amount = Number(safe.budget.amountRm);
+    if (Number.isFinite(amount)) budget = { amountRm: amount, currency: 'RM' };
+  }
+
+  const entryPoint =
+    safe.entryPoint === 'explore-whats-new' ? 'explore-whats-new' : 'style-my-moment';
+  const wantsLatest =
+    typeof safe.wantsLatestCollection === 'boolean'
+      ? safe.wantsLatestCollection
+      : entryPoint === 'explore-whats-new';
+
+  let confidence = Number(safe.confidence);
+  if (!Number.isFinite(confidence) || confidence < 0 || confidence > 1) confidence = 0.75;
+
+  return {
+    rawUtterance: String(utterance || ''),
+    entryPoint,
+    wantsLatestCollection: wantsLatest,
+    occasions: asArray(safe.occasions),
+    activities: asArray(safe.activities),
+    styles: asArray(safe.styles),
+    colours: asArray(safe.colours),
+    // scene is set deterministically by the caller via deriveScene().
+    scene: null,
+    sizes: asArray(safe.sizes),
+    budget,
+    profileHints: {
+      preferredSizes: Array.isArray(profile && profile.preferredSizes) ? profile.preferredSizes : [],
+      preferredColours: Array.isArray(profile && profile.preferredColours) ? profile.preferredColours : [],
+    },
+    confidence,
+    source: 'gemini-live',
+  };
+}
+
+/**
+ * Normalise model-produced outfit concepts: strip retail fields, drop any slot
+ * whose candidateSku is not in the supplied pool, drop empty concepts, and
+ * stamp source/isSuggestion. The model can therefore never invent a SKU or
+ * smuggle a retail fact.
+ */
+function normaliseLiveConcepts(raw, pool) {
+  const validSkus = new Set((Array.isArray(pool) ? pool : []).map((c) => c && c.sku).filter(Boolean));
+  const list = raw && Array.isArray(raw.concepts) ? raw.concepts : (Array.isArray(raw) ? raw : []);
+
+  const concepts = [];
+  list.forEach((rawConcept, index) => {
+    const concept = stripRetailFields(rawConcept || {});
+    const rawSlots = Array.isArray(concept.slots) ? concept.slots : [];
+    const slots = rawSlots
+      .map((s) => stripRetailFields(s || {}))
+      .filter((s) => s && typeof s.candidateSku === 'string' && validSkus.has(s.candidateSku))
+      .map((s) => ({
+        role: typeof s.role === 'string' ? s.role : 'piece',
+        candidateSku: s.candidateSku,
+        note: typeof s.note === 'string' ? s.note : '',
+      }));
+
+    if (slots.length === 0) return;
+
+    concepts.push({
+      conceptId: typeof concept.conceptId === 'string' ? concept.conceptId : `concept-${index + 1}`,
+      name: typeof concept.name === 'string' ? concept.name : `Look ${index + 1}`,
+      theme: typeof concept.theme === 'string' ? concept.theme : 'occasion',
+      styleLabel: typeof concept.styleLabel === 'string' ? concept.styleLabel : 'effortless',
+      slots,
+      rationale: typeof concept.rationale === 'string' ? concept.rationale : 'A coordinated look.',
+      isSuggestion: true,
+      source: 'gemini-live',
+    });
+  });
+
+  return concepts.slice(0, 3).map(stripRetailFields);
+}
+
+/**
  * Factory. Returns a common interface regardless of mode.
  * @param {{mode?: 'mock'|'live', config?: object}} [opts]
  */
@@ -340,16 +573,85 @@ function createGemini(opts = {}) {
   const mode = opts.mode === 'live' ? 'live' : 'mock';
 
   if (mode === 'live') {
+    const geminiConfig = (opts.config && opts.config.google && opts.config.google.gemini) || {};
+    const apiKey = geminiConfig.apiKey || '';
+    const model = geminiConfig.model || 'gemini-2.5-flash';
+
+    // Config error (distinct from a transient API failure): live mode requires
+    // an API key. Fail fast with a clear, actionable message rather than
+    // silently falling back to the mock.
+    const assertConfigured = () => {
+      if (!apiKey) {
+        throw new Error(
+          'GEMINI_MODE=live requires GEMINI_API_KEY. Get a key from Google AI Studio ' +
+          '(https://aistudio.google.com/app/apikey) and set GEMINI_API_KEY in your ' +
+          'environment (never commit it; in production it comes from Secret Manager).'
+        );
+      }
+    };
+
     return {
       mode,
       async parseIntent(utterance, profile) {
-        return liveNotImplemented('parseIntent', { utterance, profile });
+        assertConfigured();
+        // scene is ALWAYS deterministic and model-independent.
+        const scene = deriveScene(String(utterance || '').toLowerCase());
+        try {
+          const raw = await callGenerateContent({
+            apiKey,
+            model,
+            prompt: buildParseIntentPrompt(utterance, profile),
+          });
+          const intent = normaliseLiveIntent(raw, utterance, profile);
+          intent.scene = scene;
+          return intent;
+        } catch (err) {
+          // Transient failure: fall back to the deterministic mock.
+          console.warn(`[gemini-live] parseIntent fell back to mock: ${err.message}`);
+          const intent = mockParseIntent(utterance, profile);
+          intent.scene = scene;
+          return intent;
+        }
       },
       async proposeOutfits(intent, candidatePool) {
-        return liveNotImplemented('proposeOutfits', { intent, candidatePool });
+        assertConfigured();
+        const pool = Array.isArray(candidatePool) ? candidatePool : [];
+        try {
+          const raw = await callGenerateContent({
+            apiKey,
+            model,
+            prompt: buildProposeOutfitsPrompt(intent, pool),
+          });
+          const concepts = normaliseLiveConcepts(raw, pool);
+          // If the model produced nothing usable, fall back to the mock.
+          if (!concepts.length) {
+            console.warn('[gemini-live] proposeOutfits produced no valid concepts; using mock');
+            return mockProposeOutfits(intent, pool);
+          }
+          return concepts;
+        } catch (err) {
+          console.warn(`[gemini-live] proposeOutfits fell back to mock: ${err.message}`);
+          return mockProposeOutfits(intent, pool);
+        }
       },
       async explainOutfit(outfitConcept) {
-        return liveNotImplemented('explainOutfit', { outfitConcept });
+        assertConfigured();
+        try {
+          const text = await callGenerateContent({
+            apiKey,
+            model,
+            prompt: buildExplainOutfitPrompt(outfitConcept),
+            expectJson: false,
+          });
+          return {
+            conceptId: (outfitConcept && outfitConcept.conceptId) || null,
+            explanation: String(text).trim(),
+            source: 'gemini-live',
+          };
+        } catch (err) {
+          console.warn(`[gemini-live] explainOutfit fell back to mock: ${err.message}`);
+          return mockExplainOutfit(outfitConcept);
+        }
       },
     };
   }
@@ -370,31 +672,19 @@ function createGemini(opts = {}) {
   };
 }
 
-/**
- * Live-mode TODO stub. Never reached offline. Lazily requires the Google SDK
- * so module load never fails when the package is absent.
- * @param {string} method
- */
-function liveNotImplemented(method /*, args */) {
-  // TODO(live): Call Google Gemini via the Generative Language API or Vertex AI.
-  //   Endpoint: https://generativelanguage.googleapis.com/v1/models/{model}:generateContent
-  //            (or Vertex AI: {location}-aiplatform.googleapis.com)
-  //   Env vars: GEMINI_API_KEY (from Secret Manager), GEMINI_MODEL,
-  //             GOOGLE_CLOUD_PROJECT, VERTEX_LOCATION.
-  //   Lazy require keeps module load safe offline:
-  //     const { GoogleGenerativeAI } = require('@google/generative-ai');
-  //   The live model MUST be prompted to return concepts only; the application
-  //   still validates all retail facts regardless of model output.
-  throw new Error(
-    `gemini live mode not implemented in MVP (method: ${method}). ` +
-    'Configure GEMINI_MODE=live with Google Gemini credentials in a deployed environment.'
-  );
-}
-
 module.exports = {
   createGemini,
   FORBIDDEN_RETAIL_FIELDS,
   SCENE_KEYWORDS,
   // Exported for unit tests of the deterministic logic.
   _mock: { mockParseIntent, mockProposeOutfits, mockExplainOutfit, stripRetailFields, deriveScene },
+  // Exported for unit tests of the live-mode normalisation/prompt logic.
+  _live: {
+    normaliseLiveIntent,
+    normaliseLiveConcepts,
+    buildParseIntentPrompt,
+    buildProposeOutfitsPrompt,
+    buildExplainOutfitPrompt,
+    GENERATIVE_LANGUAGE_BASE,
+  },
 };
