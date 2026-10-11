@@ -57,16 +57,39 @@ Google SDK inside the function body, so module load never fails offline.
 > ```
 
 ```sh
-# Start the backend (defaults to offline mock mode for all Google services)
+# Start the full stack (backend API + static frontend) from one process
 env -u NODE_OPTIONS node backend/src/server.js
-# -> GET http://localhost:8080/health
+# -> open http://localhost:8080/                     (customer shopping app)
+# -> open http://localhost:8080/retailer-dashboard.html
+# -> open http://localhost:8080/staff-dashboard.html
+# -> GET  http://localhost:8080/healthz
 
 # Run tests
 env -u NODE_OPTIONS node --test
 ```
 
+The backend serves the vanilla HTML/CSS/JS frontend statically (so a single
+`node backend/src/server.js` runs the entire offline demo) while the frontend
+stays independently deployable to **Firebase Hosting** (`frontend/firebase.json`
+rewrites `/api/**` to a Cloud Run backend). Product images are synthesised as
+inline SVG placeholders, so there are **no binary assets and no network/CDN
+dependencies** at runtime.
+
 Copy `.env.example` to `.env` to adjust ports, Google project settings, and
 per-service `*_MODE` toggles. Every service defaults to `mock`.
+
+### Demo journeys
+
+The customer app has two one-click demo buttons that pre-fill and send the
+canonical scenarios end to end:
+
+1. **Port Dickson occasion** - "sunset seafood dinner and photos, stylish and
+   comfortable, budget RM250" -> three coordinated looks, all within RM250.
+2. **Latest arrivals** - "relaxed tailoring and streetwear, under RM300" ->
+   three new-arrival looks, all within RM300.
+
+Dashboards are gated by Firebase Auth role. Use the demo tokens
+`demo-merchandiser` (retailer / merchandising) and `demo-associate` (staff).
 
 ## Project layout
 
@@ -75,11 +98,18 @@ backend/
   src/
     config.js            # env -> per-service adapter mode selection
     server.js            # Node http server (scaffold; routes added later)
+    static.js            # static file handler serving frontend/ + synthesised assets
     adapters/            # one module per Google service (mock + live stub)
-    services/            # deterministic retail logic (added in later features)
+    services/            # deterministic retail logic
   data/                  # seeded demo catalogue / collections / planogram / analytics
   test/                  # node:test suites
-frontend/                # vanilla HTML/CSS/JS web app (added in later features)
+frontend/                # vanilla HTML/CSS/JS web app (zero build step, offline)
+  index.html             # customer shopping assistant (voice + text, outfit cards)
+  retailer-dashboard.html# F13 retailer intelligence + F15 merchandising insights
+  staff-dashboard.html   # F14 staff operations (picking, fitting rooms, queue)
+  css/styles.css         # mobile-first responsive styles (no external libs)
+  js/                    # api.js (fetch wrapper), app.js, dashboard scripts
+  firebase.json          # independent Firebase Hosting deploy config
 shared/contracts/        # JSON/JSDoc shapes shared by frontend & backend
 ```
 

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SCENEFIT AI - Retailer Intelligence Dashboard</title>
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <div class="brand">
+        <div class="logo">SF</div>
+        <div>
+          <h1>SCENEFIT AI</h1>
+          <p class="tagline">Retailer Intelligence Dashboard</p>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a href="/">Shop</a>
+        <a href="/retailer-dashboard.html">Retailer Dashboard</a>
+        <a href="/staff-dashboard.html">Staff Dashboard</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="app">
+    <section class="panel">
+      <h3>Sign in (merchandiser / ops / admin)</h3>
+      <p class="muted">Dashboards are gated by Firebase Auth role. Use a demo token to view aggregated, privacy-protected data.</p>
+      <div class="composer">
+        <input type="text" id="token" value="demo-merchandiser" placeholder="auth token (e.g. demo-merchandiser or ops:u1)" />
+        <button class="btn" id="loadBtn" type="button">Load dashboard</button>
+      </div>
+      <p class="hint">Accepted roles: merchandiser, ops, admin. Try also <code>ops:u-ops-1</code> or <code>admin:u-admin</code>.</p>
+      <p id="authStatus" class="muted"></p>
+    </section>
+
+    <div id="status" class="spinner"></div>
+    <section id="retail"></section>
+    <section id="merch"></section>
+  </main>
+
+  <footer class="site">
+    <p class="google-note">Aggregated, privacy-protected analytics via Google BigQuery. F15 insights are human decision-support only.</p>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/retailer-dashboard.js"></script>
+</body>
+</html>
