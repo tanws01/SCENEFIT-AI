@@ -170,10 +170,12 @@ test('firebaseAuth mock verifies demo tokens and rejects bad ones', async () => 
 });
 
 test('live mode adapters load without importing missing packages and throw on use', async () => {
-  // Module load must not throw offline even in live mode (lazy require inside).
+  // Module load must not throw offline even in live mode.
   const liveGemini = createGemini({ mode: 'live', config });
   assert.strictEqual(liveGemini.mode, 'live');
-  await assert.rejects(() => liveGemini.parseIntent('hello'), /live mode not implemented/i);
+  // With no GEMINI_API_KEY configured, live gemini fails fast with a clear
+  // config error (distinct from a transient API failure).
+  await assert.rejects(() => liveGemini.parseIntent('hello'), /GEMINI_API_KEY/i);
 
   const liveAll = createAdapters(loadConfig({
     GEMINI_MODE: 'live',
