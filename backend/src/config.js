@@ -53,7 +53,10 @@ function loadConfig(env = process.env) {
 
       gemini: Object.freeze({
         apiKey: env.GEMINI_API_KEY || '',
-        model: env.GEMINI_MODEL || 'gemini-1.5-flash',
+        // Default to a current, widely-available GA model. Override with
+        // GEMINI_MODEL to use the newest available id (discover via the
+        // models-list endpoint; see README).
+        model: env.GEMINI_MODEL || 'gemini-2.5-flash',
       }),
 
       vertexImage: Object.freeze({

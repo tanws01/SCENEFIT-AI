@@ -21,6 +21,7 @@ Prices are in **RM** (Malaysian Ringgit).
 6. [Run the tests](#run-the-tests)
 7. [Demo scenarios](#demo-scenarios)
 8. [Mock to live: env var reference](#mock-to-live-env-var-reference)
+   - [Live Gemini (Google AI Studio)](#live-gemini-google-ai-studio)
 9. [Deploy notes (Cloud Run + Firebase Hosting)](#deploy-notes-cloud-run--firebase-hosting)
 10. [MVP scope vs future phases](#mvp-scope-vs-future-phases)
 11. [Project layout](#project-layout)
@@ -121,9 +122,11 @@ maps to a dedicated Google service behind an adapter:
 
 Every adapter exposes a factory selected by a `*_MODE` env var (see
 `backend/src/config.js`). The default **mock** mode is deterministic and fully
-offline (no network, no third-party packages). The **live** mode is a
-clearly-marked stub that lazily requires the Google SDK inside the function body,
-so module load never fails offline.
+offline (no network, no third-party packages). The **Gemini** adapter also has
+a working **live** mode that calls Google AI Studio's Generative Language API
+over Node's built-in global `fetch` (no SDK, still zero dependencies); the other
+adapters' live modes remain clearly-marked stubs for a deployed Google Cloud
+environment. See [Live Gemini (Google AI Studio)](#live-gemini-google-ai-studio).
 
 For the full request-flow diagram, see [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
@@ -254,9 +257,9 @@ credentials. In production, **secrets come from Secret Manager**, not from
 
 | Env var | Switches | Default (mock) | Live meaning |
 | --- | --- | --- | --- |
-| `GEMINI_MODE` | Gemini NLU + styling | `mock` | Call Gemini via Vertex AI / Generative Language API |
-| `GEMINI_API_KEY` | Gemini credential | *(empty)* | From Secret Manager; never committed |
-| `GEMINI_MODEL` | Gemini model id | `gemini-1.5-flash` | Target model |
+| `GEMINI_MODE` | Gemini NLU + styling | `mock` | Call Gemini via the Google AI Studio / Generative Language API |
+| `GEMINI_API_KEY` | Gemini credential | *(empty)* | API key from Google AI Studio; from Secret Manager in prod; never committed |
+| `GEMINI_MODEL` | Gemini model id | `gemini-2.5-flash` | Target model (override to use the newest available id) |
 | `VERTEX_IMAGE_MODE` | Virtual try-on | `mock` | Call Vertex AI image generation |
 | `VERTEX_IMAGE_MODEL` | Image model id | `imagegeneration` | Vertex AI image model |
 | `VERTEX_LOCATION` | Vertex AI region | `asia-southeast1` | Vertex AI / Gemini region |
@@ -272,6 +275,53 @@ credentials. In production, **secrets come from Secret Manager**, not from
 | `FIREBASE_PROJECT` | Firebase project | `scenefit-demo` | Firebase project id |
 | `GOOGLE_APPLICATION_CREDENTIALS` | SA key (local live only) | *(empty)* | Path to a service-account key; unset in Cloud Run (uses ADC). From Secret Manager, never committed |
 | `PORT` | HTTP port | `8080` | Cloud Run sets this at runtime |
+
+### Live Gemini (Google AI Studio)
+
+The Gemini adapter ([`backend/src/adapters/gemini.js`](backend/src/adapters/gemini.js))
+has a working live path that calls the Google AI Studio / Generative Language
+API. It still runs **fully offline with deterministic mocks by default (no key
+needed)** - mock stays the default so nothing breaks for someone with no key.
+
+To run a local demo against live Gemini:
+
+1. Get an API key from **Google AI Studio** (`https://aistudio.google.com/app/apikey`).
+2. Export it as an env var (it is read from `GEMINI_API_KEY` and is **never**
+   committed; in production it comes from Secret Manager). Then start the server:
+
+   ```sh
+   GEMINI_MODE=live GEMINI_API_KEY=your-key-here \
+     env -u NODE_OPTIONS node backend/src/server.js
+   # optionally pin a specific model:
+   GEMINI_MODE=live GEMINI_API_KEY=your-key-here GEMINI_MODEL=gemini-2.5-flash \
+     env -u NODE_OPTIONS node backend/src/server.js
+   ```
+
+   If `GEMINI_MODE=live` but `GEMINI_API_KEY` is unset, the adapter fails fast
+   with a clear error (that is a config mistake, distinct from a transient API
+   failure).
+
+**Model selection.** The default model is **`gemini-2.5-flash`**, overridable
+via `GEMINI_MODEL`. Model ids change over time; discover the newest available
+id for your key with the models-list endpoint:
+
+```sh
+curl -s "https://generativelanguage.googleapis.com/v1beta/models?key=$GEMINI_API_KEY"
+```
+
+**Trust boundary still holds in live mode.** The model only produces language
+understanding and outfit *concepts*; the application still validates every
+retail fact. Concretely, the live adapter: strips any price/stock/availability/
+rack/queue/collection-date field the model tries to emit; references **only**
+SKUs present in the candidate pool the app supplies (invented SKUs are dropped);
+derives the Shop-page `scene` deterministically (never from the model); and, on
+any HTTP or JSON-parse failure, **falls back to the deterministic mock** so a
+transient model hiccup never breaks the shopping flow.
+
+> **Not verified in this offline sandbox.** The build/test environment has no
+> outbound network, so a real live Gemini call cannot be executed here. The live
+> path is exercised by unit tests that stub `fetch`; verify end to end by running
+> locally with your own key as shown above.
 
 ## Deploy notes (Cloud Run + Firebase Hosting)
 
