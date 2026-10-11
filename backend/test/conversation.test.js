@@ -88,6 +88,41 @@ test('intent switch (occasion -> latest arrivals) works mid-conversation', async
   assert.strictEqual(refined.intent.budget.amountRm, 250);
 });
 
+test('explicit entryPoint overrides keyword inference (explore-whats-new beats an occasion prompt)', async () => {
+  const { conversation } = build();
+  const session = await conversation.startSession({});
+  // Occasion-sounding prompt that would normally infer style-my-moment, but the
+  // shopper explicitly chose "Explore What's New" on Page 2.
+  const res = await conversation.handleMessage(session.id, {
+    text: 'sunset dinner at Batu Ferringhi beach, budget RM250',
+    entryPoint: 'explore-whats-new',
+  });
+  assert.strictEqual(res.intent.entryPoint, 'explore-whats-new', 'explicit choice wins');
+  assert.strictEqual(res.intent.wantsLatestCollection, true, 'latest-collection engine path is engaged');
+  // The occasion parse (and scene) still ride along as context.
+  assert.ok(res.intent.occasions.includes('beach'), 'occasion context preserved');
+  assert.strictEqual(res.intent.budget.amountRm, 250, 'budget still captured');
+});
+
+test('explicit entryPoint overrides keyword inference (style-my-moment beats a latest-collection prompt)', async () => {
+  const { conversation } = build();
+  const session = await conversation.startSession({});
+  const res = await conversation.handleMessage(session.id, {
+    text: "show me what's new under RM300",
+    entryPoint: 'style-my-moment',
+  });
+  assert.strictEqual(res.intent.entryPoint, 'style-my-moment', 'explicit choice wins');
+  assert.strictEqual(res.intent.wantsLatestCollection, false, 'occasion engine path is engaged');
+});
+
+test('an unrecognised/absent entryPoint falls back to keyword inference', async () => {
+  const { conversation } = build();
+  const session = await conversation.startSession({});
+  const res = await conversation.handleMessage(session.id, { text: LATEST, entryPoint: 'nonsense' });
+  assert.strictEqual(res.intent.entryPoint, 'explore-whats-new', 'keyword inference retained');
+  assert.strictEqual(res.intent.wantsLatestCollection, true);
+});
+
 test('asks a targeted follow-up only when a mandatory slot is missing', async () => {
   const { conversation } = build();
   const session = await conversation.startSession({});

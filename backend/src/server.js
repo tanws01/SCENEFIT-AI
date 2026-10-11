@@ -168,6 +168,7 @@ function createRequestHandler(ctx) {
           text: body.text,
           voiceRef: body.voiceRef,
           profile,
+          entryPoint: body.entryPoint,
         });
         const recommendation = await services.outfitEngine.recommend(result.intent, { profile });
         return sendJson(res, 200, {

@@ -14,32 +14,92 @@ Prices are in **RM** (Malaysian Ringgit).
 ## Table of contents
 
 1. [Product overview](#product-overview)
-2. [Google-only architecture](#google-only-architecture)
-3. [The suggest / validate principle](#the-suggest--validate-principle)
-4. [Run the full stack offline (mocks)](#run-the-full-stack-offline-mocks)
-5. [Run the tests](#run-the-tests)
-6. [Demo scenarios](#demo-scenarios)
-7. [Mock to live: env var reference](#mock-to-live-env-var-reference)
-8. [Deploy notes (Cloud Run + Firebase Hosting)](#deploy-notes-cloud-run--firebase-hosting)
-9. [MVP scope vs future phases](#mvp-scope-vs-future-phases)
-10. [Project layout](#project-layout)
-11. [Google-only statement](#google-only-statement)
+2. [Screens and navigation](#screens-and-navigation)
+3. [Google-only architecture](#google-only-architecture)
+4. [The suggest / validate principle](#the-suggest--validate-principle)
+5. [Run the full stack offline (mocks)](#run-the-full-stack-offline-mocks)
+6. [Run the tests](#run-the-tests)
+7. [Demo scenarios](#demo-scenarios)
+8. [Mock to live: env var reference](#mock-to-live-env-var-reference)
+9. [Deploy notes (Cloud Run + Firebase Hosting)](#deploy-notes-cloud-run--firebase-hosting)
+10. [MVP scope vs future phases](#mvp-scope-vs-future-phases)
+11. [Project layout](#project-layout)
+12. [Google-only statement](#google-only-statement)
 
 ## Product overview
 
-SCENEFIT AI is a mobile-first web app backed by a JSON REST API. A shopper
-speaks or types what they are shopping for ("sunset dinner in Port Dickson,
-stylish but comfortable, under RM250"); the assistant understands the moment and
-returns three complete, coordinated looks that are guaranteed to be within
-budget and composed only of real, in-stock catalogue items. From there the
-shopper can preview a virtual try-on, get size guidance, find the exact rack in
-store, join the fitting-room queue, request staff-assisted collection, and hand
-off to checkout. Retailer, staff, and merchandising dashboards surface
-aggregated retail intelligence.
+SCENEFIT AI is a mobile-first web app backed by a JSON REST API. The customer
+experience is a clean, multi-screen flow (one task per screen) instead of a
+single crowded page. From a Page-1 role chooser a shopper enters the Shop flow,
+picks a starting point, speaks or types what they are shopping for ("sunset
+dinner at Batu Ferringhi beach, stylish but comfortable, under RM250"); the
+assistant understands the moment and returns three complete, coordinated looks
+that are guaranteed to be within budget and composed only of real, in-stock
+catalogue items. From there the shopper can preview a virtual try-on, get size
+guidance, find the exact rack in store, join the fitting-room queue, request
+staff-assisted collection, and hand off to checkout - each surfaced as its own
+clean step rather than crammed onto one page. Retailer, staff, and
+merchandising dashboards surface aggregated retail intelligence.
 
 The entire stack runs **fully offline** with deterministic mocks for every
 Google Cloud service, so the demo needs no network, no credentials, and no
 third-party packages.
+
+## Screens and navigation
+
+The customer app (`frontend/index.html` + `frontend/js/app.js`) is a **vanilla,
+no-build, client-side hash router** - a single `index.html` shell whose screens
+are selected by `location.hash`. There is no framework, bundler, or build step.
+
+**Page 1 - role chooser** (`#/`): the entry screen asks the visitor to choose
+one of three roles:
+
+- **Shop** - the customer shopping flow (stays in `index.html`).
+- **Retailer Dashboard** - links to `retailer-dashboard.html`.
+- **Staff** - links to `staff-dashboard.html`.
+
+**Shop flow** (one stage per screen):
+
+| Hash route | Screen | What happens |
+| --- | --- | --- |
+| `#/shop/intent` | Choose intent | Pick **Style My Moment** (occasion-based) or **Explore What's New** (latest collection). |
+| `#/shop/prompt` | Give your prompt | Describe the moment **by voice or text**. Voice uses the browser microphone when available (transcribed by Google Cloud Speech-to-Text) and falls back to a mock transcript; you can always type instead. |
+| `#/shop/photo` | Choose a photo option | Open camera, upload an image, or use a no-consent AI-generated model (see below). |
+| `#/shop/results` | Three validated looks | The three coordinated, budget- and SKU-validated outfits, with reachable sub-steps for virtual try-on, size guidance, in-store rack location, staff-assisted collection, fitting-room queue, and cart / checkout handoff. |
+
+(`#/` is the role chooser; `#/shop` is an alias of `#/shop/intent`. The
+retailer and staff dashboards remain their own standalone `.html` pages.)
+
+### Photo options and the explicit consent model
+
+On the photo screen the shopper explicitly chooses how their try-on is
+visualised. Try-on composites are always **illustrative aids only**:
+
+- **Open camera** - captures a live photo via the browser `getUserMedia` Web
+  API, with **explicit consent** to use your own image. If the camera is denied,
+  missing, or the context is insecure, the UI **falls back gracefully** and
+  invites you to upload a photo or let AI generate a model instead - the flow is
+  never blocked.
+- **Upload an image** - choose a photo from the device (read on-device via
+  `FileReader`), again with explicit consent.
+- **No-consent AI-generated model** - if you do **not** consent to using your
+  own photo, **Google Vertex AI image generation** synthesises an illustrative
+  model instead. This is wired through `POST /api/tryon` **without** a
+  `userPhotoRef`, so **no personal photo is sent at all**.
+
+The camera (`getUserMedia`) and `FileReader` are browser-only APIs; they are
+coded defensively and are not exercised by the offline `node:test` suite.
+`localhost` is a secure context, so the camera works in a manual browser demo.
+
+### Scene backgrounds (synthesised offline)
+
+When the prompt names a specific place (e.g. "Batu Ferringhi beach"), the parsed
+intent carries a deterministic `scene` field. The Shop screens then show a
+matching background served at **`/assets/scenes/<id>.svg`** (for example
+`/assets/scenes/beach.svg`). Scenes are **synthesised offline as inline SVG** by
+`backend/src/static.js` - exactly like the product placeholders - so there are
+**no remote images and no CDN dependencies**. An unknown or absent place falls
+back to a neutral `studio` scene.
 
 ## Google-only architecture
 
@@ -114,11 +174,15 @@ standard library and the built-in `node:test` runner.
 # Start the full stack (backend API + static frontend) from one process
 env -u NODE_OPTIONS node backend/src/server.js
 # then open:
-#   http://localhost:8080/                       customer shopping app
+#   http://localhost:8080/                       customer app (Page-1 role chooser -> Shop flow)
 #   http://localhost:8080/retailer-dashboard.html
 #   http://localhost:8080/staff-dashboard.html
 #   http://localhost:8080/healthz                health check (JSON)
+#   http://localhost:8080/assets/scenes/beach.svg  example inline-SVG scene background
 ```
+
+From `/`, pick **Shop** and walk the hash-routed flow (intent -> prompt ->
+photo -> results); the three dashboards are reached from the same role chooser.
 
 The backend serves the vanilla HTML/CSS/JS frontend statically (so a single
 `node backend/src/server.js` runs the entire offline demo) while the frontend
@@ -139,8 +203,11 @@ above.
 
 ## Demo scenarios
 
-The customer app has two one-click demo buttons that pre-fill and send the
-canonical scenarios end to end. Both can also be driven over the API:
+The customer UI no longer has a one-click demo bar - the shopper walks the
+multi-screen Shop flow (choose intent, then speak or type the prompt). The two
+canonical scenarios below are still fully exercisable over the API, and you can
+reproduce either one in the UI by typing the prompt on the `#/shop/prompt`
+screen:
 
 ### 1. Port Dickson occasion (under RM250)
 
@@ -235,7 +302,11 @@ firebase deploy --only hosting,firestore:rules,storage:rules
 ```
 
 Hosting serves `frontend/` and rewrites `/api/**` and `/healthz` to the
-`scenefit-backend` Cloud Run service in `asia-southeast1`.
+`scenefit-backend` Cloud Run service in `asia-southeast1`. The three customer
+screens are **client-side hash routes under a single `index.html`**, so no SPA
+rewrite config is required - Firebase serves `index.html` at `/` and the hash
+routing happens entirely in the browser; the retailer and staff dashboards
+remain their own `.html` files served directly.
 [`firestore.rules`](firestore.rules) and [`storage.rules`](storage.rules) are
 deny-by-default and role-based. [`.firebaserc`](.firebaserc) carries a
 placeholder project id (`scenefit-demo`) - replace it with the real project.
@@ -274,11 +345,11 @@ backend/
   data/                  # seeded catalogue / collections / planogram / analytics
   test/                  # node:test suites
 frontend/                # vanilla HTML/CSS/JS web app (zero build step, offline)
-  index.html             # customer shopping assistant (voice + text, outfit cards)
+  index.html             # multi-screen customer app shell (Page-1 role chooser + Shop flow)
   retailer-dashboard.html# retailer intelligence + merchandising insights
   staff-dashboard.html   # staff operations (picking, fitting rooms, queue)
   css/styles.css         # mobile-first responsive styles (no external libs)
-  js/                    # api.js (fetch wrapper), app.js, dashboard scripts
+  js/                    # api.js (fetch wrapper), app.js (hash router), dashboard scripts
 shared/contracts/        # JSON/JSDoc shapes shared by frontend & backend
 firebase.json            # authoritative Firebase Hosting + rules config
 .firebaserc              # Firebase project alias (placeholder project id)

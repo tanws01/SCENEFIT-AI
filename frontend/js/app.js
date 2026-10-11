@@ -1,32 +1,29 @@
 'use strict';
 
 /**
- * SCENEFIT AI - customer shopping assistant flow (F01-F12).
+ * SCENEFIT AI - customer shopping assistant (F01-F12), redesigned as a small
+ * hash-based client-side router. ONE stage per screen:
  *
- * Vanilla browser JS, no framework, no CDN. Consumes the backend JSON API via
- * window.ScenefitApi (js/api.js). Renders exactly three coordinated outfit
- * cards, handles the "cannot form three" fallback, conversational refinement,
- * intent switching, profile + wardrobe panels, size guidance (with uncertainty
- * notice), virtual try-on (illustrative-aid label), store location, staff
- * assist, fitting-room queue tracking, and cart / checkout handoff.
+ *   #/              -> Page 1 role chooser (Shop / Retailer Dashboard / Staff)
+ *   #/shop          -> intent choice (Style My Moment vs Explore What's New)
+ *   #/shop/intent   -> alias of #/shop
+ *   #/shop/prompt   -> voice-or-text prompt (calls startSession + sendMessage)
+ *   #/shop/photo    -> photo options (camera / upload / AI-generated model)
+ *   #/shop/results  -> the three coordinated looks + reachable tool sub-panels
+ *   #/shop/profile  -> optional style profile (F03)
+ *   #/shop/wardrobe -> optional wardrobe (F08)
+ *
+ * Vanilla browser JS, no framework, no CDN, no build, zero deps. Consumes the
+ * backend JSON API via window.ScenefitApi (js/api.js). The AI-generated model
+ * photo path is Google Vertex AI image generation (POST /api/tryon WITHOUT a
+ * userPhotoRef). Camera (getUserMedia) and FileReader are browser-only APIs,
+ * coded defensively with graceful fallback (never block the flow).
  */
 
 (function () {
   const Api = window.ScenefitApi;
   const USER_ID = 'demo-shopper-001';
   const CURRENCY = 'RM';
-
-  // --- canonical demo scenarios (F: two one-click journeys) ---
-  const DEMOS = {
-    'port-dickson': {
-      entry: 'style-my-moment',
-      text: "I'm going to Port Dickson this Sunday for a sunset seafood dinner and photos. I want to look stylish and comfortable. Budget RM250.",
-    },
-    'latest-arrivals': {
-      entry: 'explore-whats-new',
-      text: "Show me the latest arrivals. I'm into relaxed tailoring and streetwear, under RM300.",
-    },
-  };
 
   // Canonical lifecycle order for the fitting-room queue tracker (F11).
   const QUEUE_FLOW = ['Requested', 'Confirmed', 'Picking Items', 'Waiting for Room', 'Ready', 'In Fitting Room', 'Completed'];
@@ -36,12 +33,25 @@
     sessionId: null,
     entryPoint: 'style-my-moment',
     lastRecommendation: null,
+    lastIntent: null,
+    scene: { id: 'studio', label: 'Studio', place: null },
+    // Photo consent choice for the shop flow:
+    //   null = not chosen yet; 'ai' = no-consent AI-generated model (no userPhotoRef)
+    //   otherwise a captured/uploaded data URL used as userPhotoRef.
+    photoRef: null,
+    photoMode: null, // 'camera' | 'upload' | 'ai'
+    transcript: null,
+    inputMode: null,
+    followUp: null,
     wardrobe: [],
     queueTicketId: null,
     staffTaskId: null,
   };
 
-  // ---- tiny DOM helpers ----
+  // Active camera stream so we can always stop tracks on capture / leave.
+  let activeStream = null;
+
+  // ---- tiny DOM helpers (ported) ----
   const $ = (sel) => document.querySelector(sel);
   const el = (tag, attrs, children) => {
     const node = document.createElement(tag);
@@ -60,15 +70,67 @@
     return node;
   };
   const rm = (n) => `${CURRENCY}${Number(n || 0).toFixed(2)}`;
-  const setStatus = (msg, isError) => {
-    const s = $('#status');
-    s.textContent = msg || '';
-    s.className = isError ? 'error-box' : 'spinner';
-  };
+  const app = () => $('#app');
+
+  function clearApp() {
+    const root = app();
+    if (root) root.innerHTML = '';
+    return root;
+  }
+
+  function titleCase(s) {
+    return String(s || '').replace(/\b\w/g, (c) => c.toUpperCase());
+  }
 
   function productImage(sku) {
     // Served locally by the backend static handler (and Firebase Hosting).
     return `/assets/products/${encodeURIComponent(sku)}.png`;
+  }
+
+  // ---- scene background (driven by parsed intent.scene) ----
+  function applyScene() {
+    const bg = $('#sceneBg');
+    if (!bg) return;
+    const id = (state.scene && state.scene.id) || 'studio';
+    const inShopFlow = location.hash.indexOf('#/shop') === 0 && location.hash !== '#/';
+    if (inShopFlow) {
+      bg.style.backgroundImage = `url('/assets/scenes/${encodeURIComponent(id)}.svg')`;
+      bg.classList.add('active');
+    } else {
+      bg.style.backgroundImage = '';
+      bg.classList.remove('active');
+    }
+  }
+
+  function sceneCaption() {
+    if (state.scene && state.scene.place) {
+      return el('p', { class: 'scene-caption' }, `Styling for: ${titleCase(state.scene.place)}`);
+    }
+    return null;
+  }
+
+  // ---- status line helper (per-screen) ----
+  function statusLine(id) {
+    return el('div', { id: id || 'status', class: 'spinner' });
+  }
+  function setStatus(msg, isError, id) {
+    const s = document.getElementById(id || 'status');
+    if (!s) return;
+    s.textContent = msg || '';
+    s.className = isError ? 'error-box' : 'spinner';
+  }
+
+  // ---- back / step affordance ----
+  function stepBar(backHash, label) {
+    const bar = el('div', { class: 'step-bar' });
+    if (backHash) {
+      bar.appendChild(el('button', {
+        class: 'btn small ghost', type: 'button',
+        onclick: () => { location.hash = backHash; },
+      }, '\u2190 Back'));
+    }
+    if (label) bar.appendChild(el('span', { class: 'step-label' }, label));
+    return bar;
   }
 
   // ---- session ----
@@ -79,61 +141,470 @@
     return state.sessionId;
   }
 
-  // ---- send a message ----
-  async function sendMessage(text) {
+  function captureConversationMeta(res) {
+    state.transcript = (res.transcript && res.transcript.transcript) || null;
+    state.inputMode = res.inputMode || null;
+    state.followUp = (res.followUp && res.followUp.question) || null;
+    state.lastRecommendation = res.recommendation || null;
+    state.lastIntent = res.intent || null;
+    if (res.intent && res.intent.scene) {
+      state.scene = {
+        id: res.intent.scene.id || 'studio',
+        label: res.intent.scene.label || 'Studio',
+        place: res.intent.scene.place || null,
+      };
+    }
+  }
+
+  // =====================================================================
+  // ROUTER
+  // =====================================================================
+  const routes = {
+    '': renderRoleChooser,
+    '#/': renderRoleChooser,
+    '#/shop': renderIntent,
+    '#/shop/intent': renderIntent,
+    '#/shop/prompt': renderPrompt,
+    '#/shop/photo': renderPhoto,
+    '#/shop/results': renderResults,
+    '#/shop/profile': renderProfile,
+    '#/shop/wardrobe': renderWardrobe,
+  };
+
+  function router() {
+    // Leaving any screen: always stop a live camera stream.
+    stopCamera();
+    const hash = location.hash || '#/';
+    const view = routes[hash] || routes['#/'];
+    if (!routes[hash]) { location.hash = '#/'; return; }
+    clearApp();
+    applyScene();
+    view();
+    window.scrollTo(0, 0);
+  }
+
+  // =====================================================================
+  // SCREEN 1: role chooser
+  // =====================================================================
+  function renderRoleChooser() {
+    const root = app();
+    root.appendChild(el('section', { class: 'hero-intro center' }, [
+      el('h2', null, 'Welcome to SCENEFIT AI'),
+      el('p', { class: 'muted' }, 'Choose how you want to begin. Your Plans. Your Trends. Your Look.'),
+    ]));
+
+    const grid = el('section', { class: 'role-grid', 'aria-label': 'Choose a role' }, [
+      el('div', {
+        class: 'role-card', tabindex: '0', role: 'button',
+        onclick: () => { location.hash = '#/shop'; },
+        onkeypress: (e) => { if (e.key === 'Enter' || e.key === ' ') location.hash = '#/shop'; },
+      }, [
+        el('div', { class: 'role-icon' }, '\uD83D\uDED2'),
+        el('h3', null, 'Shop'),
+        el('p', null, 'Style a complete look for your moment, or explore the latest collection - by voice or text.'),
+        el('span', { class: 'pill' }, 'Customer'),
+      ]),
+      el('a', { class: 'role-card', href: '/retailer-dashboard.html' }, [
+        el('div', { class: 'role-icon' }, '\uD83D\uDCCA'),
+        el('h3', null, 'Retailer Dashboard'),
+        el('p', null, 'Merchandising intelligence, demand signals, and planogram insights for the retailer.'),
+        el('span', { class: 'pill' }, 'Retailer'),
+      ]),
+      el('a', { class: 'role-card', href: '/staff-dashboard.html' }, [
+        el('div', { class: 'role-icon' }, '\uD83E\uDDBA'),
+        el('h3', null, 'Staff'),
+        el('p', null, 'Picking tasks, fitting-room queue, and live assist requests for store associates.'),
+        el('span', { class: 'pill' }, 'Store team'),
+      ]),
+    ]);
+    root.appendChild(grid);
+  }
+
+  // =====================================================================
+  // SCREEN 2: shop intent (Style My Moment vs Explore What's New)
+  // =====================================================================
+  function renderIntent() {
+    const root = app();
+    root.appendChild(stepBar('#/', 'Shop'));
+    root.appendChild(el('section', { class: 'screen-head center' }, [
+      el('h2', null, 'How would you like to shop?'),
+      el('p', { class: 'muted' }, 'Pick a starting point - we coordinate complete looks either way.'),
+    ]));
+
+    const choose = (entry) => {
+      state.entryPoint = entry;
+      location.hash = '#/shop/prompt';
+    };
+
+    root.appendChild(el('section', { class: 'entry-grid', 'aria-label': 'Choose how to start' }, [
+      el('div', {
+        class: 'entry-card', tabindex: '0', role: 'button',
+        onclick: () => choose('style-my-moment'),
+        onkeypress: (e) => { if (e.key === 'Enter' || e.key === ' ') choose('style-my-moment'); },
+      }, [
+        el('h2', null, '\u2728 Style My Moment'),
+        el('p', null, 'Tell me about your occasion - a sunset dinner, a getaway, a celebration - and I will coordinate complete looks around it.'),
+        el('span', { class: 'pill' }, 'Occasion-based'),
+      ]),
+      el('div', {
+        class: 'entry-card', tabindex: '0', role: 'button',
+        onclick: () => choose('explore-whats-new'),
+        onkeypress: (e) => { if (e.key === 'Enter' || e.key === ' ') choose('explore-whats-new'); },
+      }, [
+        el('h2', null, '\uD83D\uDC8E Explore What\'s New'),
+        el('p', null, 'Browse coordinated looks built from the latest collection and new arrivals, tuned to your taste and budget.'),
+        el('span', { class: 'pill' }, 'Latest collection'),
+      ]),
+    ]));
+  }
+
+  // =====================================================================
+  // SCREEN 3: prompt (voice or text)
+  // =====================================================================
+  function renderPrompt() {
+    const root = app();
+    // Reset the scene to the studio default so a prior prompt's background and
+    // "Styling for: <place>" caption never leak onto a fresh prompt screen.
+    state.scene = { id: 'studio', label: 'Studio', place: null };
+    applyScene();
+    root.appendChild(stepBar('#/shop', 'Your prompt'));
+    const cap = sceneCaption();
+    if (cap) root.appendChild(cap);
+
+    const isNew = state.entryPoint === 'explore-whats-new';
+    const panel = el('section', { class: 'panel' });
+    panel.appendChild(el('h3', null, isNew ? 'Explore the latest arrivals' : 'Tell me about your moment'));
+
+    const input = el('textarea', {
+      id: 'messageInput',
+      placeholder: isNew
+        ? "e.g. Show me the latest arrivals. I'm into relaxed tailoring and streetwear, under RM300."
+        : "e.g. sunset dinner at Batu Ferringhi beach, budget RM250.",
+    });
+
+    const micBtn = el('button', { class: 'btn mic', id: 'micBtn', type: 'button', title: 'Speak your request' }, '\uD83C\uDFA4 Speak');
+    const sendBtn = el('button', { class: 'btn', id: 'sendBtn', type: 'button', onclick: () => submitPrompt(input.value) }, 'Send');
+
+    panel.appendChild(el('div', { class: 'composer' }, [input, micBtn, sendBtn]));
+    panel.appendChild(el('p', { class: 'hint', id: 'voiceHint' },
+      'Voice input uses your browser microphone when available (Google Speech-to-Text handles the transcript) and falls back to a mock transcript automatically. You can always type instead.'));
+    panel.appendChild(el('p', { class: 'transcript hidden', id: 'transcript' }));
+    panel.appendChild(el('div', { class: 'followup hidden', id: 'followup' }));
+    panel.appendChild(statusLine('status'));
+    root.appendChild(panel);
+
+    setupVoice(micBtn, input);
+  }
+
+  function showPromptMeta() {
+    const t = $('#transcript');
+    if (t) {
+      if (state.transcript) {
+        t.textContent = `Heard (${state.inputMode || 'text'}): "${state.transcript}"`;
+        t.classList.remove('hidden');
+      } else { t.classList.add('hidden'); }
+    }
+    const f = $('#followup');
+    if (f) {
+      if (state.followUp) { f.textContent = `\u2753 ${state.followUp}`; f.classList.remove('hidden'); }
+      else { f.classList.add('hidden'); }
+    }
+  }
+
+  async function submitPrompt(text) {
     if (!text || !text.trim()) { setStatus('Please type or speak your request first.', true); return; }
     try {
       setStatus('Styling your looks with Gemini and validating every item against the catalogue...');
       await ensureSession();
-      const res = await Api.sendMessage({
-        sessionId: state.sessionId,
-        userId: USER_ID,
-        text: text.trim(),
-      });
+      const res = await Api.sendMessage({ sessionId: state.sessionId, userId: USER_ID, text: text.trim(), entryPoint: state.entryPoint });
       state.sessionId = res.sessionId || state.sessionId;
-      renderConversationMeta(res);
-      renderRecommendation(res.recommendation, res.intent);
+      captureConversationMeta(res);
+      applyScene();
+      showPromptMeta();
       setStatus('');
+      // Reset any previous photo choice for the new prompt, then advance.
+      state.photoRef = null;
+      state.photoMode = null;
+      location.hash = '#/shop/photo';
     } catch (e) {
       setStatus(`Could not get recommendations: ${e.message}`, true);
     }
   }
 
-  async function refine(text) {
-    if (!state.sessionId) return sendMessage(text);
+  // ---- voice input (Web Speech API when available; mock fallback) ----
+  function setupVoice(micBtn, input) {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+      micBtn.addEventListener('click', () => {
+        const h = $('#voiceHint');
+        if (h) h.textContent = 'Live microphone is unavailable here; using the Google Speech-to-Text mock transcript instead.';
+        sendVoiceMock(input);
+      });
+      return;
+    }
+    let recognition;
+    try { recognition = new SR(); } catch (_e) { recognition = null; }
+    if (!recognition) { micBtn.addEventListener('click', () => sendVoiceMock(input)); return; }
+    recognition.lang = 'en-MY';
+    recognition.interimResults = false;
+    micBtn.addEventListener('click', () => {
+      try { micBtn.classList.add('recording'); recognition.start(); }
+      catch (_e) { micBtn.classList.remove('recording'); }
+    });
+    recognition.onresult = (ev) => {
+      const text = ev.results[0][0].transcript;
+      if (input) input.value = text;
+      micBtn.classList.remove('recording');
+      submitPrompt(text);
+    };
+    recognition.onerror = () => { micBtn.classList.remove('recording'); sendVoiceMock(input); };
+    recognition.onend = () => micBtn.classList.remove('recording');
+  }
+
+  // Fallback: send a voiceRef so the server-side Speech-to-Text mock transcribes it.
+  async function sendVoiceMock(input) {
+    try {
+      setStatus('Transcribing voice with Google Speech-to-Text (mock) and styling...');
+      await ensureSession();
+      const res = await Api.sendMessage({ sessionId: state.sessionId, userId: USER_ID, voiceRef: 'demo-voice-port-dickson', entryPoint: state.entryPoint });
+      state.sessionId = res.sessionId || state.sessionId;
+      captureConversationMeta(res);
+      if (input && state.transcript) input.value = state.transcript;
+      applyScene();
+      showPromptMeta();
+      setStatus('');
+      state.photoRef = null;
+      state.photoMode = null;
+      location.hash = '#/shop/photo';
+    } catch (e) {
+      setStatus(`Voice path failed, please type instead: ${e.message}`, true);
+    }
+  }
+
+  // =====================================================================
+  // SCREEN 4: photo options (camera / upload / AI-generated)
+  // =====================================================================
+  function renderPhoto() {
+    const root = app();
+    if (!state.lastRecommendation) {
+      // No prompt yet - send the shopper back to the prompt screen.
+      location.hash = '#/shop/prompt';
+      return;
+    }
+    root.appendChild(stepBar('#/shop/prompt', 'Your photo'));
+    const cap = sceneCaption();
+    if (cap) root.appendChild(cap);
+
+    root.appendChild(el('section', { class: 'screen-head center' }, [
+      el('h2', null, 'How should we show your try-on?'),
+      el('p', { class: 'muted' }, 'Try-on visuals are illustrative aids only - never a guarantee of fit, colour, drape, or measurements. You choose whether to use your own photo.'),
+    ]));
+
+    // Live preview region (camera) and chosen-photo confirmation.
+    const preview = el('div', { class: 'photo-preview', id: 'photoPreview' });
+
+    const cameraCard = el('div', { class: 'photo-card' }, [
+      el('div', { class: 'photo-icon' }, '\uD83D\uDCF7'),
+      el('h3', null, 'Open camera'),
+      el('p', null, 'Snap a live photo now. You are consenting to use your own image for an illustrative try-on.'),
+      el('button', { class: 'btn small', type: 'button', onclick: () => startCamera(preview) }, 'Open camera'),
+    ]);
+
+    const fileInput = el('input', {
+      type: 'file', accept: 'image/*', id: 'photoUpload', class: 'hidden',
+      onchange: (e) => handleUpload(e, preview),
+    });
+    const uploadCard = el('div', { class: 'photo-card' }, [
+      el('div', { class: 'photo-icon' }, '\uD83D\uDDBC\uFE0F'),
+      el('h3', null, 'Upload image'),
+      el('p', null, 'Choose a photo from this device. You are consenting to use your own image for an illustrative try-on.'),
+      el('button', { class: 'btn small', type: 'button', onclick: () => fileInput.click() }, 'Choose image'),
+      fileInput,
+    ]);
+
+    const aiCard = el('div', { class: 'photo-card' }, [
+      el('div', { class: 'photo-icon' }, '\u2728'),
+      el('h3', null, 'No photo'),
+      el('p', null, 'No consent to use your photo? Google Vertex AI image generation will synthesise an illustrative model for you instead.'),
+      el('button', { class: 'btn small secondary', type: 'button', onclick: () => chooseAiModel() }, 'Let AI generate a model'),
+    ]);
+
+    root.appendChild(el('section', { class: 'photo-grid' }, [cameraCard, uploadCard, aiCard]));
+    root.appendChild(preview);
+    root.appendChild(statusLine('photoStatus'));
+    root.appendChild(el('p', { class: 'hint' },
+      'All image handling stays on this device until you request a try-on. The AI-generated option sends no personal photo at all.'));
+  }
+
+  function photoMsg(msg, isError) {
+    setStatus(msg, isError, 'photoStatus');
+  }
+
+  // (a) camera via getUserMedia + canvas capture. Defensive: handle denied /
+  //     no-camera / insecure-context by falling back to upload or AI options.
+  async function startCamera(preview) {
+    stopCamera();
+    preview.innerHTML = '';
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      photoMsg('Live camera is not available in this browser/context. Please upload a photo or let AI generate a model.', true);
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      activeStream = stream;
+      const video = el('video', { id: 'camVideo', autoplay: '', playsinline: '', muted: '' });
+      video.srcObject = stream;
+      try { await video.play(); } catch (_e) { /* autoplay attribute still shows frames */ }
+      const captureBtn = el('button', { class: 'btn small', type: 'button', onclick: () => capturePhoto(video, preview) }, 'Capture photo');
+      const cancelBtn = el('button', { class: 'btn small ghost', type: 'button', onclick: () => { stopCamera(); preview.innerHTML = ''; } }, 'Cancel camera');
+      preview.appendChild(el('div', { class: 'cam-wrap' }, [
+        video,
+        el('div', { class: 'actions' }, [captureBtn, cancelBtn]),
+      ]));
+      photoMsg('');
+    } catch (e) {
+      const name = e && e.name ? e.name : '';
+      let msg = 'Could not access the camera.';
+      if (name === 'NotAllowedError' || name === 'SecurityError') msg = 'Camera permission was denied.';
+      else if (name === 'NotFoundError' || name === 'OverconstrainedError') msg = 'No camera was found on this device.';
+      msg += ' You can upload a photo or let AI generate a model instead.';
+      photoMsg(msg, true);
+    }
+  }
+
+  function capturePhoto(video, preview) {
+    try {
+      const w = video.videoWidth || 480;
+      const h = video.videoHeight || 640;
+      const canvas = el('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL('image/png');
+      stopCamera(); // always stop tracks right after capturing a frame
+      setChosenPhoto(dataUrl, 'camera', preview);
+    } catch (e) {
+      photoMsg(`Capture failed: ${e.message}. Please upload a photo or let AI generate a model.`, true);
+      stopCamera();
+    }
+  }
+
+  // (b) upload via FileReader -> data URL
+  function handleUpload(evt, preview) {
+    const file = evt.target.files && evt.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setChosenPhoto(String(reader.result), 'upload', preview);
+    reader.onerror = () => photoMsg('Could not read that file. Please try another image or let AI generate a model.', true);
+    reader.readAsDataURL(file);
+  }
+
+  function setChosenPhoto(dataUrl, mode, preview) {
+    state.photoRef = dataUrl;
+    state.photoMode = mode;
+    preview.innerHTML = '';
+    preview.appendChild(el('div', { class: 'chosen-photo' }, [
+      el('img', { src: dataUrl, alt: 'Your chosen photo' }),
+      el('p', { class: 'muted' }, `Using your ${mode === 'camera' ? 'captured' : 'uploaded'} photo (stays on-device until you request a try-on).`),
+      el('div', { class: 'actions' }, [
+        el('button', { class: 'btn small', type: 'button', onclick: () => { location.hash = '#/shop/results'; } }, 'Continue to looks \u2192'),
+        el('button', { class: 'btn small ghost', type: 'button', onclick: () => { state.photoRef = null; state.photoMode = null; preview.innerHTML = ''; } }, 'Choose a different photo'),
+      ]),
+    ]));
+    photoMsg('');
+  }
+
+  // (c) explicit no-consent AI-generated model path (omit userPhotoRef).
+  function chooseAiModel() {
+    stopCamera();
+    state.photoRef = null;
+    state.photoMode = 'ai';
+    location.hash = '#/shop/results';
+  }
+
+  // Always stop any live camera tracks (capture / leaving the screen).
+  function stopCamera() {
+    if (activeStream) {
+      try { activeStream.getTracks().forEach((t) => t.stop()); } catch (_e) { /* noop */ }
+      activeStream = null;
+    }
+  }
+
+  // =====================================================================
+  // SCREEN 5: results (three looks + reachable tools)
+  // =====================================================================
+  function renderResults() {
+    const root = app();
+    if (!state.lastRecommendation) { location.hash = '#/shop/prompt'; return; }
+    root.appendChild(stepBar('#/shop/photo', 'Your looks'));
+    const cap = sceneCaption();
+    if (cap) root.appendChild(cap);
+
+    // Describe the active photo choice + persistent illustrative disclaimer.
+    const modeLabel = state.photoMode === 'ai'
+      ? 'AI-generated model (Google Vertex AI image generation - no personal photo used)'
+      : state.photoMode === 'camera' ? 'your captured photo'
+      : state.photoMode === 'upload' ? 'your uploaded photo'
+      : 'an AI-generated model (choose a photo on the previous screen to change this)';
+    root.appendChild(el('div', { class: 'notice illustrative' },
+      `Try-on previews use ${modeLabel}. All try-on visuals are illustrative aids only - never a guarantee of fit, colour, drape, or measurements.`));
+
+    root.appendChild(el('div', { class: 'results-tools actions' }, [
+      el('button', { class: 'btn small ghost', type: 'button', onclick: () => { location.hash = '#/shop/prompt'; } }, 'New prompt'),
+      el('button', { class: 'btn small ghost', type: 'button', onclick: () => openRefinePanel() }, 'Refine these looks'),
+      el('button', { class: 'btn small ghost', type: 'button', onclick: () => { location.hash = '#/shop/profile'; } }, 'Style profile'),
+      el('button', { class: 'btn small ghost', type: 'button', onclick: () => { location.hash = '#/shop/wardrobe'; } }, 'My wardrobe'),
+      el('button', { class: 'btn small ghost', type: 'button', onclick: () => openCartPanel() }, 'View cart'),
+    ]));
+
+    root.appendChild(statusLine('status'));
+    root.appendChild(el('section', { id: 'results' }));
+    root.appendChild(el('section', { id: 'toolPanels' }));
+
+    renderRecommendation(state.lastRecommendation, state.lastIntent);
+  }
+
+  function openRefinePanel() {
+    const panel = toolPanel('Refine or switch', []);
+    const input = el('textarea', {
+      placeholder: 'Refine: "Make it more casual, but keep the shoes." or switch: "Actually, show me the latest arrivals."',
+    });
+    panel.appendChild(el('div', { class: 'composer' }, [
+      input,
+      el('button', { class: 'btn secondary', type: 'button', onclick: () => refine(input.value, panel) }, 'Refine'),
+    ]));
+    panel.appendChild(el('p', { class: 'hint' }, 'Refinement keeps your original constraints (like budget) unless you change them, and you can switch intent mid-conversation.'));
+    input.focus();
+    return panel;
+  }
+
+  async function refine(text, panel) {
+    if (!state.sessionId) { setStatus('Start a prompt first.', true); return; }
     if (!text || !text.trim()) { setStatus('Type a refinement, e.g. "make it more casual, keep the shoes".', true); return; }
     try {
       setStatus('Refining your look...');
       const res = await Api.refine({ sessionId: state.sessionId, userId: USER_ID, text: text.trim() });
-      renderConversationMeta(res, true);
+      captureConversationMeta(res);
+      applyScene();
       renderRecommendation(res.recommendation, res.intent);
-      setStatus('');
+      if (res.intentSwitched) setStatus('Switched intent and re-styled your looks.');
+      else setStatus('');
+      if (panel) panel.remove();
     } catch (e) {
       setStatus(`Could not refine: ${e.message}`, true);
     }
   }
 
-  function renderConversationMeta(res, isRefine) {
-    const t = $('#transcript');
-    if (res.transcript && res.transcript.transcript) {
-      t.textContent = `Heard (${res.inputMode}): "${res.transcript.transcript}"`;
-      t.classList.remove('hidden');
-    } else { t.classList.add('hidden'); }
-
-    const f = $('#followup');
-    if (res.followUp && res.followUp.question) {
-      f.textContent = `\u2753 ${res.followUp.question}`;
-      f.classList.remove('hidden');
-    } else { f.classList.add('hidden'); }
-
-    if (isRefine && res.intentSwitched) {
-      setStatus('Switched intent and re-styled your looks.');
-    }
+  function refineFocus(text) {
+    const panel = openRefinePanel();
+    const ta = panel && panel.querySelector('textarea');
+    if (ta) { ta.value = text; ta.focus(); }
   }
 
-  // ---- render recommendations ----
+  // ---- render recommendations (ported) ----
   function renderRecommendation(rec, intent) {
     const results = $('#results');
+    if (!results) return;
     results.innerHTML = '';
     if (!rec) return;
 
@@ -254,12 +725,7 @@
     return el('button', { class: `btn small ${variant || 'ghost'}`, type: 'button', onclick: handler }, label);
   }
 
-  function refineFocus(text) {
-    $('#refineInput').value = text;
-    $('#refineInput').focus();
-  }
-
-  // ---- tool panels ----
+  // ---- tool panels (ported) ----
   function toolPanel(title, bodyNodes) {
     const container = $('#toolPanels');
     const panel = el('div', { class: 'panel' }, [
@@ -273,12 +739,16 @@
     return panel;
   }
 
-  // F05 virtual try-on
+  // F05 virtual try-on - uses the shopper's photo choice (userPhotoRef) or
+  // omits it entirely for the Google Vertex AI image-generation model path.
   async function openTryOn(o) {
-    const panel = toolPanel(`Virtual try-on \u00b7 ${o.name}`, [el('p', { class: 'spinner' }, 'Generating illustrative preview with Vertex AI...')]);
+    const panel = toolPanel(`Virtual try-on \u00b7 ${o.name}`, [el('p', { class: 'spinner' }, 'Generating illustrative preview with Google Vertex AI...')]);
     try {
-      const res = await Api.tryOn({ skus: o.skus || (o.items || []).map((i) => i.sku) });
-      panel.querySelector('.spinner').remove();
+      const payload = { skus: o.skus || (o.items || []).map((i) => i.sku) };
+      if (state.photoMode !== 'ai' && state.photoRef) payload.userPhotoRef = state.photoRef;
+      const res = await Api.tryOn(payload);
+      const sp = panel.querySelector('.spinner');
+      if (sp) sp.remove();
       panel.appendChild(el('div', { class: 'notice illustrative' },
         res.compositeLabel || res.disclaimer
         || 'Illustrative composite preview only - not a guarantee of fit, colour, drape, or measurements.'));
@@ -286,15 +756,18 @@
         el('div', { class: 'tryon-frame' }, [
           svgPreviewFor(o),
           el('p', { class: 'muted' }, `Illustrative aid \u00b7 ${(res.skus || []).join(', ')}`),
+          el('p', { class: 'muted' }, state.photoMode === 'ai' || !state.photoRef
+            ? 'Model synthesised by Google Vertex AI image generation (no personal photo used).'
+            : 'Composed over your supplied photo.'),
         ]),
       ]));
-      panel.appendChild(el('p', { class: 'hint' }, 'Add an optional photo and compare looks or switch garments/colours. This visual never guarantees fit.'));
+      panel.appendChild(el('p', { class: 'hint' }, 'Compare looks or switch garments/colours. This visual never guarantees fit.'));
     } catch (e) {
       panel.appendChild(el('div', { class: 'error-box' }, `Try-on failed: ${e.message}`));
     }
   }
 
-  async function openCompare(o) {
+  function openCompare(o) {
     const rec = state.lastRecommendation;
     const others = (rec && rec.outfits || []).filter((x) => x.id !== o.id);
     const other = others[0];
@@ -332,7 +805,7 @@
   }
 
   // F06 size guidance with uncertainty notice
-  async function openSizeGuidance(o) {
+  function openSizeGuidance(o) {
     const topItem = (o.items || []).find((i) => i.category === 'top') || (o.items || [])[0];
     const panel = toolPanel(`Size guidance \u00b7 ${topItem ? topItem.name : o.name}`, []);
     const chest = el('input', { type: 'number', id: 'sgChest', placeholder: 'e.g. 99' });
@@ -375,7 +848,8 @@
     const panel = toolPanel(`Find in store \u00b7 ${o.name}`, [el('p', { class: 'spinner' }, 'Looking up rack location...')]);
     try {
       const res = await Api.locate(first.sku);
-      panel.querySelector('.spinner').remove();
+      const sp = panel.querySelector('.spinner');
+      if (sp) sp.remove();
       if (!res.found) {
         panel.appendChild(el('div', { class: 'notice' }, res.message || 'Location unavailable - please ask a store associate.'));
         panel.appendChild(el('div', { class: 'actions' }, [el('button', { class: 'btn small', type: 'button', onclick: () => requestStaffAssist(o) }, 'Request staff assistance')]));
@@ -393,7 +867,8 @@
       panel.appendChild(el('div', { class: 'notice illustrative' }, `Directions: ${res.directions}`));
       panel.appendChild(el('div', { class: 'actions' }, [el('button', { class: 'btn small', type: 'button', onclick: () => requestStaffAssist(o) }, 'Ask staff to pull these items')]));
     } catch (e) {
-      panel.querySelector('.spinner').textContent = `Lookup failed: ${e.message}`;
+      const sp = panel.querySelector('.spinner');
+      if (sp) sp.textContent = `Lookup failed: ${e.message}`;
     }
   }
 
@@ -507,6 +982,13 @@
     } catch (e) { setStatus(`Add to cart failed: ${e.message}`, true); }
   }
 
+  async function openCartPanel() {
+    try {
+      const cart = await Api.getCart(USER_ID);
+      renderCart(cart);
+    } catch (e) { setStatus(`Could not load cart: ${e.message}`, true); }
+  }
+
   function renderCart(payload) {
     const cart = payload.cart || payload;
     const body = [];
@@ -537,9 +1019,41 @@
     }
   }
 
-  // ---- profile (F03) ----
-  async function saveProfile() {
-    const splitList = (v) => v.split(',').map((s) => s.trim()).filter(Boolean);
+  // =====================================================================
+  // OPTIONAL SCREEN: profile (F03)
+  // =====================================================================
+  function renderProfile() {
+    const root = app();
+    root.appendChild(stepBar(state.lastRecommendation ? '#/shop/results' : '#/shop', 'Style profile'));
+    const panel = el('section', { class: 'panel' });
+    panel.appendChild(el('h3', null, '\u2699 Style & preference profile (optional, F03)'));
+    const sizeTop = el('select', { id: 'pfSizeTop' });
+    ['', 'XS', 'S', 'M', 'L', 'XL'].forEach((v) => sizeTop.appendChild(el('option', { value: v }, v || '-')));
+    const sizeShoe = el('select', { id: 'pfSizeShoe' });
+    ['', '40', '41', '42', '43'].forEach((v) => sizeShoe.appendChild(el('option', { value: v }, v || '-')));
+    panel.appendChild(el('div', { class: 'row' }, [
+      el('div', null, [el('label', null, 'Top size'), sizeTop]),
+      el('div', null, [el('label', null, 'Shoe size (EU)'), sizeShoe]),
+    ]));
+    const styles = el('input', { type: 'text', id: 'pfStyles', placeholder: 'relaxed-tailoring, streetwear, minimalist' });
+    const colours = el('input', { type: 'text', id: 'pfColours', placeholder: 'navy, olive, cream' });
+    const avoid = el('input', { type: 'text', id: 'pfAvoid', placeholder: 'orange' });
+    panel.appendChild(el('label', null, 'Preferred styles (comma separated)'));
+    panel.appendChild(styles);
+    panel.appendChild(el('label', null, 'Preferred colours'));
+    panel.appendChild(colours);
+    panel.appendChild(el('label', null, 'Colours to avoid'));
+    panel.appendChild(avoid);
+    const status = el('p', { class: 'hint', id: 'profileStatus' });
+    panel.appendChild(el('div', { class: 'actions' }, [
+      el('button', { class: 'btn small', type: 'button', onclick: () => saveProfile(status) }, 'Save profile'),
+    ]));
+    panel.appendChild(status);
+    root.appendChild(panel);
+  }
+
+  async function saveProfile(status) {
+    const splitList = (v) => String(v || '').split(',').map((s) => s.trim()).filter(Boolean);
     try {
       const profile = {
         sizes: { top: $('#pfSizeTop').value || undefined, footwear: $('#pfSizeShoe').value || undefined },
@@ -548,122 +1062,53 @@
         avoidedColours: splitList($('#pfAvoid').value),
       };
       await Api.putProfile(USER_ID, profile);
-      $('#profileStatus').textContent = 'Profile saved. Future looks will use these preferences.';
+      if (status) status.textContent = 'Profile saved. Future looks will use these preferences.';
     } catch (e) {
-      $('#profileStatus').textContent = `Could not save profile: ${e.message}`;
+      if (status) status.textContent = `Could not save profile: ${e.message}`;
     }
   }
 
-  // ---- wardrobe (F08) ----
-  function addWardrobeItem() {
-    const v = $('#wardrobeInput').value.trim();
+  // =====================================================================
+  // OPTIONAL SCREEN: wardrobe (F08)
+  // =====================================================================
+  function renderWardrobe() {
+    const root = app();
+    root.appendChild(stepBar(state.lastRecommendation ? '#/shop/results' : '#/shop', 'My wardrobe'));
+    const panel = el('section', { class: 'panel' });
+    panel.appendChild(el('h3', null, '\uD83D\uDC54 My wardrobe (optional, F08)'));
+    panel.appendChild(el('p', { class: 'muted' }, 'Add pieces you already own so looks can be built around them. Owned-item cost is shown separately from purchase cost.'));
+    const input = el('input', { type: 'text', id: 'wardrobeInput', placeholder: 'e.g. white sneakers, navy cap' });
+    const list = el('ul', { class: 'item-list', id: 'wardrobeList' });
+    panel.appendChild(el('div', { class: 'composer' }, [
+      input,
+      el('button', { class: 'btn small', type: 'button', onclick: () => { addWardrobeItem(input); renderWardrobeList(list); } }, 'Add owned item'),
+    ]));
+    panel.appendChild(list);
+    root.appendChild(panel);
+    renderWardrobeList(list);
+  }
+
+  function addWardrobeItem(input) {
+    const v = (input.value || '').trim();
     if (!v) return;
     state.wardrobe.push(v);
-    $('#wardrobeInput').value = '';
-    renderWardrobe();
+    input.value = '';
   }
-  function renderWardrobe() {
-    const list = $('#wardrobeList');
+  function renderWardrobeList(list) {
     list.innerHTML = '';
     state.wardrobe.forEach((w, idx) => {
       list.appendChild(el('li', null, [
         el('span', null, `${w} `),
         el('span', { class: 'muted' }, '(owned - RM0.00 purchase cost)'),
-        el('button', { class: 'btn small ghost', type: 'button', style: 'margin-left:auto;', onclick: () => { state.wardrobe.splice(idx, 1); renderWardrobe(); } }, 'Remove'),
+        el('button', { class: 'btn small ghost', type: 'button', style: 'margin-left:auto;', onclick: () => { state.wardrobe.splice(idx, 1); renderWardrobeList(list); } }, 'Remove'),
       ]));
     });
   }
 
-  // ---- entry points & demo ----
-  function selectEntry(entry) {
-    state.entryPoint = entry;
-    $('#entryMoment').classList.toggle('active', entry === 'style-my-moment');
-    $('#entryNew').classList.toggle('active', entry === 'explore-whats-new');
-    $('#composerTitle').textContent = entry === 'explore-whats-new'
-      ? 'Explore the latest arrivals' : 'Tell me about your moment';
-    $('#messageInput').placeholder = entry === 'explore-whats-new'
-      ? "e.g. Show me the latest arrivals. I'm into relaxed tailoring and streetwear, under RM300."
-      : "e.g. I'm going to Port Dickson this Sunday for a sunset seafood dinner and photos. Stylish and comfortable. Budget RM250.";
-  }
-
-  function runDemo(key) {
-    const d = DEMOS[key];
-    if (!d) return;
-    selectEntry(d.entry);
-    $('#messageInput').value = d.text;
-    sendMessage(d.text);
-  }
-
-  // ---- voice input (F: voice affordance with graceful text fallback) ----
-  let recognition = null;
-  function setupVoice() {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const micBtn = $('#micBtn');
-    if (!SR) {
-      // Graceful fallback: voice simply pre-fills via the server mock speech path.
-      micBtn.addEventListener('click', () => {
-        $('#voiceHint').textContent = 'Live microphone is unavailable here; using the Google Speech-to-Text mock transcript instead.';
-        sendVoiceMock();
-      });
-      return;
-    }
-    recognition = new SR();
-    recognition.lang = 'en-MY';
-    recognition.interimResults = false;
-    micBtn.addEventListener('click', () => {
-      try {
-        micBtn.classList.add('recording');
-        recognition.start();
-      } catch (_e) { micBtn.classList.remove('recording'); }
-    });
-    recognition.onresult = (ev) => {
-      const text = ev.results[0][0].transcript;
-      $('#messageInput').value = text;
-      micBtn.classList.remove('recording');
-      sendMessage(text);
-    };
-    recognition.onerror = () => { micBtn.classList.remove('recording'); sendVoiceMock(); };
-    recognition.onend = () => micBtn.classList.remove('recording');
-  }
-
-  // Fallback: send a voiceRef so the server-side Speech-to-Text mock transcribes it.
-  async function sendVoiceMock() {
-    try {
-      setStatus('Transcribing voice with Google Speech-to-Text (mock) and styling...');
-      await ensureSession();
-      const res = await Api.sendMessage({ sessionId: state.sessionId, userId: USER_ID, voiceRef: 'demo-voice-port-dickson' });
-      state.sessionId = res.sessionId || state.sessionId;
-      if (res.transcript && res.transcript.transcript) $('#messageInput').value = res.transcript.transcript;
-      renderConversationMeta(res);
-      renderRecommendation(res.recommendation, res.intent);
-      setStatus('');
-    } catch (e) {
-      setStatus(`Voice path failed, please type instead: ${e.message}`, true);
-    }
-  }
-
-  // ---- wire up ----
-  function init() {
-    document.querySelectorAll('[data-entry]').forEach((node) => {
-      node.addEventListener('click', () => selectEntry(node.dataset.entry));
-      node.addEventListener('keypress', (e) => { if (e.key === 'Enter' || e.key === ' ') selectEntry(node.dataset.entry); });
-    });
-    document.querySelectorAll('[data-demo]').forEach((btn) =>
-      btn.addEventListener('click', () => runDemo(btn.dataset.demo)));
-
-    $('#sendBtn').addEventListener('click', () => sendMessage($('#messageInput').value));
-    $('#refineBtn').addEventListener('click', () => refine($('#refineInput').value));
-    $('#saveProfileBtn').addEventListener('click', saveProfile);
-    $('#addWardrobeBtn').addEventListener('click', addWardrobeItem);
-
-    // Reveal optional panels after first interaction so they are discoverable.
-    $('#profilePanel').classList.remove('hidden');
-    $('#wardrobePanel').classList.remove('hidden');
-
-    selectEntry('style-my-moment');
-    setupVoice();
-  }
-
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
+  // =====================================================================
+  // BOOT
+  // =====================================================================
+  window.addEventListener('hashchange', router);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', router);
+  else router();
 })();

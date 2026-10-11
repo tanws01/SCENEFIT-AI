@@ -46,13 +46,80 @@ const FORBIDDEN_RETAIL_FIELDS = Object.freeze([
 ]);
 
 const OCCASION_KEYWORDS = Object.freeze({
-  beach: ['beach', 'seaside', 'port dickson', 'seafront', 'coast'],
+  beach: ['beach', 'seaside', 'batu ferringhi', 'batu feringghi', 'port dickson', 'seafront', 'coast'],
   getaway: ['getaway', 'trip', 'vacation', 'holiday', 'weekend away'],
   dinner: ['dinner', 'date night', 'date', 'evening out'],
   work: ['work', 'office', 'meeting', 'business'],
   wedding: ['wedding', 'reception', 'engagement'],
   casual: ['casual', 'hangout', 'everyday', 'relaxed day'],
 });
+
+/**
+ * Deterministic destination/scene keyword map. Keyed off the SAME utterance as
+ * occasions/styles, this picks an illustrative background scene for the Shop
+ * page. It is a model-side interpretation (a parse of the words), NOT a retail
+ * fact: it carries no price/stock/location/queue/date. `place` preserves the
+ * specific matched place name (e.g. 'batu ferringhi') so the UI can show it.
+ *
+ * Ordering matters: the first entry whose keyword matches wins, so more
+ * specific scenes (place-driven beach, resort getaways) are listed before
+ * broader occasion scenes. Each entry can mark `places` - specific place names
+ * that, when matched, are preserved verbatim in scene.place.
+ */
+const SCENE_KEYWORDS = Object.freeze([
+  {
+    id: 'beach',
+    label: 'Beach / seaside',
+    keywords: ['batu ferringhi', 'batu feringghi', 'beach', 'seaside', 'port dickson', 'seafront', 'coast'],
+    places: ['batu ferringhi', 'batu feringghi', 'port dickson'],
+  },
+  {
+    id: 'resort',
+    label: 'Resort getaway',
+    keywords: ['resort', 'getaway', 'holiday', 'vacation', 'poolside'],
+    places: [],
+  },
+  {
+    id: 'wedding',
+    label: 'Wedding / reception',
+    keywords: ['wedding', 'reception', 'engagement'],
+    places: [],
+  },
+  {
+    id: 'dinner',
+    label: 'Evening dinner',
+    keywords: ['dinner', 'date night', 'date', 'evening out', 'evening'],
+    places: [],
+  },
+  {
+    id: 'urban',
+    label: 'Urban / work',
+    keywords: ['work', 'office', 'meeting', 'business', 'city'],
+    places: [],
+  },
+]);
+
+const DEFAULT_SCENE = Object.freeze({ id: 'studio', label: 'Studio backdrop' });
+
+/**
+ * Deterministically derive a `scene` from the utterance text. Returns an object
+ * { id, label, place?, source }. Unknown/none falls back to the studio scene.
+ * No randomness, no network, no retail facts.
+ * @param {string} text lower-cased utterance
+ */
+function deriveScene(text) {
+  const lower = String(text || '').toLowerCase();
+  for (const scene of SCENE_KEYWORDS) {
+    const matched = scene.keywords.find((w) => lower.includes(w));
+    if (!matched) continue;
+    const out = { id: scene.id, label: scene.label, source: 'gemini-mock' };
+    // Preserve the specific matched place string when present.
+    const place = (scene.places || []).find((p) => lower.includes(p));
+    if (place) out.place = place;
+    return out;
+  }
+  return { id: DEFAULT_SCENE.id, label: DEFAULT_SCENE.label, source: 'gemini-mock' };
+}
 
 const STYLE_KEYWORDS = Object.freeze({
   'relaxed-tailoring': ['relaxed tailoring', 'relaxed-tailoring', 'smart casual', 'tailored but comfy'],
@@ -117,6 +184,10 @@ function mockParseIntent(utterance, profile = {}) {
   const numericSize = text.match(/\bsize\s*([0-9]{1,2})\b/);
   if (numericSize) sizes.push(numericSize[1]);
 
+  // Deterministic illustrative scene for the Shop page background. A parse of
+  // the utterance only - not a retail fact (no price/stock/location/queue/date).
+  const scene = deriveScene(text);
+
   return {
     rawUtterance: String(utterance || ''),
     entryPoint: wantsLatest ? 'explore-whats-new' : 'style-my-moment',
@@ -125,6 +196,7 @@ function mockParseIntent(utterance, profile = {}) {
     activities,
     styles,
     colours,
+    scene,
     sizes: Array.from(new Set(sizes)),
     budget: budgetRm != null ? { amountRm: budgetRm, currency: 'RM' } : null,
     profileHints: {
@@ -322,6 +394,7 @@ function liveNotImplemented(method /*, args */) {
 module.exports = {
   createGemini,
   FORBIDDEN_RETAIL_FIELDS,
+  SCENE_KEYWORDS,
   // Exported for unit tests of the deterministic logic.
-  _mock: { mockParseIntent, mockProposeOutfits, mockExplainOutfit, stripRetailFields },
+  _mock: { mockParseIntent, mockProposeOutfits, mockExplainOutfit, stripRetailFields, deriveScene },
 };
