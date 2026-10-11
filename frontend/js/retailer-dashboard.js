@@ -57,6 +57,7 @@
     const token = $('#token').value.trim();
     setStatus('Loading retailer intelligence...');
     $('#retail').innerHTML = '';
+    $('#ai').innerHTML = '';
     $('#merch').innerHTML = '';
     try {
       const [retail, merch] = await Promise.all([
@@ -65,6 +66,9 @@
       ]);
       $('#authStatus').textContent = 'Authenticated. Showing aggregated, privacy-protected data.';
       renderRetail(retail);
+      // AI analysis / predictions panel - distinct from the hard numbers. Reads
+      // from retail.aiInsights (preferred) or merch.aiAnalysis as a fallback.
+      renderAiInsights(retail.aiInsights || (merch && merch.aiAnalysis) || null);
       renderMerch(merch);
       setStatus('');
     } catch (e) {
@@ -108,6 +112,48 @@
         { key: 'metric', label: 'Metric' }, { key: 'count', label: 'Count' }, { key: 'totalValueRm', label: 'Total (RM)' },
       ]),
     ]));
+  }
+
+  // Render the model-generated AI analysis / predictions / suggestions in a
+  // clearly-labelled, visually-distinct panel. Degrades gracefully: if there
+  // is no AI block (e.g. no gemini adapter wired), nothing is rendered.
+  function renderAiInsights(ai) {
+    const root = $('#ai');
+    if (!ai) return;
+    const panel = el('div', { class: 'panel ai-panel' });
+    panel.appendChild(el('span', { class: 'tag-label ai' }, 'AI \u00b7 MODEL-GENERATED \u00b7 NON-GUARANTEED'));
+    panel.appendChild(el('h3', null, 'AI analysis & predictions'));
+    const sourceLabel = ai.source === 'gemini-live' ? 'Live Google Gemini' : 'Offline Gemini mock';
+    panel.appendChild(el('div', { class: 'notice' }, ai.note
+      || 'Model-generated analysis and NON-GUARANTEED predictions for human decision-support only. Not authoritative retail facts; the numbers above remain the source of truth.'));
+    panel.appendChild(el('p', { class: 'muted' }, `Source: ${sourceLabel} \u00b7 decision-support \u00b7 not a guaranteed forecast.`));
+
+    if (ai.narrative) {
+      panel.appendChild(el('div', { class: 'section-title' }, 'Analysis'));
+      panel.appendChild(el('p', null, ai.narrative));
+    }
+
+    const predictions = Array.isArray(ai.predictions) ? ai.predictions : [];
+    if (predictions.length) {
+      panel.appendChild(el('div', { class: 'section-title' }, 'Predicted trends (non-guaranteed)'));
+      const ul = el('ul', { class: 'ai-list' });
+      predictions.forEach((p) => {
+        const label = p && p.label ? p.label : String(p);
+        const basis = p && p.basis ? ` \u2014 basis: ${p.basis}` : '';
+        ul.appendChild(el('li', null, `${label}${basis}`));
+      });
+      panel.appendChild(ul);
+    }
+
+    const suggestions = Array.isArray(ai.suggestions) ? ai.suggestions : [];
+    if (suggestions.length) {
+      panel.appendChild(el('div', { class: 'section-title' }, 'Merchandising suggestions (decision-support)'));
+      const ul = el('ul', { class: 'ai-list' });
+      suggestions.forEach((s) => ul.appendChild(el('li', null, String(s))));
+      panel.appendChild(ul);
+    }
+
+    root.appendChild(panel);
   }
 
   function renderMerch(data) {
