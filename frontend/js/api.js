@@ -87,10 +87,13 @@
     getCart: (userId) => request('GET', `/api/cart?userId=${encodeURIComponent(userId || 'guest')}`),
     checkoutHandoff: (payload) => request('POST', '/api/checkout-handoff', payload),
 
-    // --- dashboards (gated by Firebase Auth role) ---
-    retailDashboard: (token) => request('GET', '/api/dashboard/retail', undefined, authHeader(token)),
-    staffDashboard: (token) => request('GET', '/api/dashboard/staff', undefined, authHeader(token)),
-    merchandisingInsights: (token) => request('GET', '/api/dashboard/merchandising', undefined, authHeader(token)),
+    // --- dashboards (OPEN read-only VIEWS: no auth header sent) ---
+    // Only aggregated, privacy-protected data is exposed. The operational
+    // write actions (staff-task / queue lifecycle) remain role-gated and still
+    // send an auth token via authHeader().
+    retailDashboard: () => request('GET', '/api/dashboard/retail'),
+    staffDashboard: () => request('GET', '/api/dashboard/staff'),
+    merchandisingInsights: () => request('GET', '/api/dashboard/merchandising'),
   };
 
   function authHeader(token) {

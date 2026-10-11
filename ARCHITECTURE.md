@@ -134,3 +134,22 @@ valid-SKU tests in `backend/test/`.
   validity.
 - **Untrusted (AI suggestion only):** Gemini intent parse and outfit concepts;
   Vertex AI try-on composites (illustrative aids, not fit/colour guarantees).
+
+## Dashboard access model
+
+The three **read-only dashboard views are open** (no auth): `GET
+/api/dashboard/retail`, `/staff` and `/merchandising` return aggregated,
+privacy-protected data without a token so the Retailer and Staff screens load
+directly. Only the **state-changing operational actions stay role-gated** via
+the Firebase Auth adapter: staff-task `accept` / `reject` / `prepare` and
+fitting-room queue `confirm` / `advance` (associate / ops / admin). The
+auth system and its `requireRole` gate remain intact for those write routes.
+
+Dashboard data comes from a large, deterministic, offline analytics seed
+(`backend/data/analyticsEvents.json`, reproducible via
+`backend/data/generate-analytics.js`). The BigQuery mock answers named
+aggregate queries (occasion / entry-point / budget / style / colour /
+unmet-size / zone / in-store-funnel breakdowns, weekly time-series, and a
+multi-metric commercial KPI set) that remain the **deterministic source of
+truth**; F15 merchandising insights stay labelled human decision-support, never
+guaranteed forecasts or auto-reorder.

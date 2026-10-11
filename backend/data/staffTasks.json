@@ -1,0 +1,175 @@
+[
+  {
+    "id": "task-seed-0001",
+    "type": "pull_items",
+    "status": "Submitted",
+    "assignedTo": null,
+    "customerStatus": "Your request has been sent to a store associate.",
+    "createdAt": "2025-04-25T09:12:00Z",
+    "updatedAt": "2025-04-25T09:12:00Z",
+    "garments": [
+      {
+        "sku": "TOP-OXF-004",
+        "size": "M",
+        "colour": "white",
+        "name": "Relaxed Oxford Shirt",
+        "available": true,
+        "location": { "zone": "Zone B New Arrivals", "aisle": "Aisle 04", "rack": "Rack B-17", "shelf": "Upper Rail" }
+      },
+      {
+        "sku": "BOT-TRS-012",
+        "size": "32",
+        "colour": "navy",
+        "name": "Pleated Tailored Trousers",
+        "available": true,
+        "location": { "zone": "Zone B New Arrivals", "aisle": "Aisle 04", "rack": "Rack B-18", "shelf": "Lower Rail" }
+      }
+    ],
+    "history": [
+      { "state": "Submitted", "at": "2025-04-25T09:12:00Z", "note": "Customer submitted picking request." }
+    ]
+  },
+  {
+    "id": "task-seed-0002",
+    "type": "pull_items",
+    "status": "Submitted",
+    "assignedTo": null,
+    "customerStatus": "Your request has been sent to a store associate.",
+    "createdAt": "2025-04-25T09:28:00Z",
+    "updatedAt": "2025-04-25T09:28:00Z",
+    "garments": [
+      {
+        "sku": "FTW-RUN-023",
+        "size": "42",
+        "colour": "grey",
+        "name": "Chunky Runner Sneakers",
+        "available": true,
+        "location": { "zone": "Zone C Footwear & Accessories", "aisle": "Aisle 06", "rack": "Rack C-04", "shelf": "Display Wall" }
+      }
+    ],
+    "history": [
+      { "state": "Submitted", "at": "2025-04-25T09:28:00Z", "note": "Customer submitted picking request." }
+    ]
+  },
+  {
+    "id": "task-seed-0003",
+    "type": "pull_items",
+    "status": "Accepted",
+    "assignedTo": "associate:u-42",
+    "customerStatus": "A store associate accepted your request and will prepare your items.",
+    "createdAt": "2025-04-25T09:40:00Z",
+    "updatedAt": "2025-04-25T09:46:00Z",
+    "garments": [
+      {
+        "sku": "TOP-KNT-005",
+        "size": "L",
+        "colour": "olive",
+        "name": "Boxy Knit Polo",
+        "available": true,
+        "location": { "zone": "Zone B New Arrivals", "aisle": "Aisle 04", "rack": "Rack B-17", "shelf": "Lower Rail" }
+      },
+      {
+        "sku": "BOT-CRG-013",
+        "size": "L",
+        "colour": "olive",
+        "name": "Relaxed Cargo Pants",
+        "available": true,
+        "location": { "zone": "Zone B New Arrivals", "aisle": "Aisle 04", "rack": "Rack B-19", "shelf": "Mid Rail" }
+      }
+    ],
+    "history": [
+      { "state": "Submitted", "at": "2025-04-25T09:40:00Z", "note": "Customer submitted picking request." },
+      { "state": "Accepted", "at": "2025-04-25T09:46:00Z", "note": "Accepted by associate:u-42." }
+    ]
+  },
+  {
+    "id": "task-seed-0004",
+    "type": "pull_items",
+    "status": "Preparing",
+    "assignedTo": "associate:u-17",
+    "customerStatus": "A store associate is preparing your items.",
+    "createdAt": "2025-04-25T09:55:00Z",
+    "updatedAt": "2025-04-25T10:05:00Z",
+    "garments": [
+      {
+        "sku": "TOP-GRA-006",
+        "size": "M",
+        "colour": "black",
+        "name": "Oversized Graphic Tee",
+        "available": true,
+        "location": { "zone": "Zone B New Arrivals", "aisle": "Aisle 03", "rack": "Rack B-12", "shelf": "Mid Rail" }
+      },
+      {
+        "sku": "BOT-DNM-014",
+        "size": "32",
+        "colour": "blue",
+        "name": "Loose Denim Jeans",
+        "available": true,
+        "location": { "zone": "Zone B New Arrivals", "aisle": "Aisle 03", "rack": "Rack B-13", "shelf": "Lower Rail" }
+      },
+      {
+        "sku": "FTW-CNV-025",
+        "size": "41",
+        "colour": "white",
+        "name": "Low-Top Canvas Trainers",
+        "available": true,
+        "location": { "zone": "Zone C Footwear & Accessories", "aisle": "Aisle 06", "rack": "Rack C-06", "shelf": "Display Wall" }
+      }
+    ],
+    "history": [
+      { "state": "Submitted", "at": "2025-04-25T09:55:00Z", "note": "Customer submitted picking request." },
+      { "state": "Accepted", "at": "2025-04-25T10:00:00Z", "note": "Accepted by associate:u-17." },
+      { "state": "Preparing", "at": "2025-04-25T10:05:00Z", "note": "Preparation started." }
+    ]
+  },
+  {
+    "id": "task-seed-0005",
+    "type": "pull_items",
+    "status": "ReadyForCollection",
+    "assignedTo": "associate:u-42",
+    "fittingRoomId": "fr-l2-02",
+    "customerStatus": "Your items are ready for collection at fitting room fr-l2-02.",
+    "createdAt": "2025-04-25T10:10:00Z",
+    "updatedAt": "2025-04-25T10:24:00Z",
+    "garments": [
+      {
+        "sku": "OUT-BMB-031",
+        "size": "M",
+        "colour": "black",
+        "name": "Nylon Bomber Jacket",
+        "available": true,
+        "location": { "zone": "Zone B New Arrivals", "aisle": "Aisle 05", "rack": "Rack B-22", "shelf": "Upper Rail" }
+      }
+    ],
+    "history": [
+      { "state": "Submitted", "at": "2025-04-25T10:10:00Z", "note": "Customer submitted picking request." },
+      { "state": "Accepted", "at": "2025-04-25T10:14:00Z", "note": "Accepted by associate:u-42." },
+      { "state": "Preparing", "at": "2025-04-25T10:18:00Z", "note": "Preparation started." },
+      { "state": "ReadyForCollection", "at": "2025-04-25T10:24:00Z", "note": "Items prepared for fitting room." }
+    ]
+  },
+  {
+    "id": "task-seed-0006",
+    "type": "pull_items",
+    "status": "Rejected",
+    "assignedTo": "associate:u-17",
+    "rejectionReason": "items_unavailable",
+    "customerStatus": "Unfortunately the store could not fulfil this request (items_unavailable). Please try alternatives or ask an associate.",
+    "createdAt": "2025-04-25T10:30:00Z",
+    "updatedAt": "2025-04-25T10:33:00Z",
+    "garments": [
+      {
+        "sku": "TOP-FLN-007",
+        "size": "XL",
+        "colour": "grey",
+        "name": "Overshirt Flannel",
+        "available": false,
+        "location": { "zone": "Zone B New Arrivals", "aisle": "Aisle 05", "rack": "Rack B-21", "shelf": "Upper Rail" }
+      }
+    ],
+    "history": [
+      { "state": "Submitted", "at": "2025-04-25T10:30:00Z", "note": "Customer submitted picking request." },
+      { "state": "Rejected", "at": "2025-04-25T10:33:00Z", "note": "Rejected: items_unavailable." }
+    ]
+  }
+]

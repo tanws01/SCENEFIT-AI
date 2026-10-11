@@ -146,12 +146,34 @@ test('bigquery mock answers named aggregate queries from seeded events', async (
   const byOccasion = await adapters.bigquery.query('intent-by-occasion');
   assert.ok(Array.isArray(byOccasion) && byOccasion.length >= 1);
 
+  // commercial-summary is now a multi-metric KPI set (deterministic).
   const commercial = await adapters.bigquery.query('commercial-summary');
-  assert.strictEqual(commercial[0].metric, 'checkout_handoffs');
-  assert.ok(commercial[0].totalValueRm > 0);
+  const handoffs = commercial.find((r) => r.metric === 'checkout_handoffs');
+  assert.ok(handoffs, 'includes a checkout_handoffs metric');
+  assert.ok(handoffs.totalValueRm > 0);
+  assert.ok(commercial.some((r) => r.metric === 'recommendations_shown'));
+  assert.ok(commercial.some((r) => r.metric === 'avg_basket_rm'));
+  assert.ok(commercial.some((r) => r.metric === 'conversion_rate'));
 
   const unmet = await adapters.bigquery.query('unmet-demand');
   assert.ok(unmet.some((r) => r.key === 'budget_too_low_for_three_outfits'));
+
+  // New richer named queries return the expected shapes.
+  const byColour = await adapters.bigquery.query('demand-by-colour');
+  assert.ok(Array.isArray(byColour) && byColour.length >= 2 && 'key' in byColour[0] && 'count' in byColour[0]);
+  const byEntry = await adapters.bigquery.query('intent-by-entrypoint');
+  assert.ok(byEntry.some((r) => r.key === 'style-my-moment'));
+  const bySize = await adapters.bigquery.query('unmet-demand-by-size');
+  assert.ok(Array.isArray(bySize) && bySize.every((r) => /size/.test(String(r.key))));
+  const funnel = await adapters.bigquery.query('in-store-funnel');
+  assert.strictEqual(funnel.length, 4);
+  assert.strictEqual(funnel[0].key, 'Location lookups');
+  const byWeek = await adapters.bigquery.query('events-by-week');
+  assert.ok(byWeek.length >= 2);
+  // Weekly series is ordered oldest-first.
+  for (let i = 1; i < byWeek.length; i += 1) {
+    assert.ok(byWeek[i - 1].key <= byWeek[i].key, 'weeks are chronologically ordered');
+  }
 
   await assert.rejects(() => adapters.bigquery.query('does-not-exist'));
 });

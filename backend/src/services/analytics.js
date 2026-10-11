@@ -48,6 +48,7 @@ const DECISION_SUPPORT_LABEL = Object.freeze({
  * @param {object} deps
  * @param {object} deps.bigquery bigquery adapter
  * @param {object} [deps.staffTasks] staff tasks service (F14 operations data)
+ * @param {object} [deps.fittingRoomQueue] fitting-room queue service (F14 tickets)
  * @param {object} [deps.store] seeded store record (F14 fitting-room availability)
  * @param {object} [deps.gemini] gemini adapter (AI analysis layer; optional)
  * @param {() => string} [deps.now]
@@ -57,6 +58,7 @@ function createAnalytics(deps = {}) {
   const bigquery = deps.bigquery;
   if (!bigquery) throw new Error('analytics requires a bigquery adapter');
   const staffTasks = deps.staffTasks || null;
+  const fittingRoomQueue = deps.fittingRoomQueue || null;
   const store = deps.store || null;
   // Optional AI layer. When absent the dashboards still return the full
   // deterministic aggregates (the AI block is simply omitted).
@@ -106,50 +108,81 @@ function createAnalytics(deps = {}) {
   // ---- F13 dashboard sections (aggregate, privacy-protected) ----
 
   async function shoppingIntent() {
-    const byOccasion = await bigquery.query('intent-by-occasion');
+    const [byOccasion, byEntryPoint, byBudget] = await Promise.all([
+      bigquery.query('intent-by-occasion'),
+      bigquery.query('intent-by-entrypoint'),
+      bigquery.query('intent-by-budget'),
+    ]);
     return {
       title: 'Shopping Intent',
       occasionVsLatestCollection: byOccasion,
       popularOccasions: byOccasion,
+      byEntryPoint,
+      byBudgetBand: byBudget,
       source: 'bigquery-aggregate',
     };
   }
 
   async function productDemand() {
-    const byStyle = await bigquery.query('demand-by-style');
+    const [byStyle, byColour, byWeek] = await Promise.all([
+      bigquery.query('demand-by-style'),
+      bigquery.query('demand-by-colour'),
+      bigquery.query('demand-by-week'),
+    ]);
     return {
       title: 'Product Demand',
       mostRequestedStyles: byStyle,
       popularStylePreferences: byStyle,
+      mostRequestedColours: byColour,
+      demandByWeek: byWeek,
       source: 'bigquery-aggregate',
     };
   }
 
   async function unmetDemand() {
-    const unmet = await bigquery.query('unmet-demand');
+    const [unmet, bySize] = await Promise.all([
+      bigquery.query('unmet-demand'),
+      bigquery.query('unmet-demand-by-size'),
+    ]);
     return {
       title: 'Unmet Demand',
       reasons: unmet,
-      requestedButUnavailableSizes: unmet.filter((r) => /size/.test(String(r.key))),
+      requestedButUnavailableSizes: bySize,
       source: 'bigquery-aggregate',
     };
   }
 
   async function inStoreExperience() {
-    const byZone = await bigquery.query('in-store-by-zone');
+    const [byZone, funnel] = await Promise.all([
+      bigquery.query('in-store-by-zone'),
+      bigquery.query('in-store-funnel'),
+    ]);
     return {
       title: 'In-Store Experience',
       activityByZone: byZone,
       locationLookupVolume: byZone,
+      funnel,
       source: 'bigquery-aggregate',
     };
   }
 
   async function commercialPerformance() {
     const summary = await bigquery.query('commercial-summary');
+    const metric = (name) => summary.find((r) => r.metric === name) || { count: 0, totalValueRm: 0 };
+    const kpis = {
+      recommendationsShown: metric('recommendations_shown').count,
+      savedLooks: metric('saved_looks').count,
+      addToCart: metric('add_to_cart').count,
+      tryOnEvents: metric('try_on_events').count,
+      checkoutHandoffs: metric('checkout_handoffs').count,
+      totalValueRm: metric('checkout_handoffs').totalValueRm,
+      avgBasketRm: metric('avg_basket_rm').totalValueRm,
+      conversionRate: metric('conversion_rate').totalValueRm,
+    };
     return {
       title: 'Commercial Performance',
       checkoutHandoffs: summary,
+      kpis,
       source: 'bigquery-aggregate',
     };
   }
@@ -160,14 +193,27 @@ function createAnalytics(deps = {}) {
    * @returns {Promise<{byOccasion,byStyle,unmet,byZone,commercial}>}
    */
   async function gatherAggregates() {
-    const [byOccasion, byStyle, unmet, byZone, commercial] = await Promise.all([
+    const [
+      byOccasion, byEntryPoint, byBudget, byStyle, byColour,
+      unmet, unmetBySize, byZone, funnel, commercial, eventsByWeek, demandByWeek,
+    ] = await Promise.all([
       bigquery.query('intent-by-occasion'),
+      bigquery.query('intent-by-entrypoint'),
+      bigquery.query('intent-by-budget'),
       bigquery.query('demand-by-style'),
+      bigquery.query('demand-by-colour'),
       bigquery.query('unmet-demand'),
+      bigquery.query('unmet-demand-by-size'),
       bigquery.query('in-store-by-zone'),
+      bigquery.query('in-store-funnel'),
       bigquery.query('commercial-summary'),
+      bigquery.query('events-by-week'),
+      bigquery.query('demand-by-week'),
     ]);
-    return { byOccasion, byStyle, unmet, byZone, commercial };
+    return {
+      byOccasion, byEntryPoint, byBudget, byStyle, byColour,
+      unmet, unmetBySize, byZone, funnel, commercial, eventsByWeek, demandByWeek,
+    };
   }
 
   /**
@@ -206,18 +252,33 @@ function createAnalytics(deps = {}) {
    * overriding) the deterministic numbers when a gemini adapter is wired.
    */
   async function retailDashboard() {
+    // Read the richer aggregates ONCE so both the AI analysis layer and the
+    // deterministic KPI roll-up below see the SAME numbers.
     const aggregates = await gatherAggregates();
-    const [intent, demand, unmet, inStore, commercial, insights] = await Promise.all([
+    const [intent, demand, unmet, inStore, commercial, eventsByWeek, insights] = await Promise.all([
       shoppingIntent(),
       productDemand(),
       unmetDemand(),
       inStoreExperience(),
       commercialPerformance(),
+      bigquery.query('events-by-week'),
       aiAnalysis(aggregates),
     ]);
+    const totalEvents = eventsByWeek.reduce((s, r) => s + (Number(r.count) || 0), 0);
+    const kpis = {
+      totalEvents,
+      activeWeeks: eventsByWeek.length,
+      ...commercial.kpis,
+      unmetDemandSignals: (unmet.reasons || []).reduce((s, r) => s + (Number(r.count) || 0), 0),
+    };
     const dashboard = {
       dashboard: 'retail-intelligence',
       privacy: { pii: false, aggregationReady: true, note: 'Aggregated, privacy-protected data with retention/access controls.' },
+      kpis,
+      trends: {
+        eventsByWeek,
+        demandByWeek: demand.demandByWeek || [],
+      },
       sections: {
         shoppingIntent: intent,
         productDemand: demand,
@@ -239,19 +300,68 @@ function createAnalytics(deps = {}) {
   async function staffDashboard() {
     const tasks = staffTasks ? await staffTasks.list() : [];
     const fittingRooms = store && Array.isArray(store.fittingRooms) ? store.fittingRooms : [];
+    const tickets = fittingRoomQueue ? await fittingRoomQueue.list() : [];
+
+    // A fitting room is physically "occupied" when a ticket assigned to it is
+    // Ready (held for the customer) or In Fitting Room. Earlier states
+    // (Confirmed / Waiting for Room) are still being prepared and do not hold a
+    // room. This is a deterministic operational fact derived from the queue
+    // tickets, never invented.
+    const TERMINAL = ['Completed', 'CustomerCancelled', 'NoShow', 'ExpiredTicket'];
+    const OCCUPYING_STATES = ['Ready', 'In Fitting Room'];
+    const occupiedRooms = new Set(
+      tickets
+        .filter((t) => t.fittingRoomId && OCCUPYING_STATES.includes(t.status))
+        .map((t) => t.fittingRoomId),
+    );
+
+    const incomingPickingRequests = tasks.map((t) => ({
+      id: t.id,
+      status: t.status,
+      assignedTo: t.assignedTo,
+      createdAt: t.createdAt || null,
+      garments: (t.garments || []).map((g) => ({
+        sku: g.sku, size: g.size, colour: g.colour, name: g.name || null, location: g.location,
+      })),
+    }));
+
+    const fittingRoomAvailability = fittingRooms.map((fr) => ({
+      id: fr.id,
+      zone: fr.zone,
+      level: fr.level,
+      capacity: fr.capacity,
+      status: occupiedRooms.has(fr.id) ? 'Occupied' : 'Available',
+    }));
+
+    const queueTickets = tickets.map((t) => ({
+      id: t.id,
+      status: t.status,
+      confirmed: !!t.confirmed,
+      fittingRoomId: t.fittingRoomId || null,
+      itemCount: Array.isArray(t.items) ? t.items.length : 0,
+      liveStatusMessage: t.liveStatusMessage || null,
+    }));
+
+    const OPEN_TASK_STATES = ['Submitted', 'Accepted', 'Preparing'];
+    const operationsSummary = {
+      totalTasks: tasks.length,
+      openTasks: tasks.filter((t) => OPEN_TASK_STATES.includes(t.status)).length,
+      readyForCollection: tasks.filter((t) => t.status === 'ReadyForCollection').length,
+      rejectedTasks: tasks.filter((t) => t.status === 'Rejected').length,
+      fittingRoomsTotal: fittingRooms.length,
+      fittingRoomsAvailable: fittingRoomAvailability.filter((r) => r.status === 'Available').length,
+      queueTotal: tickets.length,
+      queueWaiting: tickets.filter((t) => !TERMINAL.includes(t.status)
+        && t.status !== 'In Fitting Room').length,
+      queueInFittingRoom: tickets.filter((t) => t.status === 'In Fitting Room').length,
+    };
+
     return {
       dashboard: 'staff-operations',
-      incomingPickingRequests: tasks.map((t) => ({
-        id: t.id,
-        status: t.status,
-        assignedTo: t.assignedTo,
-        garments: (t.garments || []).map((g) => ({
-          sku: g.sku, size: g.size, colour: g.colour, location: g.location,
-        })),
-      })),
-      fittingRoomAvailability: fittingRooms.map((fr) => ({
-        id: fr.id, zone: fr.zone, level: fr.level, capacity: fr.capacity,
-      })),
+      operationsSummary,
+      incomingPickingRequests,
+      fittingRoomAvailability,
+      queueTickets,
       source: 'operational',
     };
   }
@@ -261,8 +371,12 @@ function createAnalytics(deps = {}) {
    * DECISION-SUPPORT, never as guaranteed forecasts or auto-reorder orders.
    */
   async function merchandisingInsights() {
+    // Read the richer aggregates ONCE (source of truth) and derive both the
+    // deterministic insight buckets and the additive AI analysis from them.
     const aggregates = await gatherAggregates();
-    const { unmet, byStyle, byZone } = aggregates;
+    const {
+      unmet, unmetBySize, byStyle, byColour, byZone,
+    } = aggregates;
     const insights = await aiAnalysis(aggregates);
 
     const result = {
@@ -271,7 +385,7 @@ function createAnalytics(deps = {}) {
       insights: {
         frequentlyRequestedSizesMissing: {
           label: 'Frequently requested sizes missing from inventory',
-          data: unmet.filter((r) => /size/.test(String(r.key))),
+          data: unmetBySize,
           interpretation: 'decision-support',
         },
         collectionsInterestVsPurchase: {
@@ -280,8 +394,13 @@ function createAnalytics(deps = {}) {
           interpretation: 'decision-support',
         },
         growingAttentionStyles: {
-          label: 'Styles / colours getting growing attention',
+          label: 'Styles getting growing attention',
           data: byStyle,
+          interpretation: 'decision-support',
+        },
+        growingAttentionColours: {
+          label: 'Colours getting growing attention',
+          data: byColour,
           interpretation: 'decision-support',
         },
         repeatedlySubstituted: {

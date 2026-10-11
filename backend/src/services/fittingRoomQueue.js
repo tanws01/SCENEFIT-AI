@@ -310,6 +310,11 @@ function createFittingRoomQueue(deps = {}) {
     return load(ticketId);
   }
 
+  /** List queue tickets (for the staff operations dashboard). */
+  async function list(predicate) {
+    return firestore.query(COLLECTION, predicate);
+  }
+
   return {
     requestQueue,
     confirm,
@@ -317,6 +322,7 @@ function createFittingRoomQueue(deps = {}) {
     cancel,
     expire,
     get,
+    list,
     branchSupportsQueue,
     canTransition,
     STATES,

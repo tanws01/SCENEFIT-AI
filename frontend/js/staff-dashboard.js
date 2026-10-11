@@ -39,17 +39,39 @@
   async function load() {
     setStatus('Loading staff operations...');
     try {
-      const data = await Api.staffDashboard(token());
-      $('#authStatus').textContent = 'Authenticated as staff.';
+      const data = await Api.staffDashboard();
+      $('#authStatus').textContent = '';
+      renderStaffKpis(data);
       renderPicking(data.incomingPickingRequests || []);
       renderFittingRooms(data.fittingRoomAvailability || []);
+      renderQueueOverview(data.queueTickets || []);
       setStatus('');
     } catch (e) {
       setStatus('', false);
-      $('#authStatus').textContent = (e.status === 401 || e.status === 403)
-        ? `Access denied (${e.status}). Use an associate/ops/admin token.`
-        : `Failed to load: ${e.message}`;
+      $('#authStatus').textContent = `Failed to load: ${e.message}`;
     }
+  }
+
+  // Operational KPI tiles across the staff board (deterministic counts).
+  function renderStaffKpis(data) {
+    const root = $('#staffKpis');
+    if (!root) return;
+    root.innerHTML = '';
+    const summary = data.operationsSummary || {};
+    const tiles = [
+      { label: 'Open picking tasks', value: summary.openTasks },
+      { label: 'Ready for collection', value: summary.readyForCollection },
+      { label: 'Fitting rooms free', value: summary.fittingRoomsAvailable },
+      { label: 'Fitting rooms total', value: summary.fittingRoomsTotal },
+      { label: 'Queue tickets waiting', value: summary.queueWaiting },
+    ].filter((t) => t.value != null);
+    if (!tiles.length) return;
+    const grid = el('div', { class: 'kpi-grid' });
+    tiles.forEach((t) => grid.appendChild(el('div', { class: 'kpi-tile' }, [
+      el('div', { class: 'kpi-value' }, String(t.value)),
+      el('div', { class: 'kpi-label' }, t.label),
+    ])));
+    root.appendChild(el('div', { class: 'panel' }, [el('h3', null, 'Operations at a glance'), grid]));
   }
 
   function renderPicking(tasks) {
@@ -119,11 +141,36 @@
     const panel = el('div', { class: 'panel' }, [
       el('h3', null, 'Fitting-room availability'),
       el('table', { class: 'data' }, [
-        el('tr', null, [el('th', null, 'Room'), el('th', null, 'Zone'), el('th', null, 'Level'), el('th', null, 'Capacity')]),
+        el('tr', null, [el('th', null, 'Room'), el('th', null, 'Zone'), el('th', null, 'Level'), el('th', null, 'Capacity'), el('th', null, 'Status')]),
       ].concat(rooms.map((r) => el('tr', null, [
-        el('td', null, r.id), el('td', null, String(r.zone || '-')), el('td', null, String(r.level || '-')), el('td', null, String(r.capacity || 1)),
+        el('td', null, r.id),
+        el('td', null, String(r.zone || '-')),
+        el('td', null, String(r.level || '-')),
+        el('td', null, String(r.capacity || 1)),
+        el('td', null, [el('span', { class: `pill ${r.status === 'Available' ? 'ok' : 'busy'}` }, String(r.status || '-'))]),
       ])))),
     ]);
+    root.appendChild(panel);
+  }
+
+  // Read-only overview of the current queue tickets across the board.
+  function renderQueueOverview(tickets) {
+    const root = $('#queueOverview');
+    if (!root) return;
+    root.innerHTML = '';
+    const panel = el('div', { class: 'panel' }, [el('h3', null, `Fitting-room queue (${tickets.length})`)]);
+    if (!tickets.length) {
+      panel.appendChild(el('p', { class: 'muted' }, 'No active queue tickets.'));
+    } else {
+      panel.appendChild(el('table', { class: 'data' }, [
+        el('tr', null, [el('th', null, 'Ticket'), el('th', null, 'Status'), el('th', null, 'Room'), el('th', null, 'Items')]),
+      ].concat(tickets.map((t) => el('tr', null, [
+        el('td', null, t.id),
+        el('td', null, [el('span', { class: 'pill' }, String(t.status || '-'))]),
+        el('td', null, String(t.fittingRoomId || '-')),
+        el('td', null, String(t.itemCount != null ? t.itemCount : '-')),
+      ])))));
+    }
     root.appendChild(panel);
   }
 

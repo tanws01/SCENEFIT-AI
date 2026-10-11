@@ -1,157 +1,4483 @@
 [
   {
-    "id": "evt-0001",
-    "type": "intent",
-    "timestamp": "2025-03-15T02:10:00Z",
-    "occasion": "beach",
-    "entryPoint": "style-my-moment",
-    "budgetBand": "RM200-250",
-    "anonUserId": "anon-7f3a",
-    "privacy": { "pii": false, "aggregationReady": true }
+    "type": "unmet_demand",
+    "reason": "style_not_in_catalogue",
+    "requestedStyle": "resort",
+    "id": "evt-0008",
+    "timestamp": "2025-03-17T11:06:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-f125",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
   },
   {
-    "id": "evt-0002",
-    "type": "intent",
-    "timestamp": "2025-03-15T02:30:00Z",
-    "occasion": "getaway",
-    "entryPoint": "style-my-moment",
-    "budgetBand": "RM200-250",
-    "anonUserId": "anon-9c21",
-    "privacy": { "pii": false, "aggregationReady": true }
+    "type": "demand",
+    "style": "casual",
+    "colour": "grey",
+    "id": "evt-0021",
+    "timestamp": "2025-03-17T17:30:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-0d22",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
   },
   {
-    "id": "evt-0003",
-    "type": "intent",
-    "timestamp": "2025-03-15T03:05:00Z",
-    "occasion": "work",
-    "entryPoint": "style-my-moment",
-    "budgetBand": "RM250-350",
-    "anonUserId": "anon-2b88",
-    "privacy": { "pii": false, "aggregationReady": true }
+    "type": "demand",
+    "style": "streetwear",
+    "colour": "black",
+    "id": "evt-0027",
+    "timestamp": "2025-03-17T18:07:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-90a1",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
   },
   {
+    "type": "unmet_demand",
+    "reason": "item_sold_out",
+    "sku": "TOP-LIN-001",
+    "id": "evt-0028",
+    "timestamp": "2025-03-17T18:28:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-7577",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "style_not_in_catalogue",
+    "requestedStyle": "casual",
+    "id": "evt-0015",
+    "timestamp": "2025-03-18T10:08:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-7e3f",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "rack_navigation_viewed",
+    "sku": "TOP-OXF-004",
+    "id": "evt-0012",
+    "timestamp": "2025-03-18T10:25:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-9caf",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "relaxed-tailoring",
+    "colour": "black",
+    "id": "evt-0029",
+    "timestamp": "2025-03-18T15:40:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-b791",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "relaxed-tailoring",
+    "colour": "beige",
+    "id": "evt-0020",
+    "timestamp": "2025-03-18T19:06:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-d0f5",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "checkout_handoff",
+    "itemCount": 3,
+    "valueRm": 109,
+    "id": "evt-0005",
+    "timestamp": "2025-03-19T13:50:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-6abd",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "add_to_cart",
+    "itemCount": 2,
+    "valueRm": 340,
+    "id": "evt-0040",
+    "timestamp": "2025-03-19T14:02:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-af51",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "wedding-guest",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM0-80",
+    "id": "evt-0019",
+    "timestamp": "2025-03-19T17:04:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-a517",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "size_out_of_stock",
+    "sku": "BOT-CRG-013",
+    "requestedSize": "M",
     "id": "evt-0004",
+    "timestamp": "2025-03-19T17:17:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-42e7",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "resort",
+    "colour": "black",
+    "id": "evt-0014",
+    "timestamp": "2025-03-20T09:47:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-94e3",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
     "type": "intent",
-    "timestamp": "2025-03-15T04:00:00Z",
     "occasion": "beach",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM150-200",
+    "id": "evt-0032",
+    "timestamp": "2025-03-20T10:30:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-3d2d",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone A Essentials",
+    "action": "rack_navigation_viewed",
+    "sku": "BOT-DNM-014",
+    "id": "evt-0035",
+    "timestamp": "2025-03-20T11:18:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-f7e9",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "casual",
+    "colour": "brown",
+    "id": "evt-0037",
+    "timestamp": "2025-03-20T11:29:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-0c51",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "rack_navigation_viewed",
+    "sku": "BOT-TRS-012",
+    "id": "evt-0039",
+    "timestamp": "2025-03-20T12:30:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-7f87",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "brunch",
     "entryPoint": "style-my-moment",
     "budgetBand": "RM150-200",
-    "anonUserId": "anon-5d10",
-    "privacy": { "pii": false, "aggregationReady": true }
+    "id": "evt-0038",
+    "timestamp": "2025-03-20T14:09:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-a55e",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
   },
   {
-    "id": "evt-0005",
-    "type": "demand",
-    "timestamp": "2025-03-15T02:12:00Z",
-    "style": "relaxed-tailoring",
-    "collectionId": "col-latest-2025ss",
-    "anonUserId": "anon-7f3a",
-    "privacy": { "pii": false, "aggregationReady": true }
-  },
-  {
-    "id": "evt-0006",
-    "type": "demand",
-    "timestamp": "2025-03-15T02:40:00Z",
-    "style": "streetwear",
-    "collectionId": "col-latest-2025ss",
-    "anonUserId": "anon-9c21",
-    "privacy": { "pii": false, "aggregationReady": true }
-  },
-  {
-    "id": "evt-0007",
-    "type": "demand",
-    "timestamp": "2025-03-15T03:15:00Z",
-    "style": "relaxed-tailoring",
-    "collectionId": "col-latest-2025ss",
-    "anonUserId": "anon-2b88",
-    "privacy": { "pii": false, "aggregationReady": true }
-  },
-  {
-    "id": "evt-0008",
-    "type": "demand",
-    "timestamp": "2025-03-15T05:20:00Z",
-    "style": "resort",
-    "collectionId": "col-resort-2025",
-    "anonUserId": "anon-5d10",
-    "privacy": { "pii": false, "aggregationReady": true }
-  },
-  {
-    "id": "evt-0009",
     "type": "unmet_demand",
-    "timestamp": "2025-03-15T06:00:00Z",
     "reason": "budget_too_low_for_three_outfits",
     "budgetBand": "RM0-80",
-    "requestedStyle": "streetwear",
-    "anonUserId": "anon-1a05",
-    "privacy": { "pii": false, "aggregationReady": true }
+    "id": "evt-0023",
+    "timestamp": "2025-03-20T15:37:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-d3bd",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
   },
   {
-    "id": "evt-0010",
+    "type": "commercial",
+    "action": "checkout_handoff",
+    "itemCount": 2,
+    "valueRm": 363,
+    "id": "evt-0018",
+    "timestamp": "2025-03-20T19:32:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-88ae",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "festival",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM250-350",
+    "id": "evt-0007",
+    "timestamp": "2025-03-20T19:44:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-1611",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
     "type": "unmet_demand",
-    "timestamp": "2025-03-15T06:30:00Z",
-    "reason": "size_out_of_stock",
-    "sku": "TOP-FLN-007",
-    "requestedSize": "XL",
-    "anonUserId": "anon-3f77",
-    "privacy": { "pii": false, "aggregationReady": true }
+    "reason": "item_sold_out",
+    "sku": "TOP-GRA-006",
+    "id": "evt-0030",
+    "timestamp": "2025-03-21T10:34:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-3002",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
   },
   {
+    "type": "intent",
+    "occasion": "casual-weekend",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM250-350",
+    "id": "evt-0009",
+    "timestamp": "2025-03-21T11:13:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-8d7e",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "size_out_of_stock",
+    "sku": "TOP-GRA-006",
+    "requestedSize": "L",
+    "id": "evt-0003",
+    "timestamp": "2025-03-21T11:25:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-c289",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "brunch",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM150-200",
+    "id": "evt-0013",
+    "timestamp": "2025-03-21T14:49:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-6027",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "checkout_handoff",
+    "itemCount": 2,
+    "valueRm": 92,
     "id": "evt-0011",
+    "timestamp": "2025-03-22T09:43:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-2f8d",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "size_out_of_stock",
+    "sku": "TOP-OXF-004",
+    "requestedSize": "S",
+    "id": "evt-0002",
+    "timestamp": "2025-03-22T11:18:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-e57a",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
     "type": "in_store",
-    "timestamp": "2025-03-15T07:10:00Z",
+    "zone": "Zone A Essentials",
+    "action": "fitting_room_queue_joined",
+    "id": "evt-0036",
+    "timestamp": "2025-03-22T11:47:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-8075",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone A Essentials",
+    "action": "rack_navigation_viewed",
+    "sku": "TOP-OXF-004",
+    "id": "evt-0025",
+    "timestamp": "2025-03-22T12:03:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-b29d",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "relaxed-tailoring",
+    "colour": "white",
+    "id": "evt-0001",
+    "timestamp": "2025-03-22T12:27:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-7027",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "style_not_in_catalogue",
+    "requestedStyle": "sporty",
+    "id": "evt-0031",
+    "timestamp": "2025-03-22T12:42:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-c02d",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "style_not_in_catalogue",
+    "requestedStyle": "minimalist",
+    "id": "evt-0017",
+    "timestamp": "2025-03-22T14:42:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-d003",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "budget_too_low_for_three_outfits",
+    "budgetBand": "RM0-80",
+    "id": "evt-0033",
+    "timestamp": "2025-03-22T14:59:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-32ec",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "colour_unavailable",
+    "colour": "grey",
+    "id": "evt-0006",
+    "timestamp": "2025-03-22T16:06:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-f341",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "size_out_of_stock",
+    "sku": "FTW-CNV-025",
+    "requestedSize": "40",
+    "id": "evt-0022",
+    "timestamp": "2025-03-22T19:50:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-9335",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "add_to_cart",
+    "itemCount": 3,
+    "valueRm": 266,
+    "id": "evt-0026",
+    "timestamp": "2025-03-23T09:46:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-1774",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "try_on",
+    "id": "evt-0024",
+    "timestamp": "2025-03-23T11:06:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-6f02",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "wedding-guest",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM200-250",
+    "id": "evt-0034",
+    "timestamp": "2025-03-23T13:10:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-52b1",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "relaxed-tailoring",
+    "colour": "black",
+    "id": "evt-0010",
+    "timestamp": "2025-03-23T17:30:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-05db",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "try_on",
+    "id": "evt-0016",
+    "timestamp": "2025-03-23T19:52:00.000Z",
+    "week": "2025-03-17",
+    "anonUserId": "anon-c59e",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "try_on",
+    "id": "evt-0058",
+    "timestamp": "2025-03-24T10:44:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-df14",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "rack_navigation_viewed",
+    "sku": "TOP-OXF-004",
+    "id": "evt-0062",
+    "timestamp": "2025-03-24T10:55:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-4f79",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "try_on",
+    "id": "evt-0084",
+    "timestamp": "2025-03-24T11:39:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-adda",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "try_on",
+    "id": "evt-0066",
+    "timestamp": "2025-03-24T12:48:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-7f78",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "budget_too_low_for_three_outfits",
+    "budgetBand": "RM0-80",
+    "id": "evt-0069",
+    "timestamp": "2025-03-24T13:23:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-368b",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "casual",
+    "colour": "white",
+    "id": "evt-0068",
+    "timestamp": "2025-03-24T16:51:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-e09b",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "casual",
+    "colour": "white",
+    "id": "evt-0044",
+    "timestamp": "2025-03-24T17:30:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-1db6",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "recommendation_shown",
+    "id": "evt-0061",
+    "timestamp": "2025-03-24T19:19:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-59d1",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "casual",
+    "colour": "cream",
+    "id": "evt-0060",
+    "timestamp": "2025-03-25T12:16:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-0e73",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "brunch",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM350+",
+    "id": "evt-0052",
+    "timestamp": "2025-03-25T13:16:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-1704",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "beach",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM80-150",
+    "id": "evt-0045",
+    "timestamp": "2025-03-25T13:36:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-3dd3",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "minimalist",
+    "colour": "black",
+    "id": "evt-0080",
+    "timestamp": "2025-03-25T16:44:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-9b95",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "casual-weekend",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM150-200",
+    "id": "evt-0050",
+    "timestamp": "2025-03-25T17:40:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-7d46",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone B New Arrivals",
+    "action": "staff_assist_requested",
+    "id": "evt-0079",
+    "timestamp": "2025-03-25T19:27:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-63d0",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "style_not_in_catalogue",
+    "requestedStyle": "resort",
+    "id": "evt-0070",
+    "timestamp": "2025-03-26T09:08:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-7835",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "date-night",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM200-250",
+    "id": "evt-0047",
+    "timestamp": "2025-03-26T09:14:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-1aa1",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "checkout_handoff",
+    "itemCount": 2,
+    "valueRm": 266,
+    "id": "evt-0043",
+    "timestamp": "2025-03-26T10:40:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-88d0",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone A Essentials",
+    "action": "fitting_room_queue_joined",
+    "id": "evt-0078",
+    "timestamp": "2025-03-26T12:37:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-a5b2",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "rack_navigation_viewed",
+    "sku": "BOT-CHN-011",
+    "id": "evt-0073",
+    "timestamp": "2025-03-26T13:14:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-250b",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "wedding-guest",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM80-150",
+    "id": "evt-0065",
+    "timestamp": "2025-03-26T13:53:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-4b22",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "recommendation_shown",
+    "id": "evt-0083",
+    "timestamp": "2025-03-26T14:30:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-32a3",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "relaxed-tailoring",
+    "colour": "black",
+    "id": "evt-0081",
+    "timestamp": "2025-03-26T16:29:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-689b",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "add_to_cart",
+    "itemCount": 3,
+    "valueRm": 285,
+    "id": "evt-0042",
+    "timestamp": "2025-03-26T16:36:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-4add",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "casual-weekend",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM250-350",
+    "id": "evt-0049",
+    "timestamp": "2025-03-27T09:10:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-506f",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "casual-weekend",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM200-250",
+    "id": "evt-0082",
+    "timestamp": "2025-03-27T11:05:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-c40b",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone B New Arrivals",
+    "action": "fitting_room_session_completed",
+    "id": "evt-0071",
+    "timestamp": "2025-03-27T14:27:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-de90",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "resort",
+    "colour": "navy",
+    "id": "evt-0077",
+    "timestamp": "2025-03-27T16:03:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-7fce",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "add_to_cart",
+    "itemCount": 2,
+    "valueRm": 228,
+    "id": "evt-0074",
+    "timestamp": "2025-03-27T18:24:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-4a26",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "relaxed-tailoring",
+    "colour": "black",
+    "id": "evt-0054",
+    "timestamp": "2025-03-27T18:36:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-8977",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone B New Arrivals",
+    "action": "fitting_room_queue_joined",
+    "id": "evt-0055",
+    "timestamp": "2025-03-27T19:12:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-7e70",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "casual-weekend",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM150-200",
+    "id": "evt-0085",
+    "timestamp": "2025-03-28T09:29:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-e9e5",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "streetwear",
+    "colour": "navy",
+    "id": "evt-0048",
+    "timestamp": "2025-03-28T19:06:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-803d",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "saved_look",
+    "id": "evt-0056",
+    "timestamp": "2025-03-28T19:53:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-adb8",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "checkout_handoff",
+    "itemCount": 1,
+    "valueRm": 169,
+    "id": "evt-0046",
+    "timestamp": "2025-03-29T10:20:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-d0c7",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "size_out_of_stock",
+    "sku": "FTW-LOF-024",
+    "requestedSize": "39",
+    "id": "evt-0051",
+    "timestamp": "2025-03-29T12:24:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-3772",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone B New Arrivals",
+    "action": "fitting_room_session_completed",
+    "id": "evt-0076",
+    "timestamp": "2025-03-29T14:23:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-3bfa",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "brunch",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM200-250",
+    "id": "evt-0075",
+    "timestamp": "2025-03-29T17:22:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-cbe9",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "try_on",
+    "id": "evt-0063",
+    "timestamp": "2025-03-29T17:52:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-6ff3",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "checkout_handoff",
+    "itemCount": 2,
+    "valueRm": 352,
+    "id": "evt-0067",
+    "timestamp": "2025-03-29T18:22:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-e2c1",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "recommendation_shown",
+    "id": "evt-0059",
+    "timestamp": "2025-03-29T19:32:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-95a0",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "casual",
+    "colour": "grey",
+    "id": "evt-0053",
+    "timestamp": "2025-03-30T10:08:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-b97c",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "getaway",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM0-80",
+    "id": "evt-0072",
+    "timestamp": "2025-03-30T12:14:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-bca8",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "recommendation_shown",
+    "id": "evt-0086",
+    "timestamp": "2025-03-30T12:47:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-ca9d",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "try_on",
+    "id": "evt-0057",
+    "timestamp": "2025-03-30T13:48:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-7e87",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "minimalist",
+    "colour": "olive",
+    "id": "evt-0064",
+    "timestamp": "2025-03-30T14:31:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-fb73",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "staff_assist_requested",
+    "id": "evt-0041",
+    "timestamp": "2025-03-30T16:00:00.000Z",
+    "week": "2025-03-24",
+    "anonUserId": "anon-aaad",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "size_out_of_stock",
+    "sku": "BOT-TRS-012",
+    "requestedSize": "XL",
+    "id": "evt-0104",
+    "timestamp": "2025-03-31T10:37:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-a541",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "size_out_of_stock",
+    "sku": "TOP-GRA-006",
+    "requestedSize": "XL",
+    "id": "evt-0090",
+    "timestamp": "2025-03-31T12:17:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-a2ff",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "date-night",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM150-200",
+    "id": "evt-0110",
+    "timestamp": "2025-03-31T13:17:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-74f2",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
     "zone": "Zone B New Arrivals",
     "action": "rack_navigation_viewed",
     "sku": "TOP-OXF-004",
-    "anonUserId": "anon-7f3a",
-    "privacy": { "pii": false, "aggregationReady": true }
+    "id": "evt-0100",
+    "timestamp": "2025-03-31T13:54:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-8385",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
   },
   {
-    "id": "evt-0012",
     "type": "in_store",
-    "timestamp": "2025-03-15T07:25:00Z",
     "zone": "Zone B New Arrivals",
-    "action": "fitting_room_queue_joined",
-    "anonUserId": "anon-9c21",
-    "privacy": { "pii": false, "aggregationReady": true }
+    "action": "rack_navigation_viewed",
+    "sku": "BOT-CRG-013",
+    "id": "evt-0131",
+    "timestamp": "2025-03-31T14:02:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-a414",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
   },
   {
-    "id": "evt-0013",
+    "type": "demand",
+    "style": "minimalist",
+    "colour": "grey",
+    "id": "evt-0127",
+    "timestamp": "2025-03-31T14:44:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-c678",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "size_out_of_stock",
+    "sku": "FTW-LOF-024",
+    "requestedSize": "42",
+    "id": "evt-0096",
+    "timestamp": "2025-03-31T17:37:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-d0f5",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "casual",
+    "colour": "black",
+    "id": "evt-0116",
+    "timestamp": "2025-04-01T10:07:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-812a",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
     "type": "in_store",
-    "timestamp": "2025-03-15T07:50:00Z",
     "zone": "Zone C Footwear & Accessories",
     "action": "rack_navigation_viewed",
     "sku": "FTW-CNV-025",
-    "anonUserId": "anon-2b88",
-    "privacy": { "pii": false, "aggregationReady": true }
+    "id": "evt-0099",
+    "timestamp": "2025-04-01T12:37:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-aaa0",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
   },
   {
-    "id": "evt-0014",
-    "type": "commercial",
-    "timestamp": "2025-03-15T08:05:00Z",
-    "action": "checkout_handoff",
-    "valueRm": 257.0,
-    "itemCount": 3,
-    "anonUserId": "anon-9c21",
-    "privacy": { "pii": false, "aggregationReady": true }
+    "type": "unmet_demand",
+    "reason": "size_out_of_stock",
+    "sku": "FTW-LOF-024",
+    "requestedSize": "41",
+    "id": "evt-0132",
+    "timestamp": "2025-04-01T13:06:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-4516",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
   },
   {
-    "id": "evt-0015",
-    "type": "commercial",
-    "timestamp": "2025-03-15T08:40:00Z",
-    "action": "checkout_handoff",
-    "valueRm": 237.0,
-    "itemCount": 3,
-    "anonUserId": "anon-7f3a",
-    "privacy": { "pii": false, "aggregationReady": true }
+    "type": "intent",
+    "occasion": "work",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM250-350",
+    "id": "evt-0114",
+    "timestamp": "2025-04-01T13:54:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-bd76",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
   },
   {
-    "id": "evt-0016",
+    "type": "demand",
+    "style": "minimalist",
+    "colour": "black",
+    "id": "evt-0112",
+    "timestamp": "2025-04-01T14:02:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-ece9",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
     "type": "commercial",
-    "timestamp": "2025-03-15T09:15:00Z",
-    "action": "checkout_handoff",
-    "valueRm": 293.0,
+    "action": "recommendation_shown",
+    "id": "evt-0138",
+    "timestamp": "2025-04-01T16:27:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-8b26",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "minimalist",
+    "colour": "beige",
+    "id": "evt-0118",
+    "timestamp": "2025-04-01T18:09:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-95b6",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "recommendation_shown",
+    "id": "evt-0129",
+    "timestamp": "2025-04-01T18:57:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-b1e7",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "beach",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM200-250",
+    "id": "evt-0094",
+    "timestamp": "2025-04-02T09:26:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-1861",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "sporty",
+    "colour": "black",
+    "id": "evt-0130",
+    "timestamp": "2025-04-02T11:17:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-2bd5",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "fitting_room_queue_joined",
+    "id": "evt-0088",
+    "timestamp": "2025-04-02T11:42:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-48b7",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "rack_navigation_viewed",
+    "sku": "FTW-LOF-024",
+    "id": "evt-0108",
+    "timestamp": "2025-04-02T11:42:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-01df",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone B New Arrivals",
+    "action": "rack_navigation_viewed",
+    "sku": "FTW-SNK-022",
+    "id": "evt-0109",
+    "timestamp": "2025-04-02T12:22:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-be9f",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "try_on",
+    "id": "evt-0125",
+    "timestamp": "2025-04-02T13:39:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-8997",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone A Essentials",
+    "action": "fitting_room_session_completed",
+    "id": "evt-0089",
+    "timestamp": "2025-04-02T14:02:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-e03e",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "casual-weekend",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM250-350",
+    "id": "evt-0107",
+    "timestamp": "2025-04-02T14:03:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-c088",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "wedding-guest",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM80-150",
+    "id": "evt-0102",
+    "timestamp": "2025-04-02T16:16:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-7623",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "casual-weekend",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM200-250",
+    "id": "evt-0105",
+    "timestamp": "2025-04-02T16:16:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-0ec1",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "casual-weekend",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM350+",
+    "id": "evt-0101",
+    "timestamp": "2025-04-02T17:28:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-57f4",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "beach",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM80-150",
+    "id": "evt-0091",
+    "timestamp": "2025-04-02T19:23:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-6a82",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "rack_navigation_viewed",
+    "sku": "BOT-DNM-014",
+    "id": "evt-0119",
+    "timestamp": "2025-04-03T10:33:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-cc5c",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "staff_assist_requested",
+    "id": "evt-0126",
+    "timestamp": "2025-04-03T13:48:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-544d",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "relaxed-tailoring",
+    "colour": "black",
+    "id": "evt-0133",
+    "timestamp": "2025-04-03T14:32:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-e7a0",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "getaway",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM150-200",
+    "id": "evt-0136",
+    "timestamp": "2025-04-03T15:58:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-84d8",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "streetwear",
+    "colour": "olive",
+    "id": "evt-0123",
+    "timestamp": "2025-04-03T16:31:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-305c",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "colour_unavailable",
+    "colour": "white",
+    "id": "evt-0120",
+    "timestamp": "2025-04-03T17:06:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-c600",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "festival",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM200-250",
+    "id": "evt-0092",
+    "timestamp": "2025-04-03T18:12:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-5c68",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "casual-weekend",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM150-200",
+    "id": "evt-0128",
+    "timestamp": "2025-04-03T18:20:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-2aa1",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "resort",
+    "colour": "brown",
+    "id": "evt-0093",
+    "timestamp": "2025-04-03T18:40:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-40ae",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "try_on",
+    "id": "evt-0117",
+    "timestamp": "2025-04-03T19:17:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-8f0a",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "rack_navigation_viewed",
+    "sku": "BOT-CHN-011",
+    "id": "evt-0111",
+    "timestamp": "2025-04-03T19:24:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-8824",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "brunch",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM200-250",
+    "id": "evt-0098",
+    "timestamp": "2025-04-04T10:05:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-5b62",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "beach",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM0-80",
+    "id": "evt-0087",
+    "timestamp": "2025-04-04T14:33:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-6dfa",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "colour_unavailable",
+    "colour": "black",
+    "id": "evt-0124",
+    "timestamp": "2025-04-04T16:12:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-809d",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "add_to_cart",
     "itemCount": 3,
-    "anonUserId": "anon-2b88",
-    "privacy": { "pii": false, "aggregationReady": true }
+    "valueRm": 247,
+    "id": "evt-0113",
+    "timestamp": "2025-04-04T17:34:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-c2ff",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "streetwear",
+    "colour": "black",
+    "id": "evt-0122",
+    "timestamp": "2025-04-05T11:11:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-0ee8",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone B New Arrivals",
+    "action": "staff_assist_requested",
+    "id": "evt-0103",
+    "timestamp": "2025-04-05T13:29:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-49fe",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone A Essentials",
+    "action": "staff_assist_requested",
+    "id": "evt-0135",
+    "timestamp": "2025-04-05T13:55:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-8ff9",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "work",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM250-350",
+    "id": "evt-0134",
+    "timestamp": "2025-04-05T18:12:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-eccd",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "work",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM150-200",
+    "id": "evt-0097",
+    "timestamp": "2025-04-06T12:08:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-c5bd",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "recommendation_shown",
+    "id": "evt-0137",
+    "timestamp": "2025-04-06T14:44:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-c3dd",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "streetwear",
+    "colour": "grey",
+    "id": "evt-0106",
+    "timestamp": "2025-04-06T17:10:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-4d15",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "rack_navigation_viewed",
+    "sku": "FTW-LOF-024",
+    "id": "evt-0095",
+    "timestamp": "2025-04-06T17:47:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-6902",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone B New Arrivals",
+    "action": "rack_navigation_viewed",
+    "sku": "FTW-CNV-025",
+    "id": "evt-0115",
+    "timestamp": "2025-04-06T18:02:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-9d78",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "beach",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM150-200",
+    "id": "evt-0121",
+    "timestamp": "2025-04-06T18:50:00.000Z",
+    "week": "2025-03-31",
+    "anonUserId": "anon-3b8a",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "casual-weekend",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM250-350",
+    "id": "evt-0189",
+    "timestamp": "2025-04-07T09:34:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-8aa6",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone B New Arrivals",
+    "action": "fitting_room_queue_joined",
+    "id": "evt-0194",
+    "timestamp": "2025-04-07T10:45:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-65b5",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "festival",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM200-250",
+    "id": "evt-0154",
+    "timestamp": "2025-04-07T15:42:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-a10c",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "wedding-guest",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM80-150",
+    "id": "evt-0152",
+    "timestamp": "2025-04-07T17:07:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-ac1d",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "size_out_of_stock",
+    "sku": "FTW-CNV-025",
+    "requestedSize": "42",
+    "id": "evt-0172",
+    "timestamp": "2025-04-08T12:40:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-eb0f",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "try_on",
+    "id": "evt-0140",
+    "timestamp": "2025-04-08T14:17:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-94e5",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "casual-weekend",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM80-150",
+    "id": "evt-0170",
+    "timestamp": "2025-04-08T16:31:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-0f57",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "getaway",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM150-200",
+    "id": "evt-0145",
+    "timestamp": "2025-04-08T17:20:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-7d0e",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "casual",
+    "colour": "black",
+    "id": "evt-0168",
+    "timestamp": "2025-04-08T17:23:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-bb63",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "size_out_of_stock",
+    "sku": "FTW-LOF-024",
+    "requestedSize": "42",
+    "id": "evt-0144",
+    "timestamp": "2025-04-08T18:51:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-5df9",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "minimalist",
+    "colour": "black",
+    "id": "evt-0158",
+    "timestamp": "2025-04-08T19:15:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-862d",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "resort",
+    "colour": "black",
+    "id": "evt-0188",
+    "timestamp": "2025-04-09T09:15:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-5515",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "staff_assist_requested",
+    "id": "evt-0195",
+    "timestamp": "2025-04-09T09:31:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-f20c",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "recommendation_shown",
+    "id": "evt-0192",
+    "timestamp": "2025-04-09T09:50:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-add9",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "casual",
+    "colour": "navy",
+    "id": "evt-0160",
+    "timestamp": "2025-04-09T09:53:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-650e",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "brunch",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM250-350",
+    "id": "evt-0156",
+    "timestamp": "2025-04-09T09:55:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-e21e",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "style_not_in_catalogue",
+    "requestedStyle": "minimalist",
+    "id": "evt-0186",
+    "timestamp": "2025-04-09T11:33:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-01c4",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "size_out_of_stock",
+    "sku": "BOT-TRS-012",
+    "requestedSize": "XXL",
+    "id": "evt-0173",
+    "timestamp": "2025-04-09T11:49:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-acda",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "saved_look",
+    "id": "evt-0150",
+    "timestamp": "2025-04-09T13:44:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-fda2",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "minimalist",
+    "colour": "olive",
+    "id": "evt-0193",
+    "timestamp": "2025-04-09T14:23:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-65d3",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "beach",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM0-80",
+    "id": "evt-0141",
+    "timestamp": "2025-04-09T15:53:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-2fcc",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "size_out_of_stock",
+    "sku": "FTW-RUN-023",
+    "requestedSize": "40",
+    "id": "evt-0149",
+    "timestamp": "2025-04-09T16:41:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-1f8b",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "recommendation_shown",
+    "id": "evt-0143",
+    "timestamp": "2025-04-10T10:58:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-20c0",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "relaxed-tailoring",
+    "colour": "olive",
+    "id": "evt-0164",
+    "timestamp": "2025-04-10T11:18:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-7f80",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "recommendation_shown",
+    "id": "evt-0167",
+    "timestamp": "2025-04-10T13:01:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-015e",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "recommendation_shown",
+    "id": "evt-0146",
+    "timestamp": "2025-04-10T13:17:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-b1fe",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "add_to_cart",
+    "itemCount": 2,
+    "valueRm": 294,
+    "id": "evt-0185",
+    "timestamp": "2025-04-10T13:20:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-aa77",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone B New Arrivals",
+    "action": "rack_navigation_viewed",
+    "sku": "FTW-LOF-024",
+    "id": "evt-0159",
+    "timestamp": "2025-04-10T13:36:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-4db4",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "minimalist",
+    "colour": "white",
+    "id": "evt-0151",
+    "timestamp": "2025-04-10T16:05:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-871d",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "beach",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM150-200",
+    "id": "evt-0191",
+    "timestamp": "2025-04-10T16:43:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-d90a",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone A Essentials",
+    "action": "fitting_room_queue_joined",
+    "id": "evt-0176",
+    "timestamp": "2025-04-10T17:12:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-9adc",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "saved_look",
+    "id": "evt-0162",
+    "timestamp": "2025-04-10T18:39:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-058e",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "style_not_in_catalogue",
+    "requestedStyle": "streetwear",
+    "id": "evt-0161",
+    "timestamp": "2025-04-10T19:33:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-c0ba",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone A Essentials",
+    "action": "fitting_room_session_completed",
+    "id": "evt-0179",
+    "timestamp": "2025-04-10T19:46:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-70fc",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "staff_assist_requested",
+    "id": "evt-0148",
+    "timestamp": "2025-04-11T13:39:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-9544",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "getaway",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM200-250",
+    "id": "evt-0187",
+    "timestamp": "2025-04-11T14:24:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-b06a",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "recommendation_shown",
+    "id": "evt-0175",
+    "timestamp": "2025-04-11T16:00:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-cc3c",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "item_sold_out",
+    "sku": "BOT-CHN-011",
+    "id": "evt-0155",
+    "timestamp": "2025-04-11T16:41:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-d83f",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "casual-weekend",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM200-250",
+    "id": "evt-0180",
+    "timestamp": "2025-04-11T17:43:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-3d66",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "relaxed-tailoring",
+    "colour": "navy",
+    "id": "evt-0174",
+    "timestamp": "2025-04-11T19:41:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-7b63",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "recommendation_shown",
+    "id": "evt-0190",
+    "timestamp": "2025-04-12T10:35:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-041e",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "casual-weekend",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM200-250",
+    "id": "evt-0181",
+    "timestamp": "2025-04-12T11:00:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-77e7",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "size_out_of_stock",
+    "sku": "TOP-KNT-005",
+    "requestedSize": "L",
+    "id": "evt-0142",
+    "timestamp": "2025-04-12T12:12:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-2aae",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "work",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM200-250",
+    "id": "evt-0165",
+    "timestamp": "2025-04-12T14:39:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-898e",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone A Essentials",
+    "action": "rack_navigation_viewed",
+    "sku": "TOP-LIN-001",
+    "id": "evt-0153",
+    "timestamp": "2025-04-12T16:32:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-e300",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone A Essentials",
+    "action": "rack_navigation_viewed",
+    "sku": "BOT-TRS-012",
+    "id": "evt-0139",
+    "timestamp": "2025-04-12T16:39:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-21aa",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "try_on",
+    "id": "evt-0147",
+    "timestamp": "2025-04-12T17:45:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-71ea",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "resort",
+    "colour": "grey",
+    "id": "evt-0183",
+    "timestamp": "2025-04-12T18:35:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-0696",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone B New Arrivals",
+    "action": "fitting_room_queue_joined",
+    "id": "evt-0163",
+    "timestamp": "2025-04-12T18:44:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-d9bf",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "size_out_of_stock",
+    "sku": "TOP-KNT-005",
+    "requestedSize": "L",
+    "id": "evt-0196",
+    "timestamp": "2025-04-12T18:58:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-e616",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "saved_look",
+    "id": "evt-0177",
+    "timestamp": "2025-04-12T19:04:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-d502",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "budget_too_low_for_three_outfits",
+    "budgetBand": "RM0-80",
+    "id": "evt-0157",
+    "timestamp": "2025-04-12T19:05:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-9ed4",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "beach",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM80-150",
+    "id": "evt-0178",
+    "timestamp": "2025-04-12T19:09:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-d572",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "size_out_of_stock",
+    "sku": "FTW-LOF-024",
+    "requestedSize": "42",
+    "id": "evt-0166",
+    "timestamp": "2025-04-12T19:21:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-76af",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "wedding-guest",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM200-250",
+    "id": "evt-0182",
+    "timestamp": "2025-04-13T10:31:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-007f",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "brunch",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM200-250",
+    "id": "evt-0171",
+    "timestamp": "2025-04-13T14:30:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-0e39",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "festival",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM200-250",
+    "id": "evt-0169",
+    "timestamp": "2025-04-13T15:52:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-702c",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "resort",
+    "colour": "grey",
+    "id": "evt-0184",
+    "timestamp": "2025-04-13T18:55:00.000Z",
+    "week": "2025-04-07",
+    "anonUserId": "anon-5e86",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "style_not_in_catalogue",
+    "requestedStyle": "relaxed-tailoring",
+    "id": "evt-0215",
+    "timestamp": "2025-04-14T10:15:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-3ff8",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "getaway",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM250-350",
+    "id": "evt-0213",
+    "timestamp": "2025-04-14T10:47:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-e0f9",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "budget_too_low_for_three_outfits",
+    "budgetBand": "RM0-80",
+    "id": "evt-0258",
+    "timestamp": "2025-04-14T12:20:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-dc09",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "beach",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM80-150",
+    "id": "evt-0247",
+    "timestamp": "2025-04-14T14:15:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-b43e",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "relaxed-tailoring",
+    "colour": "navy",
+    "id": "evt-0214",
+    "timestamp": "2025-04-14T15:03:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-54dc",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "style_not_in_catalogue",
+    "requestedStyle": "streetwear",
+    "id": "evt-0230",
+    "timestamp": "2025-04-14T15:14:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-db70",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone B New Arrivals",
+    "action": "rack_navigation_viewed",
+    "sku": "TOP-OXF-004",
+    "id": "evt-0238",
+    "timestamp": "2025-04-14T17:23:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-206f",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "work",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM80-150",
+    "id": "evt-0202",
+    "timestamp": "2025-04-15T10:12:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-827a",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "casual",
+    "colour": "black",
+    "id": "evt-0197",
+    "timestamp": "2025-04-15T11:23:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-8e36",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "checkout_handoff",
+    "itemCount": 2,
+    "valueRm": 377,
+    "id": "evt-0244",
+    "timestamp": "2025-04-15T12:05:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-461f",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "saved_look",
+    "id": "evt-0221",
+    "timestamp": "2025-04-15T12:11:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-d628",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "recommendation_shown",
+    "id": "evt-0224",
+    "timestamp": "2025-04-15T13:45:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-ee8b",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "recommendation_shown",
+    "id": "evt-0243",
+    "timestamp": "2025-04-15T13:57:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-d448",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "saved_look",
+    "id": "evt-0250",
+    "timestamp": "2025-04-15T14:46:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-ce86",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "work",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM250-350",
+    "id": "evt-0222",
+    "timestamp": "2025-04-15T14:53:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-a2f1",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "casual-weekend",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM250-350",
+    "id": "evt-0251",
+    "timestamp": "2025-04-15T15:19:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-fb13",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "relaxed-tailoring",
+    "colour": "cream",
+    "id": "evt-0261",
+    "timestamp": "2025-04-15T16:29:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-6a58",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "staff_assist_requested",
+    "id": "evt-0211",
+    "timestamp": "2025-04-15T16:58:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-f591",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "wedding-guest",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM250-350",
+    "id": "evt-0237",
+    "timestamp": "2025-04-15T19:52:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-d5c3",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "size_out_of_stock",
+    "sku": "TOP-GRA-006",
+    "requestedSize": "S",
+    "id": "evt-0248",
+    "timestamp": "2025-04-16T11:15:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-32fd",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "resort",
+    "colour": "black",
+    "id": "evt-0240",
+    "timestamp": "2025-04-16T13:04:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-0ae7",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "minimalist",
+    "colour": "navy",
+    "id": "evt-0233",
+    "timestamp": "2025-04-16T15:24:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-d08f",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "beach",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM80-150",
+    "id": "evt-0256",
+    "timestamp": "2025-04-16T17:22:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-59b1",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "festival",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM200-250",
+    "id": "evt-0206",
+    "timestamp": "2025-04-16T17:54:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-5101",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone A Essentials",
+    "action": "rack_navigation_viewed",
+    "sku": "TOP-LIN-001",
+    "id": "evt-0229",
+    "timestamp": "2025-04-16T18:40:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-e600",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "try_on",
+    "id": "evt-0217",
+    "timestamp": "2025-04-17T09:09:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-4d06",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "rack_navigation_viewed",
+    "sku": "FTW-LOF-024",
+    "id": "evt-0200",
+    "timestamp": "2025-04-17T09:18:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-cc63",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "streetwear",
+    "colour": "black",
+    "id": "evt-0262",
+    "timestamp": "2025-04-17T09:37:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-b21c",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone B New Arrivals",
+    "action": "staff_assist_requested",
+    "id": "evt-0249",
+    "timestamp": "2025-04-17T11:34:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-44ba",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "checkout_handoff",
+    "itemCount": 1,
+    "valueRm": 89,
+    "id": "evt-0245",
+    "timestamp": "2025-04-17T12:50:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-504b",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "beach",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM80-150",
+    "id": "evt-0225",
+    "timestamp": "2025-04-17T14:10:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-33a9",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "date-night",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM150-200",
+    "id": "evt-0231",
+    "timestamp": "2025-04-17T15:48:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-15fd",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "add_to_cart",
+    "itemCount": 1,
+    "valueRm": 284,
+    "id": "evt-0199",
+    "timestamp": "2025-04-17T17:13:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-1b6b",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "getaway",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM80-150",
+    "id": "evt-0212",
+    "timestamp": "2025-04-18T10:48:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-3732",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "saved_look",
+    "id": "evt-0235",
+    "timestamp": "2025-04-18T12:27:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-b88d",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "casual",
+    "colour": "black",
+    "id": "evt-0259",
+    "timestamp": "2025-04-18T13:48:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-9f2d",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "rack_navigation_viewed",
+    "sku": "TOP-KNT-005",
+    "id": "evt-0203",
+    "timestamp": "2025-04-18T14:25:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-e50a",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone B New Arrivals",
+    "action": "staff_assist_requested",
+    "id": "evt-0236",
+    "timestamp": "2025-04-18T15:14:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-d855",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "recommendation_shown",
+    "id": "evt-0255",
+    "timestamp": "2025-04-18T16:14:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-df0f",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "size_out_of_stock",
+    "sku": "TOP-OXF-004",
+    "requestedSize": "L",
+    "id": "evt-0228",
+    "timestamp": "2025-04-18T18:26:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-50c3",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "recommendation_shown",
+    "id": "evt-0220",
+    "timestamp": "2025-04-18T19:13:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-f1a2",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "checkout_handoff",
+    "itemCount": 3,
+    "valueRm": 159,
+    "id": "evt-0232",
+    "timestamp": "2025-04-18T19:32:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-7616",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "rack_navigation_viewed",
+    "sku": "BOT-CRG-013",
+    "id": "evt-0198",
+    "timestamp": "2025-04-19T09:47:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-06f1",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "saved_look",
+    "id": "evt-0209",
+    "timestamp": "2025-04-19T09:55:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-ac15",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "minimalist",
+    "colour": "grey",
+    "id": "evt-0257",
+    "timestamp": "2025-04-19T10:34:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-e93e",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "casual-weekend",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM150-200",
+    "id": "evt-0226",
+    "timestamp": "2025-04-19T10:40:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-d94f",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "getaway",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM80-150",
+    "id": "evt-0254",
+    "timestamp": "2025-04-19T12:28:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-40a7",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "item_sold_out",
+    "sku": "TOP-LIN-001",
+    "id": "evt-0227",
+    "timestamp": "2025-04-19T13:18:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-684f",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "streetwear",
+    "colour": "brown",
+    "id": "evt-0242",
+    "timestamp": "2025-04-19T13:21:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-146b",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "style_not_in_catalogue",
+    "requestedStyle": "resort",
+    "id": "evt-0252",
+    "timestamp": "2025-04-19T14:38:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-deca",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "work",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM200-250",
+    "id": "evt-0216",
+    "timestamp": "2025-04-19T14:55:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-507e",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "item_sold_out",
+    "sku": "TOP-LIN-001",
+    "id": "evt-0204",
+    "timestamp": "2025-04-19T16:51:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-0721",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "relaxed-tailoring",
+    "colour": "black",
+    "id": "evt-0260",
+    "timestamp": "2025-04-19T17:16:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-e6e5",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone B New Arrivals",
+    "action": "rack_navigation_viewed",
+    "sku": "TOP-OXF-004",
+    "id": "evt-0246",
+    "timestamp": "2025-04-19T19:42:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-ae8a",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "checkout_handoff",
+    "itemCount": 3,
+    "valueRm": 396,
+    "id": "evt-0218",
+    "timestamp": "2025-04-19T19:58:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-7dd0",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "size_out_of_stock",
+    "sku": "FTW-LOF-024",
+    "requestedSize": "44",
+    "id": "evt-0253",
+    "timestamp": "2025-04-20T09:35:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-c65d",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "casual",
+    "colour": "olive",
+    "id": "evt-0210",
+    "timestamp": "2025-04-20T09:53:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-8640",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "try_on",
+    "id": "evt-0201",
+    "timestamp": "2025-04-20T13:36:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-05a5",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "checkout_handoff",
+    "itemCount": 2,
+    "valueRm": 374,
+    "id": "evt-0223",
+    "timestamp": "2025-04-20T14:00:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-45f1",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "saved_look",
+    "id": "evt-0208",
+    "timestamp": "2025-04-20T15:25:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-d4ff",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "getaway",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM0-80",
+    "id": "evt-0207",
+    "timestamp": "2025-04-20T16:15:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-6077",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "beach",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM250-350",
+    "id": "evt-0241",
+    "timestamp": "2025-04-20T16:40:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-d135",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "streetwear",
+    "colour": "grey",
+    "id": "evt-0239",
+    "timestamp": "2025-04-20T17:33:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-23a5",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "getaway",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM200-250",
+    "id": "evt-0219",
+    "timestamp": "2025-04-20T18:22:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-0d65",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "minimalist",
+    "colour": "brown",
+    "id": "evt-0205",
+    "timestamp": "2025-04-20T18:27:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-7504",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "beach",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM150-200",
+    "id": "evt-0234",
+    "timestamp": "2025-04-20T19:12:00.000Z",
+    "week": "2025-04-14",
+    "anonUserId": "anon-fe6b",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "festival",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM200-250",
+    "id": "evt-0331",
+    "timestamp": "2025-04-21T09:17:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-b285",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "casual-weekend",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM150-200",
+    "id": "evt-0315",
+    "timestamp": "2025-04-21T10:46:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-406c",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "casual",
+    "colour": "beige",
+    "id": "evt-0280",
+    "timestamp": "2025-04-21T10:50:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-502a",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "recommendation_shown",
+    "id": "evt-0330",
+    "timestamp": "2025-04-21T12:25:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-f185",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "date-night",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM200-250",
+    "id": "evt-0285",
+    "timestamp": "2025-04-21T14:09:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-57ee",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "rack_navigation_viewed",
+    "sku": "BOT-CRG-013",
+    "id": "evt-0311",
+    "timestamp": "2025-04-21T14:42:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-58c1",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "festival",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM200-250",
+    "id": "evt-0324",
+    "timestamp": "2025-04-21T15:15:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-8ee4",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "casual",
+    "colour": "olive",
+    "id": "evt-0279",
+    "timestamp": "2025-04-21T15:21:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-1b37",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone B New Arrivals",
+    "action": "staff_assist_requested",
+    "id": "evt-0295",
+    "timestamp": "2025-04-21T16:38:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-be74",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "festival",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM200-250",
+    "id": "evt-0334",
+    "timestamp": "2025-04-21T19:15:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-befe",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "style_not_in_catalogue",
+    "requestedStyle": "casual",
+    "id": "evt-0296",
+    "timestamp": "2025-04-22T10:44:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-9217",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "casual",
+    "colour": "navy",
+    "id": "evt-0267",
+    "timestamp": "2025-04-22T11:11:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-4a1c",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "rack_navigation_viewed",
+    "sku": "FTW-RUN-023",
+    "id": "evt-0312",
+    "timestamp": "2025-04-22T11:25:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-7cc5",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "add_to_cart",
+    "itemCount": 3,
+    "valueRm": 104,
+    "id": "evt-0298",
+    "timestamp": "2025-04-22T11:41:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-512d",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "colour_unavailable",
+    "colour": "navy",
+    "id": "evt-0266",
+    "timestamp": "2025-04-22T13:04:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-fe52",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "fitting_room_session_completed",
+    "id": "evt-0301",
+    "timestamp": "2025-04-22T15:46:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-ff30",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "recommendation_shown",
+    "id": "evt-0332",
+    "timestamp": "2025-04-22T17:11:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-de9a",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "casual-weekend",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM200-250",
+    "id": "evt-0300",
+    "timestamp": "2025-04-23T10:05:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-4146",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "item_sold_out",
+    "sku": "BOT-CHN-011",
+    "id": "evt-0308",
+    "timestamp": "2025-04-23T11:06:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-4d34",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "relaxed-tailoring",
+    "colour": "brown",
+    "id": "evt-0297",
+    "timestamp": "2025-04-23T11:25:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-89de",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "casual-weekend",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM200-250",
+    "id": "evt-0309",
+    "timestamp": "2025-04-23T11:56:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-cc53",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "brunch",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM150-200",
+    "id": "evt-0284",
+    "timestamp": "2025-04-23T12:00:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-6687",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone A Essentials",
+    "action": "staff_assist_requested",
+    "id": "evt-0302",
+    "timestamp": "2025-04-23T12:00:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-01bc",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "try_on",
+    "id": "evt-0274",
+    "timestamp": "2025-04-23T12:25:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-e1d7",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "try_on",
+    "id": "evt-0306",
+    "timestamp": "2025-04-23T13:01:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-ff08",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "size_out_of_stock",
+    "sku": "BOT-DNM-014",
+    "requestedSize": "M",
+    "id": "evt-0281",
+    "timestamp": "2025-04-23T16:20:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-eda5",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "try_on",
+    "id": "evt-0283",
+    "timestamp": "2025-04-23T16:38:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-37cc",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "recommendation_shown",
+    "id": "evt-0320",
+    "timestamp": "2025-04-23T18:30:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-e82f",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "getaway",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM150-200",
+    "id": "evt-0325",
+    "timestamp": "2025-04-24T10:19:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-a655",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "resort",
+    "colour": "navy",
+    "id": "evt-0277",
+    "timestamp": "2025-04-24T12:15:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-c098",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "item_sold_out",
+    "sku": "TOP-KNT-005",
+    "id": "evt-0290",
+    "timestamp": "2025-04-24T12:27:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-bb05",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "casual-weekend",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM200-250",
+    "id": "evt-0270",
+    "timestamp": "2025-04-24T13:34:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-1756",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "beach",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM250-350",
+    "id": "evt-0317",
+    "timestamp": "2025-04-24T14:28:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-8eda",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "festival",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM0-80",
+    "id": "evt-0303",
+    "timestamp": "2025-04-24T15:51:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-049c",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "work",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM200-250",
+    "id": "evt-0293",
+    "timestamp": "2025-04-24T15:56:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-3f3e",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone B New Arrivals",
+    "action": "staff_assist_requested",
+    "id": "evt-0336",
+    "timestamp": "2025-04-24T16:53:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-0fe8",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "saved_look",
+    "id": "evt-0329",
+    "timestamp": "2025-04-24T17:52:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-9c7c",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "rack_navigation_viewed",
+    "sku": "BOT-DNM-014",
+    "id": "evt-0268",
+    "timestamp": "2025-04-25T09:41:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-b70c",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone B New Arrivals",
+    "action": "staff_assist_requested",
+    "id": "evt-0319",
+    "timestamp": "2025-04-25T09:55:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-33cd",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "casual-weekend",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM150-200",
+    "id": "evt-0282",
+    "timestamp": "2025-04-25T10:32:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-d7b0",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "work",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM80-150",
+    "id": "evt-0263",
+    "timestamp": "2025-04-25T11:27:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-5e36",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "wedding-guest",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM200-250",
+    "id": "evt-0273",
+    "timestamp": "2025-04-25T12:44:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-9ad8",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "resort",
+    "colour": "navy",
+    "id": "evt-0316",
+    "timestamp": "2025-04-25T13:11:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-ab67",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "recommendation_shown",
+    "id": "evt-0287",
+    "timestamp": "2025-04-25T13:16:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-5153",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "casual-weekend",
+    "entryPoint": "explore-whats-new",
+    "budgetBand": "RM200-250",
+    "id": "evt-0299",
+    "timestamp": "2025-04-25T15:22:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-b778",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "getaway",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM80-150",
+    "id": "evt-0326",
+    "timestamp": "2025-04-25T16:48:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-4c77",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "minimalist",
+    "colour": "white",
+    "id": "evt-0286",
+    "timestamp": "2025-04-25T17:29:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-4eb1",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "item_sold_out",
+    "sku": "TOP-LIN-001",
+    "id": "evt-0265",
+    "timestamp": "2025-04-25T17:59:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-a568",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone B New Arrivals",
+    "action": "rack_navigation_viewed",
+    "sku": "TOP-LIN-001",
+    "id": "evt-0322",
+    "timestamp": "2025-04-25T18:42:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-e154",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone B New Arrivals",
+    "action": "fitting_room_session_completed",
+    "id": "evt-0292",
+    "timestamp": "2025-04-26T10:13:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-7db1",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "rack_navigation_viewed",
+    "sku": "TOP-GRA-006",
+    "id": "evt-0314",
+    "timestamp": "2025-04-26T12:21:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-b3c4",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "resort",
+    "colour": "navy",
+    "id": "evt-0288",
+    "timestamp": "2025-04-26T12:48:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-7eb8",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "beach",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM200-250",
+    "id": "evt-0313",
+    "timestamp": "2025-04-26T12:53:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-e1c2",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "size_out_of_stock",
+    "sku": "FTW-CNV-025",
+    "requestedSize": "43",
+    "id": "evt-0276",
+    "timestamp": "2025-04-26T14:41:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-8bcc",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone A Essentials",
+    "action": "fitting_room_queue_joined",
+    "id": "evt-0275",
+    "timestamp": "2025-04-26T14:51:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-007c",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "streetwear",
+    "colour": "olive",
+    "id": "evt-0271",
+    "timestamp": "2025-04-26T15:49:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-750a",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone B New Arrivals",
+    "action": "fitting_room_queue_joined",
+    "id": "evt-0321",
+    "timestamp": "2025-04-26T15:51:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-4929",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "saved_look",
+    "id": "evt-0307",
+    "timestamp": "2025-04-26T16:40:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-9f75",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "item_sold_out",
+    "sku": "TOP-KNT-005",
+    "id": "evt-0289",
+    "timestamp": "2025-04-26T17:05:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-a1df",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "add_to_cart",
+    "itemCount": 3,
+    "valueRm": 304,
+    "id": "evt-0318",
+    "timestamp": "2025-04-26T18:24:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-f5a6",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "minimalist",
+    "colour": "black",
+    "id": "evt-0269",
+    "timestamp": "2025-04-27T09:12:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-02aa",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "demand",
+    "style": "sporty",
+    "colour": "beige",
+    "id": "evt-0323",
+    "timestamp": "2025-04-27T09:57:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-dd15",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "beach",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM80-150",
+    "id": "evt-0278",
+    "timestamp": "2025-04-27T11:13:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-430b",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone B New Arrivals",
+    "action": "rack_navigation_viewed",
+    "sku": "TOP-GRA-006",
+    "id": "evt-0294",
+    "timestamp": "2025-04-27T11:41:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-e5c9",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone B New Arrivals",
+    "action": "fitting_room_session_completed",
+    "id": "evt-0333",
+    "timestamp": "2025-04-27T12:24:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-8801",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "fitting_room_queue_joined",
+    "id": "evt-0328",
+    "timestamp": "2025-04-27T12:36:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-fa9d",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "size_out_of_stock",
+    "sku": "TOP-KNT-005",
+    "requestedSize": "XL",
+    "id": "evt-0304",
+    "timestamp": "2025-04-27T14:04:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-dcb9",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "casual-weekend",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM200-250",
+    "id": "evt-0310",
+    "timestamp": "2025-04-27T14:55:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-88bc",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "intent",
+    "occasion": "festival",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM150-200",
+    "id": "evt-0305",
+    "timestamp": "2025-04-27T15:07:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-be6c",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "saved_look",
+    "id": "evt-0272",
+    "timestamp": "2025-04-27T16:09:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-69de",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "size_out_of_stock",
+    "sku": "OUT-BMB-031",
+    "requestedSize": "XXL",
+    "id": "evt-0327",
+    "timestamp": "2025-04-27T16:25:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-0588",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "in_store",
+    "zone": "Zone B New Arrivals",
+    "action": "rack_navigation_viewed",
+    "sku": "TOP-LIN-001",
+    "id": "evt-0335",
+    "timestamp": "2025-04-27T17:45:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-f62f",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "commercial",
+    "action": "recommendation_shown",
+    "id": "evt-0264",
+    "timestamp": "2025-04-27T18:44:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-f4f6",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
+  },
+  {
+    "type": "unmet_demand",
+    "reason": "item_sold_out",
+    "sku": "TOP-FLN-007",
+    "id": "evt-0291",
+    "timestamp": "2025-04-27T19:25:00.000Z",
+    "week": "2025-04-21",
+    "anonUserId": "anon-79c0",
+    "privacy": {
+      "pii": false,
+      "aggregationReady": true
+    }
   }
 ]
