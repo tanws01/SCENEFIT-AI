@@ -1,0 +1,59 @@
+rules_version = '2';
+
+// SCENEFIT AI - Cloud Storage security rules (Google Cloud Storage via Firebase).
+//
+// Model: deny by default. Only authorised, authenticated principals may access
+// media. Customer-generated media (try-on source photos) is private to the
+// owning customer. Catalogue / product media is read-only to signed-in users
+// and written only by trusted server-side code (Admin SDK bypasses these
+// rules). Virtual try-on composites are illustrative aids, not guarantees.
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function role() {
+      return isSignedIn() ? request.auth.token.role : '';
+    }
+
+    function isStaff() {
+      return isSignedIn() && (role() in ['associate', 'merchandiser', 'ops', 'admin']);
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Only allow reasonably-sized image uploads.
+    function isAllowedImage() {
+      return request.resource.size < 10 * 1024 * 1024
+             && request.resource.contentType.matches('image/.*');
+    }
+
+    // ---- Customer try-on source photos (private per user) ----
+    match /users/{uid}/tryon/{fileName} {
+      allow read: if isOwner(uid) || isStaff();
+      allow write: if isOwner(uid) && isAllowedImage();
+    }
+
+    // ---- Generated try-on composites (private per user, server-written) ----
+    match /users/{uid}/composites/{fileName} {
+      allow read: if isOwner(uid) || isStaff();
+      allow write: if false; // written server-side via the Admin SDK
+    }
+
+    // ---- Catalogue / product media (read-only to signed-in users) ----
+    match /catalogue/{allPaths=**} {
+      allow read: if isSignedIn();
+      allow write: if false; // managed server-side
+    }
+
+    // ---- Deny by default ----
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
