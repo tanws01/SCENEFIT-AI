@@ -1,0 +1,23 @@
+{
+  "name": "scenefit-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SCENEFIT AI - Google-only voice/text multimodal fashion shopping assistant and retailer intelligence platform. Runs fully offline with deterministic mocks for all Google Cloud services.",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "backend/src/server.js",
+  "scripts": {
+    "start": "node backend/src/server.js",
+    "test": "node --test"
+  },
+  "keywords": [
+    "fashion",
+    "retail",
+    "gemini",
+    "google-cloud",
+    "shopping-assistant"
+  ],
+  "license": "MIT"
+}

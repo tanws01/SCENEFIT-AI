@@ -1,0 +1,157 @@
+[
+  {
+    "id": "evt-0001",
+    "type": "intent",
+    "timestamp": "2025-03-15T02:10:00Z",
+    "occasion": "beach",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM200-250",
+    "anonUserId": "anon-7f3a",
+    "privacy": { "pii": false, "aggregationReady": true }
+  },
+  {
+    "id": "evt-0002",
+    "type": "intent",
+    "timestamp": "2025-03-15T02:30:00Z",
+    "occasion": "getaway",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM200-250",
+    "anonUserId": "anon-9c21",
+    "privacy": { "pii": false, "aggregationReady": true }
+  },
+  {
+    "id": "evt-0003",
+    "type": "intent",
+    "timestamp": "2025-03-15T03:05:00Z",
+    "occasion": "work",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM250-350",
+    "anonUserId": "anon-2b88",
+    "privacy": { "pii": false, "aggregationReady": true }
+  },
+  {
+    "id": "evt-0004",
+    "type": "intent",
+    "timestamp": "2025-03-15T04:00:00Z",
+    "occasion": "beach",
+    "entryPoint": "style-my-moment",
+    "budgetBand": "RM150-200",
+    "anonUserId": "anon-5d10",
+    "privacy": { "pii": false, "aggregationReady": true }
+  },
+  {
+    "id": "evt-0005",
+    "type": "demand",
+    "timestamp": "2025-03-15T02:12:00Z",
+    "style": "relaxed-tailoring",
+    "collectionId": "col-latest-2025ss",
+    "anonUserId": "anon-7f3a",
+    "privacy": { "pii": false, "aggregationReady": true }
+  },
+  {
+    "id": "evt-0006",
+    "type": "demand",
+    "timestamp": "2025-03-15T02:40:00Z",
+    "style": "streetwear",
+    "collectionId": "col-latest-2025ss",
+    "anonUserId": "anon-9c21",
+    "privacy": { "pii": false, "aggregationReady": true }
+  },
+  {
+    "id": "evt-0007",
+    "type": "demand",
+    "timestamp": "2025-03-15T03:15:00Z",
+    "style": "relaxed-tailoring",
+    "collectionId": "col-latest-2025ss",
+    "anonUserId": "anon-2b88",
+    "privacy": { "pii": false, "aggregationReady": true }
+  },
+  {
+    "id": "evt-0008",
+    "type": "demand",
+    "timestamp": "2025-03-15T05:20:00Z",
+    "style": "resort",
+    "collectionId": "col-resort-2025",
+    "anonUserId": "anon-5d10",
+    "privacy": { "pii": false, "aggregationReady": true }
+  },
+  {
+    "id": "evt-0009",
+    "type": "unmet_demand",
+    "timestamp": "2025-03-15T06:00:00Z",
+    "reason": "budget_too_low_for_three_outfits",
+    "budgetBand": "RM0-80",
+    "requestedStyle": "streetwear",
+    "anonUserId": "anon-1a05",
+    "privacy": { "pii": false, "aggregationReady": true }
+  },
+  {
+    "id": "evt-0010",
+    "type": "unmet_demand",
+    "timestamp": "2025-03-15T06:30:00Z",
+    "reason": "size_out_of_stock",
+    "sku": "TOP-FLN-007",
+    "requestedSize": "XL",
+    "anonUserId": "anon-3f77",
+    "privacy": { "pii": false, "aggregationReady": true }
+  },
+  {
+    "id": "evt-0011",
+    "type": "in_store",
+    "timestamp": "2025-03-15T07:10:00Z",
+    "zone": "Zone B New Arrivals",
+    "action": "rack_navigation_viewed",
+    "sku": "TOP-OXF-004",
+    "anonUserId": "anon-7f3a",
+    "privacy": { "pii": false, "aggregationReady": true }
+  },
+  {
+    "id": "evt-0012",
+    "type": "in_store",
+    "timestamp": "2025-03-15T07:25:00Z",
+    "zone": "Zone B New Arrivals",
+    "action": "fitting_room_queue_joined",
+    "anonUserId": "anon-9c21",
+    "privacy": { "pii": false, "aggregationReady": true }
+  },
+  {
+    "id": "evt-0013",
+    "type": "in_store",
+    "timestamp": "2025-03-15T07:50:00Z",
+    "zone": "Zone C Footwear & Accessories",
+    "action": "rack_navigation_viewed",
+    "sku": "FTW-CNV-025",
+    "anonUserId": "anon-2b88",
+    "privacy": { "pii": false, "aggregationReady": true }
+  },
+  {
+    "id": "evt-0014",
+    "type": "commercial",
+    "timestamp": "2025-03-15T08:05:00Z",
+    "action": "checkout_handoff",
+    "valueRm": 257.0,
+    "itemCount": 3,
+    "anonUserId": "anon-9c21",
+    "privacy": { "pii": false, "aggregationReady": true }
+  },
+  {
+    "id": "evt-0015",
+    "type": "commercial",
+    "timestamp": "2025-03-15T08:40:00Z",
+    "action": "checkout_handoff",
+    "valueRm": 237.0,
+    "itemCount": 3,
+    "anonUserId": "anon-7f3a",
+    "privacy": { "pii": false, "aggregationReady": true }
+  },
+  {
+    "id": "evt-0016",
+    "type": "commercial",
+    "timestamp": "2025-03-15T09:15:00Z",
+    "action": "checkout_handoff",
+    "valueRm": 293.0,
+    "itemCount": 3,
+    "anonUserId": "anon-2b88",
+    "privacy": { "pii": false, "aggregationReady": true }
+  }
+]

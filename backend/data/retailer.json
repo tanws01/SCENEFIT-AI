@@ -1,0 +1,16 @@
+{
+  "id": "retailer-scenefit-demo",
+  "name": "SCENEFIT Demo Retailer",
+  "brand": "SCENEFIT",
+  "country": "MY",
+  "currency": "RM",
+  "locale": "en-MY",
+  "cloud": {
+    "provider": "google-cloud",
+    "project": "scenefit-demo"
+  },
+  "contact": {
+    "supportEmail": "support@scenefit.example",
+    "merchandisingEmail": "merch@scenefit.example"
+  }
+}

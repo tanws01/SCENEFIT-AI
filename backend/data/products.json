@@ -1,0 +1,507 @@
+[
+  {
+    "sku": "TOP-LIN-001",
+    "name": "Linen Camp-Collar Shirt",
+    "category": "top",
+    "subcategory": "shirt",
+    "priceRm": 79.0,
+    "colour": "cream",
+    "colours": ["cream", "white"],
+    "styles": ["resort", "relaxed-tailoring", "minimalist"],
+    "collectionId": "col-resort-2025",
+    "newArrival": false,
+    "arrivalDate": "2025-02-01",
+    "image": "/assets/products/TOP-LIN-001.png",
+    "variants": [
+      { "size": "S", "stock": 6 },
+      { "size": "M", "stock": 8 },
+      { "size": "L", "stock": 5 },
+      { "size": "XL", "stock": 3 }
+    ]
+  },
+  {
+    "sku": "TOP-LIN-002",
+    "name": "Linen Short-Sleeve Tee",
+    "category": "top",
+    "subcategory": "tee",
+    "priceRm": 59.0,
+    "colour": "beige",
+    "colours": ["beige", "navy"],
+    "styles": ["resort", "minimalist", "casual"],
+    "collectionId": "col-resort-2025",
+    "newArrival": false,
+    "arrivalDate": "2025-02-01",
+    "image": "/assets/products/TOP-LIN-002.png",
+    "variants": [
+      { "size": "S", "stock": 10 },
+      { "size": "M", "stock": 12 },
+      { "size": "L", "stock": 7 },
+      { "size": "XL", "stock": 4 }
+    ]
+  },
+  {
+    "sku": "TOP-PIQ-003",
+    "name": "Pique Cotton Polo",
+    "category": "top",
+    "subcategory": "polo",
+    "priceRm": 69.0,
+    "colour": "navy",
+    "colours": ["navy", "white", "olive"],
+    "styles": ["casual", "resort", "minimalist"],
+    "collectionId": "col-core-essentials",
+    "newArrival": false,
+    "arrivalDate": "2024-09-01",
+    "image": "/assets/products/TOP-PIQ-003.png",
+    "variants": [
+      { "size": "S", "stock": 9 },
+      { "size": "M", "stock": 11 },
+      { "size": "L", "stock": 6 },
+      { "size": "XL", "stock": 2 }
+    ]
+  },
+  {
+    "sku": "TOP-OXF-004",
+    "name": "Relaxed Oxford Shirt",
+    "category": "top",
+    "subcategory": "shirt",
+    "priceRm": 89.0,
+    "colour": "white",
+    "colours": ["white", "blue"],
+    "styles": ["relaxed-tailoring", "minimalist"],
+    "collectionId": "col-latest-2025ss",
+    "newArrival": true,
+    "arrivalDate": "2025-03-01",
+    "image": "/assets/products/TOP-OXF-004.png",
+    "variants": [
+      { "size": "S", "stock": 5 },
+      { "size": "M", "stock": 7 },
+      { "size": "L", "stock": 6 },
+      { "size": "XL", "stock": 3 }
+    ]
+  },
+  {
+    "sku": "TOP-KNT-005",
+    "name": "Boxy Knit Polo",
+    "category": "top",
+    "subcategory": "knit",
+    "priceRm": 89.0,
+    "colour": "olive",
+    "colours": ["olive", "black"],
+    "styles": ["relaxed-tailoring", "streetwear"],
+    "collectionId": "col-latest-2025ss",
+    "newArrival": true,
+    "arrivalDate": "2025-03-05",
+    "image": "/assets/products/TOP-KNT-005.png",
+    "variants": [
+      { "size": "S", "stock": 4 },
+      { "size": "M", "stock": 6 },
+      { "size": "L", "stock": 5 },
+      { "size": "XL", "stock": 2 }
+    ]
+  },
+  {
+    "sku": "TOP-GRA-006",
+    "name": "Oversized Graphic Tee",
+    "category": "top",
+    "subcategory": "tee",
+    "priceRm": 69.0,
+    "colour": "black",
+    "colours": ["black", "white"],
+    "styles": ["streetwear", "casual"],
+    "collectionId": "col-latest-2025ss",
+    "newArrival": true,
+    "arrivalDate": "2025-03-10",
+    "image": "/assets/products/TOP-GRA-006.png",
+    "variants": [
+      { "size": "S", "stock": 8 },
+      { "size": "M", "stock": 10 },
+      { "size": "L", "stock": 9 },
+      { "size": "XL", "stock": 5 }
+    ]
+  },
+  {
+    "sku": "TOP-FLN-007",
+    "name": "Overshirt Flannel",
+    "category": "top",
+    "subcategory": "overshirt",
+    "priceRm": 119.0,
+    "colour": "grey",
+    "colours": ["grey", "brown"],
+    "styles": ["streetwear", "relaxed-tailoring"],
+    "collectionId": "col-latest-2025ss",
+    "newArrival": true,
+    "arrivalDate": "2025-03-12",
+    "image": "/assets/products/TOP-FLN-007.png",
+    "variants": [
+      { "size": "S", "stock": 3 },
+      { "size": "M", "stock": 5 },
+      { "size": "L", "stock": 4 },
+      { "size": "XL", "stock": 2 }
+    ]
+  },
+  {
+    "sku": "BOT-SHT-010",
+    "name": "Linen-Blend Shorts",
+    "category": "bottom",
+    "subcategory": "shorts",
+    "priceRm": 69.0,
+    "colour": "khaki",
+    "colours": ["khaki", "navy"],
+    "styles": ["resort", "casual", "minimalist"],
+    "collectionId": "col-resort-2025",
+    "newArrival": false,
+    "arrivalDate": "2025-02-01",
+    "image": "/assets/products/BOT-SHT-010.png",
+    "variants": [
+      { "size": "S", "stock": 7 },
+      { "size": "M", "stock": 9 },
+      { "size": "L", "stock": 6 },
+      { "size": "XL", "stock": 3 }
+    ]
+  },
+  {
+    "sku": "BOT-CHN-011",
+    "name": "Cotton Chino Shorts",
+    "category": "bottom",
+    "subcategory": "shorts",
+    "priceRm": 79.0,
+    "colour": "beige",
+    "colours": ["beige", "olive"],
+    "styles": ["casual", "resort", "relaxed-tailoring"],
+    "collectionId": "col-core-essentials",
+    "newArrival": false,
+    "arrivalDate": "2024-09-01",
+    "image": "/assets/products/BOT-CHN-011.png",
+    "variants": [
+      { "size": "S", "stock": 8 },
+      { "size": "M", "stock": 10 },
+      { "size": "L", "stock": 7 },
+      { "size": "XL", "stock": 4 }
+    ]
+  },
+  {
+    "sku": "BOT-TRS-012",
+    "name": "Pleated Tailored Trousers",
+    "category": "bottom",
+    "subcategory": "trousers",
+    "priceRm": 99.0,
+    "colour": "navy",
+    "colours": ["navy", "black", "beige"],
+    "styles": ["relaxed-tailoring", "minimalist"],
+    "collectionId": "col-latest-2025ss",
+    "newArrival": true,
+    "arrivalDate": "2025-03-01",
+    "image": "/assets/products/BOT-TRS-012.png",
+    "variants": [
+      { "size": "S", "stock": 5 },
+      { "size": "M", "stock": 7 },
+      { "size": "L", "stock": 6 },
+      { "size": "XL", "stock": 3 }
+    ]
+  },
+  {
+    "sku": "BOT-CRG-013",
+    "name": "Relaxed Cargo Pants",
+    "category": "bottom",
+    "subcategory": "cargo",
+    "priceRm": 95.0,
+    "colour": "olive",
+    "colours": ["olive", "black"],
+    "styles": ["streetwear", "relaxed-tailoring"],
+    "collectionId": "col-latest-2025ss",
+    "newArrival": true,
+    "arrivalDate": "2025-03-08",
+    "image": "/assets/products/BOT-CRG-013.png",
+    "variants": [
+      { "size": "S", "stock": 6 },
+      { "size": "M", "stock": 8 },
+      { "size": "L", "stock": 7 },
+      { "size": "XL", "stock": 4 }
+    ]
+  },
+  {
+    "sku": "BOT-DNM-014",
+    "name": "Loose Denim Jeans",
+    "category": "bottom",
+    "subcategory": "jeans",
+    "priceRm": 99.0,
+    "colour": "blue",
+    "colours": ["blue", "black"],
+    "styles": ["streetwear", "casual"],
+    "collectionId": "col-latest-2025ss",
+    "newArrival": true,
+    "arrivalDate": "2025-03-11",
+    "image": "/assets/products/BOT-DNM-014.png",
+    "variants": [
+      { "size": "S", "stock": 7 },
+      { "size": "M", "stock": 9 },
+      { "size": "L", "stock": 8 },
+      { "size": "XL", "stock": 5 }
+    ]
+  },
+  {
+    "sku": "BOT-SWT-015",
+    "name": "Relaxed Sweatshorts",
+    "category": "bottom",
+    "subcategory": "shorts",
+    "priceRm": 59.0,
+    "colour": "grey",
+    "colours": ["grey", "black"],
+    "styles": ["streetwear", "sporty", "casual"],
+    "collectionId": "col-core-essentials",
+    "newArrival": false,
+    "arrivalDate": "2024-09-01",
+    "image": "/assets/products/BOT-SWT-015.png",
+    "variants": [
+      { "size": "S", "stock": 9 },
+      { "size": "M", "stock": 11 },
+      { "size": "L", "stock": 8 },
+      { "size": "XL", "stock": 5 }
+    ]
+  },
+  {
+    "sku": "FTW-SND-020",
+    "name": "Leather Slide Sandals",
+    "category": "footwear",
+    "subcategory": "sandals",
+    "priceRm": 89.0,
+    "colour": "brown",
+    "colours": ["brown", "black"],
+    "styles": ["resort", "casual", "minimalist"],
+    "collectionId": "col-resort-2025",
+    "newArrival": false,
+    "arrivalDate": "2025-02-01",
+    "image": "/assets/products/FTW-SND-020.png",
+    "variants": [
+      { "size": "40", "stock": 5 },
+      { "size": "41", "stock": 6 },
+      { "size": "42", "stock": 6 },
+      { "size": "43", "stock": 4 }
+    ]
+  },
+  {
+    "sku": "FTW-ESP-021",
+    "name": "Canvas Espadrilles",
+    "category": "footwear",
+    "subcategory": "espadrilles",
+    "priceRm": 79.0,
+    "colour": "beige",
+    "colours": ["beige", "navy"],
+    "styles": ["resort", "casual", "minimalist"],
+    "collectionId": "col-resort-2025",
+    "newArrival": false,
+    "arrivalDate": "2025-02-01",
+    "image": "/assets/products/FTW-ESP-021.png",
+    "variants": [
+      { "size": "40", "stock": 6 },
+      { "size": "41", "stock": 7 },
+      { "size": "42", "stock": 5 },
+      { "size": "43", "stock": 3 }
+    ]
+  },
+  {
+    "sku": "FTW-SNK-022",
+    "name": "Minimal Low-Top Sneakers",
+    "category": "footwear",
+    "subcategory": "sneakers",
+    "priceRm": 99.0,
+    "colour": "white",
+    "colours": ["white", "black"],
+    "styles": ["minimalist", "casual", "relaxed-tailoring"],
+    "collectionId": "col-core-essentials",
+    "newArrival": false,
+    "arrivalDate": "2024-09-01",
+    "image": "/assets/products/FTW-SNK-022.png",
+    "variants": [
+      { "size": "40", "stock": 8 },
+      { "size": "41", "stock": 9 },
+      { "size": "42", "stock": 7 },
+      { "size": "43", "stock": 5 }
+    ]
+  },
+  {
+    "sku": "FTW-RUN-023",
+    "name": "Chunky Runner Sneakers",
+    "category": "footwear",
+    "subcategory": "sneakers",
+    "priceRm": 109.0,
+    "colour": "grey",
+    "colours": ["grey", "black"],
+    "styles": ["streetwear", "sporty"],
+    "collectionId": "col-latest-2025ss",
+    "newArrival": true,
+    "arrivalDate": "2025-03-06",
+    "image": "/assets/products/FTW-RUN-023.png",
+    "variants": [
+      { "size": "40", "stock": 5 },
+      { "size": "41", "stock": 7 },
+      { "size": "42", "stock": 6 },
+      { "size": "43", "stock": 4 }
+    ]
+  },
+  {
+    "sku": "FTW-LOF-024",
+    "name": "Suede Loafers",
+    "category": "footwear",
+    "subcategory": "loafers",
+    "priceRm": 109.0,
+    "colour": "brown",
+    "colours": ["brown", "black"],
+    "styles": ["relaxed-tailoring", "minimalist"],
+    "collectionId": "col-latest-2025ss",
+    "newArrival": true,
+    "arrivalDate": "2025-03-03",
+    "image": "/assets/products/FTW-LOF-024.png",
+    "variants": [
+      { "size": "40", "stock": 4 },
+      { "size": "41", "stock": 5 },
+      { "size": "42", "stock": 5 },
+      { "size": "43", "stock": 3 }
+    ]
+  },
+  {
+    "sku": "FTW-CNV-025",
+    "name": "Low-Top Canvas Trainers",
+    "category": "footwear",
+    "subcategory": "sneakers",
+    "priceRm": 89.0,
+    "colour": "white",
+    "colours": ["white", "black"],
+    "styles": ["streetwear", "relaxed-tailoring", "casual"],
+    "collectionId": "col-latest-2025ss",
+    "newArrival": true,
+    "arrivalDate": "2025-03-07",
+    "image": "/assets/products/FTW-CNV-025.png",
+    "variants": [
+      { "size": "40", "stock": 6 },
+      { "size": "41", "stock": 8 },
+      { "size": "42", "stock": 7 },
+      { "size": "43", "stock": 4 }
+    ]
+  },
+  {
+    "sku": "OUT-OVS-030",
+    "name": "Lightweight Linen Overshirt",
+    "category": "outerwear",
+    "subcategory": "overshirt",
+    "priceRm": 129.0,
+    "colour": "beige",
+    "colours": ["beige", "olive"],
+    "styles": ["resort", "relaxed-tailoring"],
+    "collectionId": "col-resort-2025",
+    "newArrival": false,
+    "arrivalDate": "2025-02-01",
+    "image": "/assets/products/OUT-OVS-030.png",
+    "variants": [
+      { "size": "S", "stock": 4 },
+      { "size": "M", "stock": 6 },
+      { "size": "L", "stock": 5 },
+      { "size": "XL", "stock": 2 }
+    ]
+  },
+  {
+    "sku": "OUT-BMB-031",
+    "name": "Nylon Bomber Jacket",
+    "category": "outerwear",
+    "subcategory": "bomber",
+    "priceRm": 159.0,
+    "colour": "black",
+    "colours": ["black", "olive"],
+    "styles": ["streetwear", "relaxed-tailoring"],
+    "collectionId": "col-latest-2025ss",
+    "newArrival": true,
+    "arrivalDate": "2025-03-04",
+    "image": "/assets/products/OUT-BMB-031.png",
+    "variants": [
+      { "size": "S", "stock": 3 },
+      { "size": "M", "stock": 5 },
+      { "size": "L", "stock": 4 },
+      { "size": "XL", "stock": 2 }
+    ]
+  },
+  {
+    "sku": "ACC-CAP-040",
+    "name": "Cotton Twill Cap",
+    "category": "accessory",
+    "subcategory": "cap",
+    "priceRm": 39.0,
+    "colour": "navy",
+    "colours": ["navy", "black", "beige"],
+    "styles": ["casual", "streetwear", "resort"],
+    "collectionId": "col-core-essentials",
+    "newArrival": false,
+    "arrivalDate": "2024-09-01",
+    "image": "/assets/products/ACC-CAP-040.png",
+    "variants": [
+      { "size": "OS", "stock": 20 }
+    ]
+  },
+  {
+    "sku": "ACC-TOT-041",
+    "name": "Canvas Tote Bag",
+    "category": "accessory",
+    "subcategory": "bag",
+    "priceRm": 49.0,
+    "colour": "cream",
+    "colours": ["cream", "black"],
+    "styles": ["minimalist", "casual", "resort"],
+    "collectionId": "col-core-essentials",
+    "newArrival": false,
+    "arrivalDate": "2024-09-01",
+    "image": "/assets/products/ACC-TOT-041.png",
+    "variants": [
+      { "size": "OS", "stock": 18 }
+    ]
+  },
+  {
+    "sku": "ACC-SUN-042",
+    "name": "Acetate Sunglasses",
+    "category": "accessory",
+    "subcategory": "sunglasses",
+    "priceRm": 59.0,
+    "colour": "brown",
+    "colours": ["brown", "black"],
+    "styles": ["resort", "minimalist", "streetwear"],
+    "collectionId": "col-resort-2025",
+    "newArrival": false,
+    "arrivalDate": "2025-02-01",
+    "image": "/assets/products/ACC-SUN-042.png",
+    "variants": [
+      { "size": "OS", "stock": 15 }
+    ]
+  },
+  {
+    "sku": "ACC-BLT-043",
+    "name": "Woven Leather Belt",
+    "category": "accessory",
+    "subcategory": "belt",
+    "priceRm": 55.0,
+    "colour": "brown",
+    "colours": ["brown", "black"],
+    "styles": ["relaxed-tailoring", "minimalist"],
+    "collectionId": "col-latest-2025ss",
+    "newArrival": true,
+    "arrivalDate": "2025-03-02",
+    "image": "/assets/products/ACC-BLT-043.png",
+    "variants": [
+      { "size": "OS", "stock": 12 }
+    ]
+  },
+  {
+    "sku": "ACC-CRS-044",
+    "name": "Crossbody Sling Bag",
+    "category": "accessory",
+    "subcategory": "bag",
+    "priceRm": 65.0,
+    "colour": "black",
+    "colours": ["black", "grey"],
+    "styles": ["streetwear", "casual"],
+    "collectionId": "col-latest-2025ss",
+    "newArrival": true,
+    "arrivalDate": "2025-03-09",
+    "image": "/assets/products/ACC-CRS-044.png",
+    "variants": [
+      { "size": "OS", "stock": 14 }
+    ]
+  }
+]

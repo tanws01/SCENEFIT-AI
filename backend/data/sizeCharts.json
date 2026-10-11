@@ -1,0 +1,49 @@
+[
+  {
+    "id": "chart-top",
+    "category": "top",
+    "unit": "cm",
+    "measurements": ["chest", "waist", "length"],
+    "sizes": [
+      { "size": "XS", "chest": [86, 90], "waist": [70, 74], "length": [66, 68], "fitNote": "Fits chest 86-90 cm" },
+      { "size": "S", "chest": [91, 96], "waist": [75, 80], "length": [68, 70], "fitNote": "Fits chest 91-96 cm" },
+      { "size": "M", "chest": [97, 102], "waist": [81, 86], "length": [70, 72], "fitNote": "Fits chest 97-102 cm" },
+      { "size": "L", "chest": [103, 108], "waist": [87, 92], "length": [72, 74], "fitNote": "Fits chest 103-108 cm" },
+      { "size": "XL", "chest": [109, 115], "waist": [93, 99], "length": [74, 76], "fitNote": "Fits chest 109-115 cm" }
+    ]
+  },
+  {
+    "id": "chart-bottom",
+    "category": "bottom",
+    "unit": "cm",
+    "measurements": ["waist", "hip", "inseam"],
+    "sizes": [
+      { "size": "XS", "waist": [71, 75], "hip": [86, 90], "inseam": [74, 76], "fitNote": "Fits waist 71-75 cm" },
+      { "size": "S", "waist": [76, 81], "hip": [91, 96], "inseam": [76, 78], "fitNote": "Fits waist 76-81 cm" },
+      { "size": "M", "waist": [82, 87], "hip": [97, 102], "inseam": [78, 80], "fitNote": "Fits waist 82-87 cm" },
+      { "size": "L", "waist": [88, 93], "hip": [103, 108], "inseam": [80, 82], "fitNote": "Fits waist 88-93 cm" },
+      { "size": "XL", "waist": [94, 100], "hip": [109, 115], "inseam": [82, 84], "fitNote": "Fits waist 94-100 cm" }
+    ]
+  },
+  {
+    "id": "chart-footwear",
+    "category": "footwear",
+    "unit": "cm",
+    "measurements": ["footLength"],
+    "sizes": [
+      { "size": "40", "footLength": [25.0, 25.5], "fitNote": "EU 40 - foot length 25.0-25.5 cm" },
+      { "size": "41", "footLength": [25.6, 26.1], "fitNote": "EU 41 - foot length 25.6-26.1 cm" },
+      { "size": "42", "footLength": [26.2, 26.7], "fitNote": "EU 42 - foot length 26.2-26.7 cm" },
+      { "size": "43", "footLength": [26.8, 27.3], "fitNote": "EU 43 - foot length 26.8-27.3 cm" }
+    ]
+  },
+  {
+    "id": "chart-accessory",
+    "category": "accessory",
+    "unit": "n/a",
+    "measurements": [],
+    "sizes": [
+      { "size": "OS", "fitNote": "One size fits most" }
+    ]
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "col-latest-2025ss",
+    "name": "Latest Drop - Spring/Summer 2025",
+    "season": "SS25",
+    "isLatest": true,
+    "releaseDate": "2025-03-01",
+    "newArrivalUntil": "2025-06-30",
+    "tags": ["latest", "new-arrival", "relaxed-tailoring", "streetwear"],
+    "description": "Current new-arrival collection: relaxed tailoring and street-leaning staples."
+  },
+  {
+    "id": "col-resort-2025",
+    "name": "Resort & Coast 2025",
+    "season": "SS25",
+    "isLatest": false,
+    "releaseDate": "2025-02-01",
+    "newArrivalUntil": "2025-04-30",
+    "tags": ["resort", "linen", "beach"],
+    "description": "Lightweight linen and resort pieces for coastal getaways."
+  },
+  {
+    "id": "col-core-essentials",
+    "name": "Core Essentials",
+    "season": "ALL",
+    "isLatest": false,
+    "releaseDate": "2024-09-01",
+    "newArrivalUntil": null,
+    "tags": ["essentials", "everyday"],
+    "description": "Year-round staples that anchor any look."
+  }
+]

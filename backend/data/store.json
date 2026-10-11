@@ -1,0 +1,44 @@
+{
+  "id": "store-demo-flagship",
+  "retailerId": "retailer-scenefit-demo",
+  "name": "Demo Flagship",
+  "shortName": "Demo Flagship Level 2",
+  "country": "MY",
+  "currency": "RM",
+  "address": {
+    "line1": "Lot 2-30, Level 2",
+    "city": "Kuala Lumpur",
+    "country": "Malaysia"
+  },
+  "levels": [
+    {
+      "level": 2,
+      "name": "Level 2",
+      "zones": [
+        {
+          "id": "zone-b",
+          "code": "B",
+          "name": "Zone B New Arrivals",
+          "aisles": ["Aisle 03", "Aisle 04", "Aisle 05"]
+        },
+        {
+          "id": "zone-a",
+          "code": "A",
+          "name": "Zone A Essentials",
+          "aisles": ["Aisle 01", "Aisle 02"]
+        },
+        {
+          "id": "zone-c",
+          "code": "C",
+          "name": "Zone C Footwear & Accessories",
+          "aisles": ["Aisle 06", "Aisle 07"]
+        }
+      ]
+    }
+  ],
+  "fittingRooms": [
+    { "id": "fr-l2-01", "level": 2, "zone": "B", "capacity": 1 },
+    { "id": "fr-l2-02", "level": 2, "zone": "B", "capacity": 1 },
+    { "id": "fr-l2-03", "level": 2, "zone": "A", "capacity": 1 }
+  ]
+}

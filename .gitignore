@@ -1,0 +1,22 @@
+# Dependencies (none expected - zero external deps - but ignore just in case)
+node_modules/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+service-account*.json
+*-service-account.json
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build / coverage output
+coverage/
+dist/
+build/
