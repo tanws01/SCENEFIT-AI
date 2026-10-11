@@ -3,10 +3,14 @@
 /**
  * SCENEFIT AI - Retailer Intelligence Dashboard (F13) + Merchandising
  * Insights (F15). Consumes /api/dashboard/retail and
- * /api/dashboard/merchandising (gated by Firebase Auth role).
+ * /api/dashboard/merchandising.
  *
- * Renders aggregated, privacy-protected data only. F15 insights are labelled
- * as human decision-support, never guaranteed forecasts or auto-reorder.
+ * These dashboard VIEWS are OPEN (no sign-in): they expose only aggregated,
+ * privacy-protected data. F15 insights are labelled human decision-support,
+ * never guaranteed forecasts or auto-reorder.
+ *
+ * Rendering is vanilla DOM only (no chart libraries, no CDN). KPI stat tiles,
+ * CSS bar charts and an inline-SVG sparkline keep the whole thing offline.
  */
 
 (function () {
@@ -29,9 +33,10 @@
   // CSS-only bar chart from [{key,count}] rows.
   function barChart(rows, valueKey) {
     const vk = valueKey || 'count';
-    const max = Math.max(1, ...rows.map((r) => Number(r[vk]) || 0));
+    const list = Array.isArray(rows) ? rows : [];
+    const max = Math.max(1, ...list.map((r) => Number(r[vk]) || 0));
     const chart = el('div', { class: 'barchart' });
-    rows.forEach((r) => {
+    list.forEach((r) => {
       const val = Number(r[vk]) || 0;
       chart.appendChild(el('div', { class: 'bar-row' }, [
         el('span', null, String(r.key != null ? r.key : r.metric || '')),
@@ -53,18 +58,68 @@
     return el('div', { class: 'panel' }, [el('h3', null, title)].concat(nodes || []));
   }
 
+  // KPI stat tile row.
+  function kpiGrid(tiles) {
+    const grid = el('div', { class: 'kpi-grid' });
+    tiles.filter((t) => t.value != null).forEach((t) => grid.appendChild(el('div', { class: 'kpi-tile' }, [
+      el('div', { class: 'kpi-value' }, String(t.value)),
+      el('div', { class: 'kpi-label' }, t.label),
+    ])));
+    return grid;
+  }
+
+  // Inline-SVG sparkline / mini bar chart from a weekly series [{key,count}].
+  function sparkline(rows) {
+    const list = Array.isArray(rows) ? rows : [];
+    if (!list.length) return el('p', { class: 'muted' }, 'No trend data yet.');
+    const max = Math.max(1, ...list.map((r) => Number(r.count) || 0));
+    const w = 100;
+    const h = 36;
+    const gap = 4;
+    const bw = (w - gap * (list.length - 1)) / list.length;
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    svg.setAttribute('class', 'sparkline');
+    svg.setAttribute('preserveAspectRatio', 'none');
+    list.forEach((r, i) => {
+      const val = Number(r.count) || 0;
+      const bh = Math.max(1, (val / max) * (h - 2));
+      const rect = document.createElementNS(svgNS, 'rect');
+      rect.setAttribute('x', String(i * (bw + gap)));
+      rect.setAttribute('y', String(h - bh));
+      rect.setAttribute('width', String(bw));
+      rect.setAttribute('height', String(bh));
+      rect.setAttribute('rx', '1');
+      rect.setAttribute('class', 'spark-bar');
+      const title = document.createElementNS(svgNS, 'title');
+      title.textContent = `${r.key}: ${val}`;
+      rect.appendChild(title);
+      svg.appendChild(rect);
+    });
+    const wrap = el('div', { class: 'sparkwrap' });
+    wrap.appendChild(svg);
+    const labels = el('div', { class: 'spark-labels' });
+    list.forEach((r) => labels.appendChild(el('span', null, String(r.key).slice(5))));
+    wrap.appendChild(labels);
+    return wrap;
+  }
+
   async function load() {
-    const token = $('#token').value.trim();
     setStatus('Loading retailer intelligence...');
+    $('#kpis').innerHTML = '';
+    $('#trend').innerHTML = '';
     $('#retail').innerHTML = '';
     $('#ai').innerHTML = '';
     $('#merch').innerHTML = '';
     try {
       const [retail, merch] = await Promise.all([
-        Api.retailDashboard(token),
-        Api.merchandisingInsights(token),
+        Api.retailDashboard(),
+        Api.merchandisingInsights(),
       ]);
-      $('#authStatus').textContent = 'Authenticated. Showing aggregated, privacy-protected data.';
+      $('#authStatus').textContent = '';
+      renderKpis(retail);
+      renderTrend(retail);
       renderRetail(retail);
       // AI analysis / predictions panel - distinct from the hard numbers. Reads
       // from retail.aiInsights (preferred) or merch.aiAnalysis as a fallback.
@@ -73,10 +128,37 @@
       setStatus('');
     } catch (e) {
       setStatus('', false);
-      $('#authStatus').textContent = e.status === 401 || e.status === 403
-        ? `Access denied (${e.status}). Use a merchandiser/ops/admin token.`
-        : `Failed to load: ${e.message}`;
+      $('#authStatus').textContent = `Failed to load: ${e.message}`;
     }
+  }
+
+  function renderKpis(data) {
+    const k = data.kpis || {};
+    const root = $('#kpis');
+    const tiles = [
+      { label: 'Total events (6 wks)', value: k.totalEvents },
+      { label: 'Recommendations shown', value: k.recommendationsShown },
+      { label: 'Saved looks', value: k.savedLooks },
+      { label: 'Try-on events', value: k.tryOnEvents },
+      { label: 'Checkout handoffs', value: k.checkoutHandoffs },
+      { label: 'Avg basket (RM)', value: k.avgBasketRm },
+      { label: 'Conversion rate', value: k.conversionRate != null ? `${Math.round(k.conversionRate * 100)}%` : null },
+      { label: 'Total value (RM)', value: k.totalValueRm },
+      { label: 'Unmet-demand signals', value: k.unmetDemandSignals },
+    ];
+    root.appendChild(el('div', { class: 'panel' }, [el('h3', null, 'Key metrics'), kpiGrid(tiles)]));
+  }
+
+  function renderTrend(data) {
+    const t = (data.trends) || {};
+    const root = $('#trend');
+    root.appendChild(sectionPanel('Weekly trend', [
+      el('p', { class: 'muted' }, 'Event volume per week (all signals) and demand signals per week.'),
+      el('div', { class: 'trend-grid' }, [
+        el('div', null, [el('div', { class: 'section-title' }, 'All events / week'), sparkline(t.eventsByWeek)]),
+        el('div', null, [el('div', { class: 'section-title' }, 'Demand signals / week'), sparkline(t.demandByWeek)]),
+      ]),
+    ]));
   }
 
   function renderRetail(data) {
@@ -85,31 +167,59 @@
       || 'Aggregated, privacy-protected data with retention/access controls.'));
 
     const s = data.sections || {};
+    const intent = s.shoppingIntent || {};
+    const demand = s.productDemand || {};
+    const unmet = s.unmetDemand || {};
+    const inStore = s.inStoreExperience || {};
+    const commercial = s.commercialPerformance || {};
+
     // 1. Shopping Intent
-    root.appendChild(sectionPanel('1 \u00b7 ' + (s.shoppingIntent && s.shoppingIntent.title || 'Shopping Intent'), [
-      el('p', { class: 'muted' }, 'Occasion-based vs latest-collection demand; popular occasions.'),
-      barChart(s.shoppingIntent && s.shoppingIntent.popularOccasions || []),
+    root.appendChild(sectionPanel('1 \u00b7 ' + (intent.title || 'Shopping Intent'), [
+      el('p', { class: 'muted' }, 'Popular occasions, entry points and budget bands.'),
+      el('div', { class: 'section-title' }, 'Popular occasions'),
+      barChart(intent.popularOccasions || []),
+      el('div', { class: 'section-title' }, 'Entry point'),
+      barChart(intent.byEntryPoint || []),
+      el('div', { class: 'section-title' }, 'Budget band'),
+      barChart(intent.byBudgetBand || []),
     ]));
     // 2. Product Demand
-    root.appendChild(sectionPanel('2 \u00b7 ' + (s.productDemand && s.productDemand.title || 'Product Demand'), [
-      el('p', { class: 'muted' }, 'Most requested styles / preferences.'),
-      barChart(s.productDemand && s.productDemand.mostRequestedStyles || []),
+    root.appendChild(sectionPanel('2 \u00b7 ' + (demand.title || 'Product Demand'), [
+      el('p', { class: 'muted' }, 'Most requested styles and colours.'),
+      el('div', { class: 'section-title' }, 'Styles'),
+      barChart(demand.mostRequestedStyles || []),
+      el('div', { class: 'section-title' }, 'Colours'),
+      barChart(demand.mostRequestedColours || []),
     ]));
     // 3. Unmet Demand
-    root.appendChild(sectionPanel('3 \u00b7 ' + (s.unmetDemand && s.unmetDemand.title || 'Unmet Demand'), [
-      el('p', { class: 'muted' }, 'Reasons requests could not be fulfilled (e.g. missing sizes).'),
-      table(s.unmetDemand && s.unmetDemand.reasons || [], [{ key: 'key', label: 'Reason' }, { key: 'count', label: 'Count' }]),
+    root.appendChild(sectionPanel('3 \u00b7 ' + (unmet.title || 'Unmet Demand'), [
+      el('p', { class: 'muted' }, 'Reasons requests could not be fulfilled, plus specific missing sizes.'),
+      el('div', { class: 'section-title' }, 'Reasons'),
+      table(unmet.reasons || [], [{ key: 'key', label: 'Reason' }, { key: 'count', label: 'Count' }]),
+      el('div', { class: 'section-title' }, 'Requested but unavailable sizes'),
+      table(unmet.requestedButUnavailableSizes || [], [{ key: 'key', label: 'SKU / size' }, { key: 'count', label: 'Count' }]),
     ]));
     // 4. In-Store Experience
-    root.appendChild(sectionPanel('4 \u00b7 ' + (s.inStoreExperience && s.inStoreExperience.title || 'In-Store Experience'), [
-      el('p', { class: 'muted' }, 'Activity by zone / location-lookup volume.'),
-      barChart(s.inStoreExperience && s.inStoreExperience.activityByZone || []),
+    root.appendChild(sectionPanel('4 \u00b7 ' + (inStore.title || 'In-Store Experience'), [
+      el('p', { class: 'muted' }, 'Activity by zone and the in-store funnel.'),
+      el('div', { class: 'section-title' }, 'Activity by zone'),
+      barChart(inStore.activityByZone || []),
+      el('div', { class: 'section-title' }, 'Funnel: lookups \u2192 assist \u2192 queue \u2192 completed'),
+      barChart(inStore.funnel || []),
     ]));
     // 5. Commercial Performance
-    root.appendChild(sectionPanel('5 \u00b7 ' + (s.commercialPerformance && s.commercialPerformance.title || 'Commercial Performance'), [
-      el('p', { class: 'muted' }, 'Checkout handoffs and value.'),
-      table(s.commercialPerformance && s.commercialPerformance.checkoutHandoffs || [], [
-        { key: 'metric', label: 'Metric' }, { key: 'count', label: 'Count' }, { key: 'totalValueRm', label: 'Total (RM)' },
+    const ck = commercial.kpis || {};
+    root.appendChild(sectionPanel('5 \u00b7 ' + (commercial.title || 'Commercial Performance'), [
+      el('p', { class: 'muted' }, 'Engagement, baskets and checkout handoffs.'),
+      kpiGrid([
+        { label: 'Add to cart', value: ck.addToCart },
+        { label: 'Checkout handoffs', value: ck.checkoutHandoffs },
+        { label: 'Avg basket (RM)', value: ck.avgBasketRm },
+        { label: 'Conversion', value: ck.conversionRate != null ? `${Math.round(ck.conversionRate * 100)}%` : null },
+        { label: 'Total value (RM)', value: ck.totalValueRm },
+      ]),
+      table(commercial.checkoutHandoffs || [], [
+        { key: 'metric', label: 'Metric' }, { key: 'count', label: 'Count' }, { key: 'totalValueRm', label: 'Value (RM)' },
       ]),
     ]));
   }
@@ -160,7 +270,7 @@
     const root = $('#merch');
     const panel = el('div', { class: 'panel' });
     panel.appendChild(el('span', { class: 'tag-label' }, 'HUMAN DECISION-SUPPORT'));
-    panel.appendChild(el('h3', null, 'Merchandising &amp; Inventory Insights (F15)'));
+    panel.appendChild(el('h3', null, 'Merchandising & Inventory Insights (F15)'));
     const ds = data.decisionSupport || {};
     panel.appendChild(el('div', { class: 'notice' }, ds.note
       || 'These insights support HUMAN merchandising decisions. They are NOT guaranteed forecasts and NOT automatic instructions to reorder stock.'));
@@ -178,6 +288,6 @@
   }
 
   $('#loadBtn').addEventListener('click', load);
-  // Auto-load with the default demo token.
+  // Open dashboard: auto-load on page open, no sign-in required.
   load();
 })();
