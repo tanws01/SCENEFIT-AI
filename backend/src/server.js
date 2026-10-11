@@ -18,6 +18,7 @@
 
 const http = require('node:http');
 const { loadConfig } = require('./config');
+const { serveStatic } = require('./static');
 const { createAdapters } = require('./adapters');
 const { createCatalogue } = require('./services/catalogue');
 const { createOutfitEngine } = require('./services/outfitEngine');
@@ -374,6 +375,11 @@ function createRequestHandler(ctx) {
         if (!auth) return undefined;
         return sendJson(res, 200, await services.analytics.merchandisingInsights());
       }
+
+      // --- static frontend (served last so /api/* and /healthz win) ---
+      // Serves the vanilla HTML/CSS/JS app + synthesised product image assets
+      // so the full stack runs from a single `node backend/src/server.js`.
+      if (serveStatic(req, res, pathname)) return undefined;
 
       return sendJson(res, 404, { error: 'not_found', path: pathname });
     } catch (err) {

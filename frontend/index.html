@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SCENEFIT AI - Your Plans. Your Trends. Your Look.</title>
+  <meta name="description" content="SCENEFIT AI - a voice-first, multimodal fashion shopping assistant. Powered by Google Cloud." />
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <div class="brand">
+        <div class="logo">SF</div>
+        <div>
+          <h1>SCENEFIT AI</h1>
+          <p class="tagline">Your Plans. Your Trends. Your Look.</p>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a href="/">Shop</a>
+        <a href="/retailer-dashboard.html">Retailer Dashboard</a>
+        <a href="/staff-dashboard.html">Staff Dashboard</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="app">
+    <!-- Demo affordance: one-click canonical scenarios -->
+    <section class="demo-bar" id="demoBar">
+      <h3>&#9889; One-click demo journeys</h3>
+      <p class="muted">Pre-fill a complete end-to-end scenario and send it instantly.</p>
+      <button class="btn small" data-demo="port-dickson">Demo 1 &middot; Port Dickson occasion (RM250)</button>
+      <button class="btn small" data-demo="latest-arrivals">Demo 2 &middot; Latest arrivals (RM300)</button>
+    </section>
+
+    <!-- Two entry points -->
+    <section class="entry-grid" aria-label="Choose how to start">
+      <div class="entry-card" id="entryMoment" data-entry="style-my-moment" tabindex="0" role="button">
+        <h2>&#10024; Style My Moment</h2>
+        <p>Tell me about your occasion - a sunset dinner, a getaway, a celebration - and I will coordinate complete looks around it.</p>
+        <span class="pill">Occasion-based</span>
+      </div>
+      <div class="entry-card" id="entryNew" data-entry="explore-whats-new" tabindex="0" role="button">
+        <h2>&#128142; Explore What's New</h2>
+        <p>Browse coordinated looks built from the latest collection and new arrivals, tuned to your taste and budget.</p>
+        <span class="pill">Latest collection</span>
+      </div>
+    </section>
+
+    <!-- Conversation composer -->
+    <section class="panel" id="composerPanel">
+      <h3 id="composerTitle">Start a conversation</h3>
+      <div class="composer">
+        <textarea id="messageInput" placeholder="e.g. I'm going to Port Dickson this Sunday for a sunset seafood dinner and photos. Stylish and comfortable. Budget RM250."></textarea>
+        <button class="btn mic" id="micBtn" type="button" title="Speak your request">&#127908; Speak</button>
+        <button class="btn" id="sendBtn" type="button">Send</button>
+      </div>
+      <p class="hint" id="voiceHint">Voice input uses your browser microphone when available and falls back to text automatically. You can always type instead.</p>
+      <p class="transcript hidden" id="transcript"></p>
+      <div class="followup hidden" id="followup"></div>
+
+      <div class="composer" id="refineRow" style="margin-top:12px;">
+        <textarea id="refineInput" placeholder="Refine: &quot;Make it more casual, but keep the shoes.&quot; or switch: &quot;Actually, show me the latest arrivals.&quot;"></textarea>
+        <button class="btn secondary" id="refineBtn" type="button">Refine</button>
+      </div>
+      <p class="hint">Refinement keeps your original constraints (like budget) unless you change them, and you can switch intent mid-conversation.</p>
+    </section>
+
+    <div id="status" class="spinner"></div>
+
+    <!-- Recommendations render here -->
+    <section id="results"></section>
+
+    <!-- Optional panels (toggled) -->
+    <section class="panel hidden" id="profilePanel">
+      <h3>&#9881; Style &amp; preference profile <span class="muted">(optional, F03)</span></h3>
+      <div class="row">
+        <div>
+          <label for="pfSizeTop">Top size</label>
+          <select id="pfSizeTop"><option value="">-</option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option></select>
+        </div>
+        <div>
+          <label for="pfSizeShoe">Shoe size (EU)</label>
+          <select id="pfSizeShoe"><option value="">-</option><option>40</option><option>41</option><option>42</option><option>43</option></select>
+        </div>
+      </div>
+      <label for="pfStyles">Preferred styles (comma separated)</label>
+      <input type="text" id="pfStyles" placeholder="relaxed-tailoring, streetwear, minimalist" />
+      <label for="pfColours">Preferred colours</label>
+      <input type="text" id="pfColours" placeholder="navy, olive, cream" />
+      <label for="pfAvoid">Colours to avoid</label>
+      <input type="text" id="pfAvoid" placeholder="orange" />
+      <div class="actions"><button class="btn small" id="saveProfileBtn">Save profile</button></div>
+      <p class="hint" id="profileStatus"></p>
+    </section>
+
+    <section class="panel hidden" id="wardrobePanel">
+      <h3>&#128084; My wardrobe <span class="muted">(optional, F08)</span></h3>
+      <p class="muted">Add pieces you already own so looks can be built around them. Owned-item cost is shown separately from purchase cost.</p>
+      <div class="composer">
+        <input type="text" id="wardrobeInput" placeholder="e.g. white sneakers, navy cap" />
+        <button class="btn small" id="addWardrobeBtn" type="button">Add owned item</button>
+      </div>
+      <ul class="item-list" id="wardrobeList"></ul>
+    </section>
+
+    <!-- Panels injected dynamically: size guidance, try-on, store location, staff-assist, queue, cart -->
+    <section id="toolPanels"></section>
+  </main>
+
+  <footer class="site">
+    <p>SCENEFIT AI &middot; Prices in RM &middot; Your Plans. Your Trends. Your Look.</p>
+    <p class="google-note">Built entirely on Google Cloud (Gemini, Vertex AI, Speech-to-Text, Firebase, Firestore, BigQuery, Cloud Storage). Runs fully offline with deterministic mocks.</p>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
