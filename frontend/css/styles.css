@@ -547,6 +547,26 @@ table.data th { background: #f3eff8; color: var(--brand-dark); }
 footer.site { text-align: center; padding: 24px 0; color: var(--ink-soft); font-size: 12px; }
 .google-note { font-size: 11px; opacity: 0.75; }
 
+/* ---------- dashboards: labels, tables, charts ---------- */
+.tag-label {
+  display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: 0.8px;
+  text-transform: uppercase; padding: 3px 8px; border-radius: 999px;
+  background: #efeaff; color: var(--brand-dark); margin-bottom: 8px;
+}
+.section-title { font-weight: 700; margin: 12px 0 4px; font-size: 14px; }
+
+/* ---------- AI analysis panel (model-generated, non-guaranteed) ---------- */
+.ai-panel {
+  border: 1px solid var(--brand);
+  border-left: 5px solid var(--brand);
+  background: linear-gradient(180deg, #f6f3ff 0%, #ffffff 60%);
+}
+.ai-panel .tag-label.ai {
+  background: var(--brand); color: #fff;
+}
+.ai-list { margin: 4px 0 10px; padding-left: 18px; font-size: 13px; }
+.ai-list li { margin: 4px 0; }
+
 /* ---------- responsive ---------- */
 @media (min-width: 680px) {
   .entry-grid { grid-template-columns: 1fr 1fr; }
