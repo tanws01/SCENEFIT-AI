@@ -95,6 +95,9 @@ only.
         - storeNavigation  exact rack / planogram location per SKU
         - fittingRoomQueue smart fitting-room queue + staff confirmation
         - staffTasks       staff-assisted product collection
+                           (reaching ReadyForCollection auto-enqueues/advances
+                            a fittingRoomQueue ticket to Ready via the legal
+                            state-machine path)
         - cart / checkout  omnichannel handoff
         - analytics        aggregated reporting (server-side -> BigQuery)
 ```
@@ -111,7 +114,13 @@ and validated by application code against the seeded Firestore data:
 - **Budget** - the assembled outfit total respects the mandatory budget cap.
 - **Planogram location** - the exact in-store rack / shelf position.
 - **Queue confirmation** - fitting-room queue state transitions and staff
-  confirmation.
+  confirmation. When a staff picking task reaches `ReadyForCollection`, the
+  system automatically ensures a linked fitting-room queue ticket exists and
+  drives it to `Ready` strictly along the legal path
+  (`Requested -> Confirmed -> Picking Items -> Waiting for Room -> Ready`),
+  reusing an existing linked ticket when present (idempotent) and never forcing
+  an illegal jump. If the branch does not support a queue the task still becomes
+  ready for collection (non-fatal).
 - **Collection dates** - new-arrival / collection availability dates.
 - **Retailer-dashboard numbers** - occasion / style / unmet-demand / zone /
   commercial aggregates come from BigQuery; the AI insight block adds narrative,

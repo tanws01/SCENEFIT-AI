@@ -48,7 +48,7 @@ const DECISION_SUPPORT_LABEL = Object.freeze({
  * @param {object} deps
  * @param {object} deps.bigquery bigquery adapter
  * @param {object} [deps.staffTasks] staff tasks service (F14 operations data)
- * @param {object} [deps.fittingRoomQueue] fitting-room queue service (F14 tickets)
+ * @param {object} [deps.fittingRoomQueue] fitting-room queue service (F14 queue tickets)
  * @param {object} [deps.store] seeded store record (F14 fitting-room availability)
  * @param {object} [deps.gemini] gemini adapter (AI analysis layer; optional)
  * @param {() => string} [deps.now]
@@ -300,6 +300,8 @@ function createAnalytics(deps = {}) {
   async function staffDashboard() {
     const tasks = staffTasks ? await staffTasks.list() : [];
     const fittingRooms = store && Array.isArray(store.fittingRooms) ? store.fittingRooms : [];
+    // Fitting-room queue tickets (F11). A task that reaches ReadyForCollection
+    // auto-enqueues/advances a ticket to 'Ready', so it surfaces here.
     const tickets = fittingRoomQueue ? await fittingRoomQueue.list() : [];
 
     // A fitting room is physically "occupied" when a ticket assigned to it is
@@ -319,6 +321,7 @@ function createAnalytics(deps = {}) {
       id: t.id,
       status: t.status,
       assignedTo: t.assignedTo,
+      queueTicketId: t.queueTicketId || null,
       createdAt: t.createdAt || null,
       garments: (t.garments || []).map((g) => ({
         sku: g.sku, size: g.size, colour: g.colour, name: g.name || null, location: g.location,
@@ -338,6 +341,7 @@ function createAnalytics(deps = {}) {
       status: t.status,
       confirmed: !!t.confirmed,
       fittingRoomId: t.fittingRoomId || null,
+      sourceTaskId: t.sourceTaskId || null,
       itemCount: Array.isArray(t.items) ? t.items.length : 0,
       liveStatusMessage: t.liveStatusMessage || null,
     }));

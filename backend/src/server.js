@@ -56,8 +56,11 @@ function createServices(adapters) {
   // eslint-disable-next-line global-require
   const store = require('../data/store.json');
   const storeNavigation = createStoreNavigation({ firestore: adapters.firestore, catalogue });
-  const staffTasks = createStaffTasks({ firestore: adapters.firestore, catalogue, storeNavigation });
+  // Construct the fitting-room queue BEFORE staffTasks so it can be injected:
+  // reaching ReadyForCollection auto-enqueues (or advances) a queue ticket to
+  // 'Ready' via the legal F11 state-machine path.
   const fittingRoomQueue = createFittingRoomQueue({ firestore: adapters.firestore, store });
+  const staffTasks = createStaffTasks({ firestore: adapters.firestore, catalogue, storeNavigation, fittingRoomQueue, store });
   const cart = createCart({ firestore: adapters.firestore, catalogue });
   const analytics = createAnalytics({ bigquery: adapters.bigquery, staffTasks, fittingRoomQueue, store, gemini: adapters.gemini });
 

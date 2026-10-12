@@ -8,6 +8,7 @@ const { createAdapters } = require('../src/adapters');
 const { createCatalogue } = require('../src/services/catalogue');
 const { createStoreNavigation } = require('../src/services/storeNavigation');
 const { createStaffTasks } = require('../src/services/staffTasks');
+const { createFittingRoomQueue } = require('../src/services/fittingRoomQueue');
 const { createAnalytics, PII_FIELDS } = require('../src/services/analytics');
 
 const STORE = require('../data/store.json');
@@ -19,6 +20,25 @@ function build() {
   const staffTasks = createStaffTasks({ firestore: adapters.firestore, catalogue, storeNavigation });
   const analytics = createAnalytics({ bigquery: adapters.bigquery, staffTasks, store: STORE });
   return { analytics, staffTasks };
+}
+
+/** Build analytics with staffTasks + fittingRoomQueue wired together. */
+function buildWithQueue() {
+  const adapters = createAdapters(loadConfig({}));
+  const catalogue = createCatalogue({ firestore: adapters.firestore });
+  const storeNavigation = createStoreNavigation({ firestore: adapters.firestore, catalogue });
+  let tick = 0;
+  const now = () => new Date(2025, 0, 1, 0, 0, tick++).toISOString();
+  let qn = 0;
+  const fittingRoomQueue = createFittingRoomQueue({
+    firestore: adapters.firestore, store: STORE, now, idgen: () => `tkt-test-${(++qn)}`,
+  });
+  let tn = 0;
+  const staffTasks = createStaffTasks({
+    firestore: adapters.firestore, catalogue, storeNavigation, fittingRoomQueue, store: STORE, now, idgen: () => `task-test-${(++tn)}`,
+  });
+  const analytics = createAnalytics({ bigquery: adapters.bigquery, staffTasks, fittingRoomQueue, store: STORE });
+  return { analytics, staffTasks, fittingRoomQueue };
 }
 
 test('emitted events are privacy-protected: PII fields are stripped, privacy stamped', async () => {
@@ -81,6 +101,28 @@ test('F14 staff dashboard surfaces picking requests + fitting-room availability'
   assert.strictEqual(req.garments[0].sku, 'TOP-OXF-004');
   assert.ok(req.garments[0].location, 'includes mapped rack location');
   assert.ok(dash.fittingRoomAvailability.length >= 1);
+});
+
+test('F14 staff dashboard reflects the Ready fitting-room queue ticket after a task is marked ready', async () => {
+  const { analytics, staffTasks } = buildWithQueue();
+  const submitted = await staffTasks.submitTask({ userId: 'anon-1', garments: [{ sku: 'TOP-OXF-004', size: 'M', colour: 'blue' }] });
+  await staffTasks.accept(submitted.id, { staffId: 'u-associate-001' });
+  await staffTasks.prepare(submitted.id); // -> Preparing
+  const ready = await staffTasks.prepare(submitted.id, { fittingRoomId: 'fr-l2-01' }); // -> ReadyForCollection
+
+  const dash = await analytics.staffDashboard();
+  assert.ok(Array.isArray(dash.queueTickets) && dash.queueTickets.length >= 1, 'queue tickets surface on the dashboard');
+  // The auto-enqueued ticket (correlated to the task) surfaces alongside any
+  // pre-seeded tickets on the richer staff board.
+  const tkt = dash.queueTickets.find((t) => t.sourceTaskId === submitted.id);
+  assert.ok(tkt, 'the auto-created ticket surfaces on the dashboard');
+  assert.strictEqual(tkt.status, 'Ready');
+  assert.strictEqual(tkt.sourceTaskId, submitted.id, 'ticket is correlated to the task');
+  assert.strictEqual(tkt.fittingRoomId, 'fr-l2-01');
+
+  // The picking request now carries its linked queue ticket id.
+  const req = dash.incomingPickingRequests.find((r) => r.id === submitted.id);
+  assert.strictEqual(req.queueTicketId, ready.queueTicketId);
 });
 
 test('F15 merchandising insights are labelled HUMAN decision-support, not auto-reorder/forecast', async () => {

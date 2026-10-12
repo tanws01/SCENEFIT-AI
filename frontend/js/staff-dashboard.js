@@ -153,22 +153,26 @@
     root.appendChild(panel);
   }
 
-  // Read-only overview of the current queue tickets across the board.
+  // Read-only overview of the current queue tickets across the board. Reflects
+  // live tickets, including the one auto-created / advanced to 'Ready' when a
+  // picking task is marked ready for collection. Reloads with the dashboard
+  // after every task action.
   function renderQueueOverview(tickets) {
     const root = $('#queueOverview');
     if (!root) return;
     root.innerHTML = '';
     const panel = el('div', { class: 'panel' }, [el('h3', null, `Fitting-room queue (${tickets.length})`)]);
     if (!tickets.length) {
-      panel.appendChild(el('p', { class: 'muted' }, 'No active queue tickets.'));
+      panel.appendChild(el('p', { class: 'muted' }, 'No fitting-room queue tickets yet. Marking a task ready for collection adds one here.'));
     } else {
       panel.appendChild(el('table', { class: 'data' }, [
-        el('tr', null, [el('th', null, 'Ticket'), el('th', null, 'Status'), el('th', null, 'Room'), el('th', null, 'Items')]),
+        el('tr', null, [el('th', null, 'Ticket'), el('th', null, 'Status'), el('th', null, 'Room'), el('th', null, 'Items'), el('th', null, 'Source task')]),
       ].concat(tickets.map((t) => el('tr', null, [
         el('td', null, t.id),
         el('td', null, [el('span', { class: 'pill' }, String(t.status || '-'))]),
         el('td', null, String(t.fittingRoomId || '-')),
         el('td', null, String(t.itemCount != null ? t.itemCount : '-')),
+        el('td', null, String(t.sourceTaskId || '-')),
       ])))));
     }
     root.appendChild(panel);
