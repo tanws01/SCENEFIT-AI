@@ -148,22 +148,27 @@ valid-SKU tests in `backend/test/`.
 
 The three **read-only dashboard views are open** (no auth): `GET
 /api/dashboard/retail`, `/staff` and `/merchandising` return aggregated,
-privacy-protected data without a token so the Retailer and Staff screens load
-directly. Only the **state-changing operational actions stay role-gated** via
-the Firebase Auth adapter: staff-task `accept` / `reject` / `prepare` and
-fitting-room queue `confirm` / `advance` (associate / ops / admin). The
-auth system and its `requireRole` gate remain intact for those write routes.
+privacy-protected data without a token so the Retailer screen and the Fitting
+Room Queue page's Staff tab load directly. Only the **state-changing
+operational actions stay role-gated** via the Firebase Auth adapter: staff-task
+`accept` / `reject` / `prepare` and fitting-room queue `confirm` / `advance`
+(associate / ops / admin). The auth system and its `requireRole` gate remain
+intact for those write routes.
 
 A dedicated **Fitting Room Queue page** (`frontend/fitting-room-queue.html` +
 `frontend/js/fitting-room-queue.js`), reachable from the Page-1 role chooser,
-surfaces the F11 queue through two client-side tabs over the same API: a
-**Customer view** using only the open actions (`POST /api/queue`,
-`GET /api/queue/:id`, `POST /api/queue/:id/cancel` - cancel needs no token so
-the shopper stays in control) and a **Staff pickup / manage** view that lists
-tickets from the open `GET /api/dashboard/staff` board and drives the
-role-gated `confirm` / `advance` lifecycle with the staff token. The page adds
-no backend endpoints and does not replicate the state machine - illegal
-transitions simply surface the backend error message.
+surfaces the store fitting-room experience through two client-side tabs over
+the same API. The **Customer view** uses only the open actions (`POST
+/api/queue`, `GET /api/queue/:id`, `POST /api/queue/:id/cancel` - cancel needs
+no token so the shopper stays in control). The **Staff view** is the store
+associates' operations board; it consolidates the former standalone Staff
+Dashboard (now retired) and reads the open `GET /api/dashboard/staff` board to
+render operations KPIs, the incoming picking-requests board (with role-gated
+`accept` / `reject` / `prepare`, `POST /api/staff-task/:id/...`, F10), a demo
+`POST /api/staff-task` create form, fitting-room availability, and the queue
+tickets, then drives the role-gated `confirm` / `advance` F11 lifecycle with
+the staff token. The page adds no backend endpoints and does not replicate the
+state machine - illegal transitions simply surface the backend error message.
 
 Dashboard data comes from a large, deterministic, offline analytics seed
 (`backend/data/analyticsEvents.json`, reproducible via

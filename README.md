@@ -53,15 +53,24 @@ no-build, client-side hash router** - a single `index.html` shell whose screens
 are selected by `location.hash`. There is no framework, bundler, or build step.
 
 **Page 1 - role chooser** (`#/`): the entry screen asks the visitor to choose
-one of four roles:
+one of three roles:
 
 - **Shop** - the customer shopping flow (stays in `index.html`).
 - **Retailer Dashboard** - links to `retailer-dashboard.html`.
-- **Staff** - links to `staff-dashboard.html`.
 - **Fitting Room Queue** - links to `fitting-room-queue.html`, a dedicated page
-  with two tabs onto the F11 queue: a **Customer view** (open - track or cancel
-  your own ticket, or request a place) and a **Staff pickup / manage** view
-  (role-gated confirm / advance / exception actions that send the staff token).
+  with two tabs. The **Customer view** (open) lets a shopper track or cancel
+  their own F11 ticket, or request a place. The **Staff view** is the store
+  associates' operations board: it consolidates the (now retired) standalone
+  Staff Dashboard, surfacing the incoming picking-requests board (accept /
+  reject / prepare, F10), a demo "create a picking request" form, fitting-room
+  availability, operations KPIs, and the full F11 queue lifecycle (confirm /
+  advance / notify ready / record completion / exception). The staff write
+  actions are role-gated and send the staff token; the Customer tab stays
+  token-free.
+
+The top navigation on every page shows exactly these three entries: **Shop**
+(or **Home** on the customer app), **Retailer Dashboard**, and **Fitting Room
+Queue**. There is no longer a standalone Staff Dashboard page or nav link.
 
 **Shop flow** (one stage per screen):
 
@@ -73,7 +82,8 @@ one of four roles:
 | `#/shop/results` | Three validated looks | The three coordinated, budget- and SKU-validated outfits, with reachable sub-steps for virtual try-on, size guidance, in-store rack location, staff-assisted collection, fitting-room queue, and cart / checkout handoff. |
 
 (`#/` is the role chooser; `#/shop` is an alias of `#/shop/intent`. The
-retailer and staff dashboards remain their own standalone `.html` pages.)
+retailer dashboard and the Fitting Room Queue page remain their own standalone
+`.html` pages.)
 
 ### Photo options and the explicit consent model
 
@@ -154,8 +164,8 @@ data, never taken from the model:
 - **Queue confirmation** - fitting-room queue state and staff confirmation.
   When a staff picking task is marked **ReadyForCollection**, a linked
   fitting-room queue ticket is automatically created (or advanced) to **Ready**
-  along the legal state-machine path, so it appears in the Staff Dashboard
-  "Fitting-room queue" section. The strict queue state machine is never
+  along the legal state-machine path, so it appears in the Fitting Room Queue
+  page's Staff tab "Fitting-room queue" section. The strict queue state machine is never
   weakened (no illegal jump to Confirmed/Ready); if the branch has no queue the
   task still becomes ready for collection.
 - **Collection dates** - new-arrival / collection availability dates.
@@ -189,15 +199,15 @@ env -u NODE_OPTIONS node backend/src/server.js
 # then open:
 #   http://localhost:8080/                       customer app (Page-1 role chooser -> Shop flow)
 #   http://localhost:8080/retailer-dashboard.html
-#   http://localhost:8080/staff-dashboard.html
 #   http://localhost:8080/fitting-room-queue.html  dedicated queue page (Customer + Staff tabs)
 #   http://localhost:8080/healthz                health check (JSON)
 #   http://localhost:8080/assets/scenes/beach.svg  example inline-SVG scene background
 ```
 
 From `/`, pick **Shop** and walk the hash-routed flow (intent -> prompt ->
-photo -> results); the retailer / staff dashboards and the dedicated
-Fitting Room Queue page are reached from the same role chooser.
+photo -> results); the retailer dashboard and the dedicated Fitting Room Queue
+page (whose Staff tab holds all store-operations tooling) are reached from the
+same role chooser.
 
 The backend serves the vanilla HTML/CSS/JS frontend statically (so a single
 `node backend/src/server.js` runs the entire offline demo) while the frontend
@@ -445,8 +455,8 @@ Hosting serves `frontend/` and rewrites `/api/**` and `/healthz` to the
 `scenefit-backend` Cloud Run service in `asia-southeast1`. The three customer
 screens are **client-side hash routes under a single `index.html`**, so no SPA
 rewrite config is required - Firebase serves `index.html` at `/` and the hash
-routing happens entirely in the browser; the retailer and staff dashboards
-remain their own `.html` files served directly.
+routing happens entirely in the browser; the retailer dashboard and the
+Fitting Room Queue page remain their own `.html` files served directly.
 [`firestore.rules`](firestore.rules) and [`storage.rules`](storage.rules) are
 deny-by-default and role-based. [`.firebaserc`](.firebaserc) carries a
 placeholder project id (`scenefit-demo`) - replace it with the real project.
@@ -487,8 +497,8 @@ backend/
 frontend/                # vanilla HTML/CSS/JS web app (zero build step, offline)
   index.html             # multi-screen customer app shell (Page-1 role chooser + Shop flow)
   retailer-dashboard.html# retailer intelligence + merchandising insights
-  staff-dashboard.html   # staff operations (picking, fitting rooms, queue)
-  fitting-room-queue.html# dedicated F11 queue page (Customer + Staff tabs)
+  fitting-room-queue.html# dedicated F11 queue page (Customer tab + Staff ops tab:
+                         #   picking board, fitting rooms, KPIs, queue lifecycle)
   css/styles.css         # mobile-first responsive styles (no external libs)
   js/                    # api.js (fetch wrapper), app.js (hash router), dashboard scripts
 shared/contracts/        # JSON/JSDoc shapes shared by frontend & backend

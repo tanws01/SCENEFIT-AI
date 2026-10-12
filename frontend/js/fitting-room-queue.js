@@ -11,7 +11,13 @@
  *     - cancel own ticket          -> POST /api/queue/:id/cancel (Api.cancelQueue)
  *     The customer stays in control; cancel needs NO staff token.
  *
- *   Tab 2 - Staff pickup / manage (ROLE-GATED write actions):
+ *   Tab 2 - Staff operations / manage (consolidated store operations board;
+ *           replaces the retired standalone Staff Dashboard page):
+ *     - operations KPIs            -> GET  /api/dashboard/staff (OPEN read)
+ *     - incoming picking requests  -> GET  /api/dashboard/staff (OPEN read)
+ *       accept / reject / prepare  -> POST /api/staff-task/:id/accept|reject|prepare (token, F10)
+ *     - create a demo picking req  -> POST /api/staff-task        (open, F10)
+ *     - fitting-room availability  -> GET  /api/dashboard/staff (OPEN read)
  *     - list current tickets       -> GET  /api/dashboard/staff (OPEN read)
  *     - confirm the place          -> POST /api/queue/:id/confirm  (token)
  *     - advance / notify / complete / exception -> POST /api/queue/:id/advance (token)
@@ -43,7 +49,6 @@
   const token = () => { const t = $('#token'); return t ? t.value.trim() : ''; };
 
   // Queue lifecycle targets staff can push a ticket toward (confirm is separate).
-  // Mirrors the staff dashboard's ADVANCE_TARGETS / EXCEPTION_TARGETS sets.
   const ADVANCE_TARGETS = ['Picking Items', 'Waiting for Room', 'Ready', 'In Fitting Room', 'Completed'];
   const EXCEPTION_TARGETS = ['UnavailableItems', 'DelayedPreparation', 'NoShow', 'ExpiredTicket'];
 
@@ -188,8 +193,26 @@
     $('#custRequestBtn').addEventListener('click', request);
   }
 
+  // Direct POST helper with the staff auth header, used for the role-gated
+  // staff-task actions (accept / reject / prepare) that have no api.js wrapper.
+  async function rawPost(path, body) {
+    const res = await fetch((Api.base || '') + path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-auth-token': token() },
+      body: JSON.stringify(body || {}),
+    });
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : {};
+    if (!res.ok) { const err = new Error(data.detail || data.error || `HTTP ${res.status}`); err.status = res.status; throw err; }
+    return data;
+  }
+
   // =====================================================================
-  // Tab 2: Staff pickup / manage.
+  // Tab 2: Staff operations / manage.
+  //   Consolidates the retired standalone Staff Dashboard: operations KPIs,
+  //   the incoming picking-requests board (accept/reject/prepare, F10), a
+  //   demo "create a picking request" form, fitting-room availability, plus
+  //   the F11 queue list + lifecycle management.
   // =====================================================================
   function wireStaff() {
     const setStatus = (m, err) => {
@@ -199,12 +222,119 @@
     };
 
     async function loadBoard() {
-      setStatus('Loading queue board...');
+      setStatus('Loading staff operations board...');
       try {
         const data = await Api.staffDashboard();
+        renderStaffKpis(data);
+        renderPicking(data.incomingPickingRequests || []);
+        renderFittingRooms(data.fittingRoomAvailability || []);
         renderBoard(data.queueTickets || []);
         setStatus('');
       } catch (e) { setStatus(`Failed to load board: ${e.message}`, true); }
+    }
+
+    // ---- Operations KPIs (deterministic counts). ----
+    function renderStaffKpis(data) {
+      const root = $('#staffKpis');
+      if (!root) return;
+      root.innerHTML = '';
+      const summary = data.operationsSummary || {};
+      const tiles = [
+        { label: 'Open picking tasks', value: summary.openTasks },
+        { label: 'Ready for collection', value: summary.readyForCollection },
+        { label: 'Fitting rooms free', value: summary.fittingRoomsAvailable },
+        { label: 'Fitting rooms total', value: summary.fittingRoomsTotal },
+        { label: 'Queue tickets waiting', value: summary.queueWaiting },
+      ].filter((t) => t.value != null);
+      if (!tiles.length) return;
+      const grid = el('div', { class: 'kpi-grid' });
+      tiles.forEach((t) => grid.appendChild(el('div', { class: 'kpi-tile' }, [
+        el('div', { class: 'kpi-value' }, String(t.value)),
+        el('div', { class: 'kpi-label' }, t.label),
+      ])));
+      root.appendChild(el('div', { class: 'panel' }, [el('h3', null, 'Operations at a glance'), grid]));
+    }
+
+    // ---- Incoming picking requests board (F10). ----
+    function renderPicking(tasks) {
+      const root = $('#picking');
+      if (!root) return;
+      root.innerHTML = '';
+      const panel = el('div', { class: 'panel' }, [el('h3', null, `Incoming picking requests (${tasks.length})`)]);
+      if (!tasks.length) panel.appendChild(el('p', { class: 'muted' }, 'No picking requests yet. Create a demo request above.'));
+      tasks.forEach((t) => panel.appendChild(renderTaskCard(t)));
+      root.appendChild(panel);
+    }
+
+    function renderTaskCard(t) {
+      const card = el('div', { class: 'alt-card' });
+      card.appendChild(el('p', null, [el('strong', null, `Task ${t.id}`), document.createTextNode(` \u00b7 ${t.status}`)]));
+      if (t.assignedTo) card.appendChild(el('p', { class: 'muted' }, `Assigned: ${t.assignedTo}`));
+      const list = el('ul', { class: 'item-list' }, (t.garments || []).map((g) => {
+        const loc = g.location && g.location.rack
+          ? `${g.location.zone || ''} ${g.location.aisle || ''} ${g.location.rack || ''}`.trim()
+          : 'staff assistance';
+        return el('li', null, [
+          el('span', null, `${g.sku} \u00b7 size ${g.size || '-'} \u00b7 ${g.colour || '-'}`),
+          el('span', { class: 'meta' }, loc),
+        ]);
+      }));
+      card.appendChild(list);
+
+      const actions = el('div', { class: 'actions' });
+      const result = el('p', { class: 'muted' });
+      const act = async (fn) => {
+        try { const r = await fn(); result.textContent = `Status: ${r.status} \u00b7 ${r.customerStatus || ''}`; await loadBoard(); }
+        catch (e) { result.textContent = `Action failed: ${e.message}`; }
+      };
+      if (t.status === 'Submitted') {
+        actions.appendChild(el('button', { class: 'btn small', type: 'button', onclick: () => act(() => taskAction(t.id, 'accept')) }, 'Accept / assign'));
+        actions.appendChild(el('button', { class: 'btn small ghost', type: 'button', onclick: () => act(() => taskAction(t.id, 'reject')) }, 'Reject'));
+      }
+      if (t.status === 'Accepted' || t.status === 'Preparing') {
+        actions.appendChild(el('button', { class: 'btn small', type: 'button', onclick: () => act(() => taskAction(t.id, 'prepare')) },
+          t.status === 'Accepted' ? 'Start preparing' : 'Mark ready for collection'));
+      }
+      card.appendChild(actions);
+      card.appendChild(result);
+      return card;
+    }
+
+    function taskAction(id, action) {
+      return rawPost(`/api/staff-task/${encodeURIComponent(id)}/${action}`, {});
+    }
+
+    // ---- Fitting-room availability. ----
+    function renderFittingRooms(rooms) {
+      const root = $('#fittingRooms');
+      if (!root) return;
+      root.innerHTML = '';
+      const panel = el('div', { class: 'panel' }, [
+        el('h3', null, 'Fitting-room availability'),
+        el('table', { class: 'data' }, [
+          el('tr', null, [el('th', null, 'Room'), el('th', null, 'Zone'), el('th', null, 'Level'), el('th', null, 'Capacity'), el('th', null, 'Status')]),
+        ].concat(rooms.map((r) => el('tr', null, [
+          el('td', null, r.id),
+          el('td', null, String(r.zone || '-')),
+          el('td', null, String(r.level || '-')),
+          el('td', null, String(r.capacity || 1)),
+          el('td', null, [el('span', { class: `pill ${r.status === 'Available' ? 'ok' : 'busy'}` }, String(r.status || '-'))]),
+        ])))),
+      ]);
+      root.appendChild(panel);
+    }
+
+    // ---- Demo picking request (F10, open create). ----
+    async function createDemoTask() {
+      setStatus('Creating demo picking request...');
+      try {
+        await Api.staffTask({
+          userId: 'demo-shopper-001',
+          garments: [{ sku: $('#demoSku').value.trim(), size: $('#demoSize').value.trim(), colour: $('#demoColour').value.trim() }],
+        });
+        setStatus('');
+        await loadBoard();
+      } catch (e) { setStatus(`Could not create task: ${e.message}`, true); }
     }
 
     function renderBoard(tickets) {
@@ -243,6 +373,7 @@
     }
 
     $('#staffRefreshBtn').addEventListener('click', loadBoard);
+    $('#createTaskBtn').addEventListener('click', createDemoTask);
     $('#staffLookupBtn').addEventListener('click', lookup);
     $('#staffTicketId').addEventListener('keydown', (e) => { if (e.key === 'Enter') lookup(); });
     loadBoard();

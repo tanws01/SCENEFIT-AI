@@ -646,6 +646,6 @@ footer.site { text-align: center; padding: 24px 0; color: var(--ink-soft); font-
   .role-grid { grid-template-columns: repeat(2, 1fr); max-width: 760px; }
 }
 @media (min-width: 920px) {
-  .role-grid { grid-template-columns: repeat(4, 1fr); max-width: 1040px; }
+  .role-grid { grid-template-columns: repeat(3, 1fr); max-width: 900px; }
   .outfits { grid-template-columns: repeat(3, 1fr); }
 }
