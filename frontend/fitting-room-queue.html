@@ -69,16 +69,11 @@
 
     <!-- Tab 2: Staff pickup / manage (ROLE-GATED write actions). -->
     <section id="panel-staff" role="tabpanel" aria-labelledby="tab-staff" tabindex="0" hidden>
-      <section class="panel">
-        <h3>Staff operations &amp; queue management</h3>
-        <p class="muted">Viewing the board (operations KPIs, picking requests, fitting-room availability and queue tickets) is open. The write actions below (accept / reject / prepare / confirm / advance / notify ready / record completion / record exception / cancel) are role-gated and send the staff token.</p>
-        <button class="btn ghost small" id="staffRefreshBtn" type="button">Refresh board</button>
-        <p id="staffStatus" class="muted"></p>
-        <div class="composer">
-          <input type="text" id="token" value="demo-associate" placeholder="staff action token (e.g. demo-associate or ops:u1)" />
-        </div>
-        <p class="hint">The staff token is used only for the write actions, not to view the board.</p>
-      </section>
+      <!-- Staff action token: kept (hidden) so the role-gated write actions
+           (accept / reject / prepare / confirm / advance) still authenticate.
+           The explanatory intro panel + visible token field were removed. -->
+      <input type="hidden" id="token" value="demo-associate" />
+      <p id="staffStatus" class="muted"></p>
 
       <section id="staffKpis"></section>
 

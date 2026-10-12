@@ -372,7 +372,9 @@
       } catch (e) { out.innerHTML = `<p class="error-box">${e.message}</p>`; }
     }
 
-    $('#staffRefreshBtn').addEventListener('click', loadBoard);
+    // Refresh button was removed from the UI; guard in case it is absent.
+    const refreshBtn = $('#staffRefreshBtn');
+    if (refreshBtn) refreshBtn.addEventListener('click', loadBoard);
     $('#createTaskBtn').addEventListener('click', createDemoTask);
     $('#staffLookupBtn').addEventListener('click', lookup);
     $('#staffTicketId').addEventListener('keydown', (e) => { if (e.key === 'Enter') lookup(); });
