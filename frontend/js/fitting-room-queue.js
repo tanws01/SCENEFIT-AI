@@ -221,7 +221,13 @@
       s.className = err ? 'error-box' : 'muted';
     };
 
+    // Guard against overlapping loads: a slow refresh must not stack on top of
+    // the poll tick or a manual Refresh click.
+    let loading = false;
+
     async function loadBoard() {
+      if (loading) return;
+      loading = true;
       setStatus('Loading staff operations board...');
       try {
         const data = await Api.staffDashboard();
@@ -231,6 +237,7 @@
         renderBoard(data.queueTickets || []);
         setStatus('');
       } catch (e) { setStatus(`Failed to load board: ${e.message}`, true); }
+      finally { loading = false; }
     }
 
     // ---- Operations KPIs (deterministic counts). ----
@@ -365,6 +372,16 @@
     $('#staffLookupBtn').addEventListener('click', lookup);
     $('#staffTicketId').addEventListener('keydown', (e) => { if (e.key === 'Enter') lookup(); });
     loadBoard();
+
+    // Unobtrusive auto-refresh so newly created customer picking requests show
+    // up as cards without a manual refresh. Vanilla, zero-dependency. The
+    // in-flight guard above means a slow load is never stacked, and we only
+    // poll while the Staff tab is actually visible to avoid needless work.
+    setInterval(() => {
+      const panel = $('#panel-staff');
+      if (panel && panel.hasAttribute('hidden')) return;
+      loadBoard();
+    }, 5000);
   }
 
   wireTabs();

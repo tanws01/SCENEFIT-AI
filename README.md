@@ -62,11 +62,34 @@ one of three roles:
   their own F11 ticket, or request a place. The **Staff view** is the store
   associates' operations board: it consolidates the (now retired) standalone
   Staff Dashboard, surfacing the incoming picking-requests board (accept /
-  reject / prepare, F10), a demo "create a picking request" form, fitting-room
-  availability, operations KPIs, and the full F11 queue lifecycle (confirm /
-  advance / notify ready / record completion / exception). The staff write
-  actions are role-gated and send the staff token; the Customer tab stays
-  token-free.
+  reject / prepare, F10), fitting-room availability, operations KPIs, and the
+  full F11 queue lifecycle (confirm / advance / notify ready / record
+  completion / exception). Picking requests are not created by staff: they
+  arrive automatically when a customer taps **"Try this physically"** on a look
+  (see the end-to-end flow below). The board auto-refreshes every few seconds
+  so new requests appear without a manual refresh. The staff write actions are
+  role-gated and send the staff token; the Customer tab stays token-free.
+
+### "Try this physically" end-to-end flow
+
+The customer never fills in a form to raise a picking request, and staff never
+hand-create one. The flow is fully automatic:
+
+1. On the results screen a shopper picks a look and taps **"Try this
+   physically"**. The customer app calls `POST /api/staff-task` with the look's
+   garments (SKU / size / colour) and the shopper id.
+2. The backend creates a picking request (`Submitted`), resolving each
+   garment's name, availability, and rack location from the deterministic
+   catalogue and store-navigation services (never invented by AI).
+3. The request appears on the Fitting Room Queue **Staff tab**'s incoming
+   picking-requests board, read from the open `GET /api/dashboard/staff`. The
+   board polls on a short interval, so the card shows up on its own.
+4. Staff drive it through the F10 lifecycle: **Accept / assign**, **Start
+   preparing**, then **Mark ready for collection**
+   (`POST /api/staff-task/:id/accept|reject|prepare`, role-gated). Reaching
+   **ReadyForCollection** auto-enqueues (or advances) a linked fitting-room
+   queue ticket to `Ready` via the legal F11 state machine, so the ready task
+   also surfaces as a queue ticket whose `sourceTaskId` backlinks to it.
 
 The top navigation on every page shows exactly these three entries: **Shop**
 (or **Home** on the customer app), **Retailer Dashboard**, and **Fitting Room

@@ -164,11 +164,24 @@ no token so the shopper stays in control). The **Staff view** is the store
 associates' operations board; it consolidates the former standalone Staff
 Dashboard (now retired) and reads the open `GET /api/dashboard/staff` board to
 render operations KPIs, the incoming picking-requests board (with role-gated
-`accept` / `reject` / `prepare`, `POST /api/staff-task/:id/...`, F10), a demo
-`POST /api/staff-task` create form, fitting-room availability, and the queue
-tickets, then drives the role-gated `confirm` / `advance` F11 lifecycle with
-the staff token. The page adds no backend endpoints and does not replicate the
-state machine - illegal transitions simply surface the backend error message.
+`accept` / `reject` / `prepare`, `POST /api/staff-task/:id/...`, F10),
+fitting-room availability, and the queue tickets, then drives the role-gated
+`confirm` / `advance` F11 lifecycle with the staff token. The board
+auto-refreshes on a short client-side poll so new picking requests appear
+without a manual refresh. The page adds no backend endpoints and does not
+replicate the state machine - illegal transitions simply surface the backend
+error message.
+
+Picking requests on that board are created automatically by the customer, not
+hand-entered by staff. When a shopper taps **"Try this physically"** on a look,
+the customer app calls `POST /api/staff-task` with the look's garments, which
+creates a `Submitted` picking request (garment name / availability / rack
+location resolved by the deterministic catalogue + store-navigation services).
+It then surfaces on the Staff tab's picking board, where staff **Accept** /
+**Start preparing** / **Mark ready for collection**; reaching
+`ReadyForCollection` auto-enqueues or advances a linked fitting-room queue
+ticket to `Ready` via the legal F11 path, with the ticket's `sourceTaskId`
+backlinking to the task.
 
 Dashboard data comes from a large, deterministic, offline analytics seed
 (`backend/data/analyticsEvents.json`, reproducible via
