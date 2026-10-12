@@ -16,7 +16,7 @@
  *     - operations KPIs            -> GET  /api/dashboard/staff (OPEN read)
  *     - incoming picking requests  -> GET  /api/dashboard/staff (OPEN read)
  *       accept / reject / prepare  -> POST /api/staff-task/:id/accept|reject|prepare (token, F10)
- *     - create a demo picking req  -> POST /api/staff-task        (open, F10)
+ *       (requests arrive when a customer taps "Try this physically" on a look)
  *     - fitting-room availability  -> GET  /api/dashboard/staff (OPEN read)
  *     - list current tickets       -> GET  /api/dashboard/staff (OPEN read)
  *     - confirm the place          -> POST /api/queue/:id/confirm  (token)
@@ -210,9 +210,9 @@
   // =====================================================================
   // Tab 2: Staff operations / manage.
   //   Consolidates the retired standalone Staff Dashboard: operations KPIs,
-  //   the incoming picking-requests board (accept/reject/prepare, F10), a
-  //   demo "create a picking request" form, fitting-room availability, plus
-  //   the F11 queue list + lifecycle management.
+  //   the incoming picking-requests board (accept/reject/prepare, F10) fed by
+  //   real customer "Try this physically" requests, fitting-room availability,
+  //   plus the F11 queue list + lifecycle management.
   // =====================================================================
   function wireStaff() {
     const setStatus = (m, err) => {
@@ -221,7 +221,13 @@
       s.className = err ? 'error-box' : 'muted';
     };
 
+    // Guard against overlapping loads: a slow refresh must not stack on top of
+    // the poll tick or a manual Refresh click.
+    let loading = false;
+
     async function loadBoard() {
+      if (loading) return;
+      loading = true;
       setStatus('Loading staff operations board...');
       try {
         const data = await Api.staffDashboard();
@@ -231,6 +237,7 @@
         renderBoard(data.queueTickets || []);
         setStatus('');
       } catch (e) { setStatus(`Failed to load board: ${e.message}`, true); }
+      finally { loading = false; }
     }
 
     // ---- Operations KPIs (deterministic counts). ----
@@ -261,7 +268,7 @@
       if (!root) return;
       root.innerHTML = '';
       const panel = el('div', { class: 'panel' }, [el('h3', null, `Incoming picking requests (${tasks.length})`)]);
-      if (!tasks.length) panel.appendChild(el('p', { class: 'muted' }, 'No picking requests yet. Create a demo request above.'));
+      if (!tasks.length) panel.appendChild(el('p', { class: 'muted' }, 'No picking requests yet. They appear here when a customer taps "Try this physically" on a look.'));
       tasks.forEach((t) => panel.appendChild(renderTaskCard(t)));
       root.appendChild(panel);
     }
@@ -324,19 +331,6 @@
       root.appendChild(panel);
     }
 
-    // ---- Demo picking request (F10, open create). ----
-    async function createDemoTask() {
-      setStatus('Creating demo picking request...');
-      try {
-        await Api.staffTask({
-          userId: 'demo-shopper-001',
-          garments: [{ sku: $('#demoSku').value.trim(), size: $('#demoSize').value.trim(), colour: $('#demoColour').value.trim() }],
-        });
-        setStatus('');
-        await loadBoard();
-      } catch (e) { setStatus(`Could not create task: ${e.message}`, true); }
-    }
-
     function renderBoard(tickets) {
       const root = $('#staffQueueBoard');
       root.innerHTML = '';
@@ -375,10 +369,19 @@
     // Refresh button was removed from the UI; guard in case it is absent.
     const refreshBtn = $('#staffRefreshBtn');
     if (refreshBtn) refreshBtn.addEventListener('click', loadBoard);
-    $('#createTaskBtn').addEventListener('click', createDemoTask);
     $('#staffLookupBtn').addEventListener('click', lookup);
     $('#staffTicketId').addEventListener('keydown', (e) => { if (e.key === 'Enter') lookup(); });
     loadBoard();
+
+    // Unobtrusive auto-refresh so newly created customer picking requests show
+    // up as cards without a manual refresh. Vanilla, zero-dependency. The
+    // in-flight guard above means a slow load is never stacked, and we only
+    // poll while the Staff tab is actually visible to avoid needless work.
+    setInterval(() => {
+      const panel = $('#panel-staff');
+      if (panel && panel.hasAttribute('hidden')) return;
+      loadBoard();
+    }, 5000);
   }
 
   wireTabs();

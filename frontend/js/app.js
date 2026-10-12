@@ -702,6 +702,7 @@
       actionBtn('Save', () => saveOutfit(o)),
       actionBtn('Size guide', () => openSizeGuidance(o)),
       actionBtn('Find in store', () => openStoreLocation(o)),
+      actionBtn('Try this physically', () => tryThisPhysically(o), 'secondary'),
       actionBtn('Request fitting room', () => requestQueue(o)),
       actionBtn('Add to cart & shop', () => addOutfitToCart(o), 'secondary'),
     ]);
@@ -896,8 +897,10 @@
     }
   }
 
-  // F10 staff assist
-  async function requestStaffAssist(o) {
+  // F10 "Try this physically" - creates a real picking request (POST /api/staff-task)
+  // that lands on the staff Fitting Room Queue board, where an associate accepts it
+  // and prepares the items for a fitting room.
+  async function tryThisPhysically(o) {
     try {
       setStatus('Sending picking request to store staff...');
       const res = await Api.staffTask({
@@ -906,8 +909,9 @@
       });
       state.staffTaskId = res.id;
       setStatus('');
-      toolPanel('Staff assistance requested (F10)', [
-        el('p', null, res.customerStatus || 'Your request has been sent to a store associate.'),
+      toolPanel(`Try this physically \u00b7 ${o.name || 'this look'}`, [
+        el('p', null, res.customerStatus || 'Your request has been sent to a store associate who will prepare these items for a fitting room.'),
+        el('p', { class: 'muted' }, 'A store associate will pick these pieces and ready a fitting room for you - watch for your request on the staff board.'),
         el('p', { class: 'muted' }, `Task ${res.id} \u00b7 status: ${res.status}`),
         el('ul', { class: 'item-list' }, (res.garments || []).map((g) =>
           el('li', null, [el('span', null, `${g.name || g.sku} \u00b7 size ${g.size || '-'} \u00b7 ${g.colour || '-'}`),
@@ -917,6 +921,9 @@
       setStatus(`Staff request failed: ${e.message}`, true);
     }
   }
+
+  // Store-location affordance keeps calling the same picking-request handler.
+  const requestStaffAssist = tryThisPhysically;
 
   // F11 fitting-room queue
   async function requestQueue(o) {
