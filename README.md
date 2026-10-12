@@ -53,11 +53,15 @@ no-build, client-side hash router** - a single `index.html` shell whose screens
 are selected by `location.hash`. There is no framework, bundler, or build step.
 
 **Page 1 - role chooser** (`#/`): the entry screen asks the visitor to choose
-one of three roles:
+one of four roles:
 
 - **Shop** - the customer shopping flow (stays in `index.html`).
 - **Retailer Dashboard** - links to `retailer-dashboard.html`.
 - **Staff** - links to `staff-dashboard.html`.
+- **Fitting Room Queue** - links to `fitting-room-queue.html`, a dedicated page
+  with two tabs onto the F11 queue: a **Customer view** (open - track or cancel
+  your own ticket, or request a place) and a **Staff pickup / manage** view
+  (role-gated confirm / advance / exception actions that send the staff token).
 
 **Shop flow** (one stage per screen):
 
@@ -186,12 +190,14 @@ env -u NODE_OPTIONS node backend/src/server.js
 #   http://localhost:8080/                       customer app (Page-1 role chooser -> Shop flow)
 #   http://localhost:8080/retailer-dashboard.html
 #   http://localhost:8080/staff-dashboard.html
+#   http://localhost:8080/fitting-room-queue.html  dedicated queue page (Customer + Staff tabs)
 #   http://localhost:8080/healthz                health check (JSON)
 #   http://localhost:8080/assets/scenes/beach.svg  example inline-SVG scene background
 ```
 
 From `/`, pick **Shop** and walk the hash-routed flow (intent -> prompt ->
-photo -> results); the three dashboards are reached from the same role chooser.
+photo -> results); the retailer / staff dashboards and the dedicated
+Fitting Room Queue page are reached from the same role chooser.
 
 The backend serves the vanilla HTML/CSS/JS frontend statically (so a single
 `node backend/src/server.js` runs the entire offline demo) while the frontend
@@ -482,6 +488,7 @@ frontend/                # vanilla HTML/CSS/JS web app (zero build step, offline
   index.html             # multi-screen customer app shell (Page-1 role chooser + Shop flow)
   retailer-dashboard.html# retailer intelligence + merchandising insights
   staff-dashboard.html   # staff operations (picking, fitting rooms, queue)
+  fitting-room-queue.html# dedicated F11 queue page (Customer + Staff tabs)
   css/styles.css         # mobile-first responsive styles (no external libs)
   js/                    # api.js (fetch wrapper), app.js (hash router), dashboard scripts
 shared/contracts/        # JSON/JSDoc shapes shared by frontend & backend

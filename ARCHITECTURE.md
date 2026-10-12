@@ -154,6 +154,17 @@ the Firebase Auth adapter: staff-task `accept` / `reject` / `prepare` and
 fitting-room queue `confirm` / `advance` (associate / ops / admin). The
 auth system and its `requireRole` gate remain intact for those write routes.
 
+A dedicated **Fitting Room Queue page** (`frontend/fitting-room-queue.html` +
+`frontend/js/fitting-room-queue.js`), reachable from the Page-1 role chooser,
+surfaces the F11 queue through two client-side tabs over the same API: a
+**Customer view** using only the open actions (`POST /api/queue`,
+`GET /api/queue/:id`, `POST /api/queue/:id/cancel` - cancel needs no token so
+the shopper stays in control) and a **Staff pickup / manage** view that lists
+tickets from the open `GET /api/dashboard/staff` board and drives the
+role-gated `confirm` / `advance` lifecycle with the staff token. The page adds
+no backend endpoints and does not replicate the state machine - illegal
+transitions simply surface the backend error message.
+
 Dashboard data comes from a large, deterministic, offline analytics seed
 (`backend/data/analyticsEvents.json`, reproducible via
 `backend/data/generate-analytics.js`). The BigQuery mock answers named

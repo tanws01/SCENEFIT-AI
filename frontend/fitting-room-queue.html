@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SCENEFIT AI - Fitting Room Queue</title>
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <div class="brand">
+        <div class="logo">SF</div>
+        <div>
+          <h1>SCENEFIT AI</h1>
+          <p class="tagline">Fitting Room Queue</p>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a href="/">Shop</a>
+        <a href="/retailer-dashboard.html">Retailer Dashboard</a>
+        <a href="/staff-dashboard.html">Staff Dashboard</a>
+        <a href="/fitting-room-queue.html">Fitting Room Queue</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="app">
+    <section class="panel intro">
+      <h3>Fitting Room Queue</h3>
+      <p class="muted">Two views of the F11 fitting-room queue. The Customer view is open and lets a shopper track or cancel their own ticket. The Staff view is for store associates to confirm, advance and manage tickets - those write actions are role-gated and send a staff token.</p>
+    </section>
+
+    <!-- Tab switcher: two tabs, Customer (default) and Staff. -->
+    <div class="tabs" role="tablist" aria-label="Fitting room queue views">
+      <button class="tab" id="tab-customer" role="tab" type="button"
+              aria-selected="true" aria-controls="panel-customer" tabindex="0">
+        Customer view
+      </button>
+      <button class="tab" id="tab-staff" role="tab" type="button"
+              aria-selected="false" aria-controls="panel-staff" tabindex="-1">
+        Staff pickup / manage
+      </button>
+    </div>
+
+    <!-- Tab 1: Customer view (OPEN, no token). -->
+    <section id="panel-customer" role="tabpanel" aria-labelledby="tab-customer" tabindex="0">
+      <section class="panel">
+        <h3>Track your fitting-room ticket</h3>
+        <p class="muted">Enter the ticket id you were given (tkt-...) to see its live status, assigned fitting room and items. You can cancel your own ticket at any time - no staff sign-in needed.</p>
+        <div class="composer">
+          <input type="text" id="custTicketId" placeholder="your ticket id (tkt-...)" />
+          <button class="btn small" id="custLookupBtn" type="button">Track ticket</button>
+        </div>
+        <div id="custTicket"></div>
+      </section>
+
+      <section class="panel">
+        <h3>Request a fitting-room place</h3>
+        <p class="muted">Simulate requesting a place in the queue so this demo is self-contained. Enter the SKUs you want to try on (comma-separated), then request a ticket.</p>
+        <div class="composer">
+          <input type="text" id="custItems" value="TOP-OXF-004, BOT-CHN-002" placeholder="SKUs e.g. TOP-OXF-004, BOT-CHN-002" />
+          <button class="btn small secondary" id="custRequestBtn" type="button">Request a place</button>
+        </div>
+        <p class="hint">This uses the open POST /api/queue endpoint. No token required.</p>
+        <div id="custRequestResult"></div>
+      </section>
+    </section>
+
+    <!-- Tab 2: Staff pickup / manage (ROLE-GATED write actions). -->
+    <section id="panel-staff" role="tabpanel" aria-labelledby="tab-staff" tabindex="0" hidden>
+      <section class="panel">
+        <h3>Staff pickup &amp; queue management</h3>
+        <p class="muted">Listing the queue board is open. The lifecycle actions below (confirm / advance / notify ready / record completion / record exception / cancel) are role-gated and send the staff token.</p>
+        <button class="btn ghost small" id="staffRefreshBtn" type="button">Refresh queue board</button>
+        <p id="staffStatus" class="muted"></p>
+        <div class="composer">
+          <input type="text" id="token" value="demo-associate" placeholder="staff action token (e.g. demo-associate or ops:u1)" />
+        </div>
+        <p class="hint">The staff token is used only for the write actions below, not to view the board.</p>
+      </section>
+
+      <section id="staffQueueBoard"></section>
+
+      <section class="panel">
+        <h3>Manage a fitting-room queue ticket (F11 lifecycle)</h3>
+        <p class="muted">Enter a ticket id, then confirm the place and advance it through the lifecycle, notify readiness, record completion, or record an exception.</p>
+        <div class="composer">
+          <input type="text" id="staffTicketId" placeholder="queue ticket id (tkt-...)" />
+          <button class="btn small" id="staffLookupBtn" type="button">Look up</button>
+        </div>
+        <div id="staffTicket"></div>
+      </section>
+    </section>
+  </main>
+
+  <footer class="site">
+    <p class="google-note">Fitting-room queue lifecycle managed via the F11 state machine. Customer actions are open; staff confirm / advance actions are role-gated. Runs fully offline with deterministic mocks.</p>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/fitting-room-queue.js"></script>
+</body>
+</html>
