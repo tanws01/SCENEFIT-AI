@@ -210,9 +210,9 @@
   // =====================================================================
   // Tab 2: Staff operations / manage.
   //   Consolidates the retired standalone Staff Dashboard: operations KPIs,
-  //   the incoming picking-requests board (accept/reject/prepare, F10), a
-  //   demo "create a picking request" form, fitting-room availability, plus
-  //   the F11 queue list + lifecycle management.
+  //   the incoming picking-requests board (accept/reject/prepare, F10) fed by
+  //   real customer "Try this physically" requests, fitting-room availability,
+  //   plus the F11 queue list + lifecycle management.
   // =====================================================================
   function wireStaff() {
     const setStatus = (m, err) => {
