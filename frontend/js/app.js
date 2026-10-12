@@ -4,7 +4,7 @@
  * SCENEFIT AI - customer shopping assistant (F01-F12), redesigned as a small
  * hash-based client-side router. ONE stage per screen:
  *
- *   #/              -> Page 1 role chooser (Shop / Retailer Dashboard / Fitting Room Queue)
+ *   #/              -> Page 1 role chooser (Shop / Retailer Intelligence / Fitting Room Queue)
  *   #/shop          -> intent choice (Style My Moment vs Explore What's New)
  *   #/shop/intent   -> alias of #/shop
  *   #/shop/prompt   -> voice-or-text prompt (calls startSession + sendMessage)
@@ -206,7 +206,7 @@
       ]),
       el('a', { class: 'role-card', href: '/retailer-dashboard.html' }, [
         el('div', { class: 'role-icon' }, '\uD83D\uDCCA'),
-        el('h3', null, 'Retailer Dashboard'),
+        el('h3', null, 'Retailer Intelligence'),
         el('p', null, 'Merchandising intelligence, demand signals, and planogram insights for the retailer.'),
         el('span', { class: 'pill' }, 'Retailer'),
       ]),
