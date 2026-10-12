@@ -216,6 +216,12 @@
         el('p', null, 'Picking tasks, fitting-room queue, and live assist requests for store associates.'),
         el('span', { class: 'pill' }, 'Store team'),
       ]),
+      el('a', { class: 'role-card', href: '/fitting-room-queue.html' }, [
+        el('div', { class: 'role-icon' }, '\uD83D\uDEAA'),
+        el('h3', null, 'Fitting Room Queue'),
+        el('p', null, 'Track or cancel your fitting-room ticket, or manage the queue as staff - two views, one page.'),
+        el('span', { class: 'pill' }, 'Customer & staff'),
+      ]),
     ]);
     root.appendChild(grid);
   }
