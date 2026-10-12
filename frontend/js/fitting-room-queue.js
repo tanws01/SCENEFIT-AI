@@ -16,7 +16,7 @@
  *     - operations KPIs            -> GET  /api/dashboard/staff (OPEN read)
  *     - incoming picking requests  -> GET  /api/dashboard/staff (OPEN read)
  *       accept / reject / prepare  -> POST /api/staff-task/:id/accept|reject|prepare (token, F10)
- *     - create a demo picking req  -> POST /api/staff-task        (open, F10)
+ *       (requests arrive when a customer taps "Try this physically" on a look)
  *     - fitting-room availability  -> GET  /api/dashboard/staff (OPEN read)
  *     - list current tickets       -> GET  /api/dashboard/staff (OPEN read)
  *     - confirm the place          -> POST /api/queue/:id/confirm  (token)
@@ -261,7 +261,7 @@
       if (!root) return;
       root.innerHTML = '';
       const panel = el('div', { class: 'panel' }, [el('h3', null, `Incoming picking requests (${tasks.length})`)]);
-      if (!tasks.length) panel.appendChild(el('p', { class: 'muted' }, 'No picking requests yet. Create a demo request above.'));
+      if (!tasks.length) panel.appendChild(el('p', { class: 'muted' }, 'No picking requests yet. They appear here when a customer taps "Try this physically" on a look.'));
       tasks.forEach((t) => panel.appendChild(renderTaskCard(t)));
       root.appendChild(panel);
     }
@@ -324,19 +324,6 @@
       root.appendChild(panel);
     }
 
-    // ---- Demo picking request (F10, open create). ----
-    async function createDemoTask() {
-      setStatus('Creating demo picking request...');
-      try {
-        await Api.staffTask({
-          userId: 'demo-shopper-001',
-          garments: [{ sku: $('#demoSku').value.trim(), size: $('#demoSize').value.trim(), colour: $('#demoColour').value.trim() }],
-        });
-        setStatus('');
-        await loadBoard();
-      } catch (e) { setStatus(`Could not create task: ${e.message}`, true); }
-    }
-
     function renderBoard(tickets) {
       const root = $('#staffQueueBoard');
       root.innerHTML = '';
@@ -375,7 +362,6 @@
     // Refresh button was removed from the UI; guard in case it is absent.
     const refreshBtn = $('#staffRefreshBtn');
     if (refreshBtn) refreshBtn.addEventListener('click', loadBoard);
-    $('#createTaskBtn').addEventListener('click', createDemoTask);
     $('#staffLookupBtn').addEventListener('click', lookup);
     $('#staffTicketId').addEventListener('keydown', (e) => { if (e.key === 'Enter') lookup(); });
     loadBoard();
